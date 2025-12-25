@@ -3,66 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Script Park - Md. Mostasim Mahmud</title>
+    <title>Md. Mostasim Mahmud - Full-Stack Engineer</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        sage: '#8BA888',
-                        cream: '#F5EFD7',
-                        orange: '#E67E45',
-                        darkgreen: '#4A5D4A'
-                    },
-                    fontFamily: {
-                        'serif': ['Playfair Display', 'serif'],
-                        'sans': ['Inter', 'sans-serif']
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            color: #1a1a1a;
             overflow-x: hidden;
-            background-color: #8BA888;
         }
 
-        .bubble {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0.9;
-            z-index: 0;
-            transition: transform 0.5s ease-out;
+        /* Color Palette */
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --accent: #f97316;
+            --accent-light: #fed7aa;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --border: #e5e7eb;
+            --bg-light: #f9fafb;
+        }
+
+        /* Typography */
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
         }
 
         .hero-title {
-            font-family: 'Playfair Display', serif;
-            font-weight: 700;
-            letter-spacing: 0.05em;
+            font-size: 4rem;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .section-title {
-            font-family: 'Playfair Display', serif;
-            font-weight: 500;
+        /* Navigation */
+        nav {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
         }
 
         .nav-link {
             position: relative;
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: var(--text-primary);
+            transition: color 0.3s ease;
         }
 
         .nav-link::after {
             content: '';
             position: absolute;
             width: 0;
-            height: 1px;
-            bottom: -2px;
+            height: 2px;
+            bottom: -4px;
             left: 0;
-            background-color: white;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
             transition: width 0.3s ease;
         }
 
@@ -70,784 +82,610 @@
             width: 100%;
         }
 
-        .card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(249, 115, 22, 0.05) 100%);
+            position: relative;
+            overflow: hidden;
         }
 
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            top: -100px;
+            right: -100px;
+            animation: float 6s ease-in-out infinite;
         }
 
-        .circle-number {
-            font-family: 'Playfair Display', serif;
-            font-size: 5rem;
-            opacity: 0.5;
+        .hero::after {
+            content: '';
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(249, 115, 22, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            bottom: -50px;
+            left: -50px;
+            animation: float 8s ease-in-out infinite reverse;
         }
 
-        .footer {
-            background-color: rgba(0, 0, 0, 0.2);
-        }
-
-        .social-icon {
-            transition: transform 0.3s ease;
-        }
-
-        .social-icon:hover {
-            transform: scale(1.1);
-        }
-
-        /* Animation for bubbles */
         @keyframes float {
-            0% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
-            100% { transform: translateY(0) rotate(0deg); }
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .animate-float {
-            animation: float 8s infinite ease-in-out;
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
-        .fade-in {
-            opacity: 0;
-            animation: fadeIn 1s forwards;
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .slide-in-right {
+            animation: slideInRight 0.8s ease forwards;
         }
 
         .delay-100 { animation-delay: 0.1s; }
         .delay-200 { animation-delay: 0.2s; }
         .delay-300 { animation-delay: 0.3s; }
         .delay-400 { animation-delay: 0.4s; }
-        .delay-500 { animation-delay: 0.5s; }
+
+        /* Profile Image */
+        .profile-image {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 3px solid var(--primary);
+            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.2);
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .profile-image:hover {
+            transform: scale(1.05);
+        }
+
+        /* Project Cards */
+        .project-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+
+        .project-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        /* Color Grid */
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .color-grid div {
+            height: 40px;
+            border-radius: 4px;
+        }
+
+        /* Skills Section */
+        .skill-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: transform 0.3s ease;
+            margin: 4px;
+        }
+
+        .skill-badge:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 12px 32px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 10px 30px;
+            border-radius: 8px;
+            background: transparent;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Section Heading */
+        .section-heading {
+            font-size: 2.5rem;
+            margin-bottom: 48px;
+            color: var(--text-primary);
+            position: relative;
+            padding-bottom: 20px;
+        }
+
+        .section-heading::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 2px;
+        }
+
+        /* Social Icons */
+        .social-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--bg-light);
+            color: var(--primary);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .social-icon:hover {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--bg-light) 0%, white 100%);
+            border-top: 1px solid var(--border);
+        }
+
+        /* Scroll Progress */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            z-index: 100;
+            width: 0%;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .section-heading {
+                font-size: 2rem;
+            }
+        }
     </style>
 </head>
-<body class="text-white">
+<body>
+    <!-- Scroll Progress Bar -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
     <!-- Navigation -->
-    <nav class="fixed top-0 left-0 w-full z-50 px-8 py-6 flex justify-between items-center">
-        <div class="text-xl font-bold">Script Park</div>
-        <div class="flex space-x-8">
-            <a href="#" class="nav-link">ABOUT</a>
-            <a href="#" class="nav-link">SERVICES</a>
-            <a href="#" class="nav-link">WORK</a>
-            <a href="#" class="nav-link">CONTACT</a>
+    <nav class="py-4 px-6 md:px-12">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500">
+                Md. Mostasim Mahmud Tasim
+            </h1>
+            <div class="hidden md:flex gap-8">
+                <a href="#about" class="nav-link">About</a>
+                <a href="#experience" class="nav-link">Experience</a>
+                <a href="#projects" class="nav-link">Projects</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </div>
+            <button class="md:hidden text-2xl" id="menuBtn">☰</button>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="relative h-screen flex items-center justify-center overflow-hidden">
-        <div id="bubbles-container" class="absolute inset-0 z-0"></div>
-        <div class="text-center z-10 fade-in">
-            <img src="tasim.jpg" alt="Md. Mostasim Mahmud" class="w-32 h-32 rounded-full mx-auto mb-4">
-            <h1 class="hero-title text-8xl mb-4">Md Mostasim Mahmud</h1>
+    <section class="hero flex items-center justify-center px-6 py-20 md:py-0 relative z-10">
+        <div class="text-center max-w-4xl mx-auto">
+            <img src="https://api.placeholder.com/140/140?text=MM" alt="Md. Mostasim Mahmud" 
+                 class="profile-image mx-auto mb-6 fade-in-up">
+            
+            <h1 class="hero-title mb-4 fade-in-up delay-100">
+                Md. Mostasim Mahmud
+            </h1>
+            
+            <p class="text-xl text-gray-600 mb-8 fade-in-up delay-200 max-w-2xl mx-auto">
+                Full-Stack Developer | System Administrator | AI Khan Lab Ltd.
+            </p>
+            
+            <p class="text-gray-600 mb-10 fade-in-up delay-300 max-w-2xl mx-auto leading-relaxed">
+                Crafting elegant digital solutions for complex problems. Specializing in building scalable web applications, laboratory management systems, and enterprise software.
+            </p>
+            
+            <div class="flex flex-wrap gap-4 justify-center fade-in-up delay-400">
+                <button class="btn-primary">View My Work</button>
+                <button class="btn-secondary">Get In Touch</button>
+            </div>
         </div>
     </section>
 
-
-    <!-- Digital Ecosystem Section -->
-    <section id="about" class="relative py-24 px-8 md:px-16 z-10">
-        <div class="max-w-4xl mx-auto text-center fade-in delay-100">
-            <h2 class="section-title text-4xl mb-2">Software Engineer | Web Developer | System Administrator</h2>
-            <h3 class="section-title text-4xl mb-8">AI Khan Lab Ltd.</h3>
-            <h3 class="section-title text-4xl mb-8">December 2, 2023 - Present</h3>
-            <div class="w-24 h-0.5 bg-white mx-auto mb-4"></div>
-            <p class="text-sm tracking-widest uppercase">🧬 At AI Khan Lab Ltd, I developed and managed a Laboratory Management System tailored for histopathology and cancer testing.
-                🏥 The system handles patient registration, report generation, inventory tracking, and more, streamlining the lab's operations and improving efficiency.</p>
-        </div>
-    </section>
-
-  
-
-    <!-- Projects Grid -->
-    <section class="relative py-12 px-8 md:px-16 grid grid-cols-1 md:grid-cols-2 gap-8 z-10">
-        <!-- Project Card 1 -->
-        <div class="card bg-white text-black p-8 rounded-lg fade-in delay-300">
-            <div class="flex flex-col items-center">
-                <!-- Color Grid -->
-                <div class="grid grid-cols-2 gap-2 mb-4">
-                    <div class="bg-teal-500 h-16"></div>
-                    <div class="bg-yellow-200 h-16"></div>
-                    <div class="bg-purple-300 h-16"></div>
-                    <div class="bg-orange h-16"></div>
-                </div>
-        
-                <!-- Title -->
-                <h3 class="text-2xl font-medium mb-4">School Management System</h3>
-        
-                <!-- Short Description -->
-                <p class="text-sm text-gray-600 text-center" id="short-description-school">
-                    Developed a comprehensive School Management System that enables schools to efficiently manage their
-                    websites, administrative tasks, and academic processes. This system provides an integrated platform for
-                    handling student information, academic schedules, communication, and more.
-                </p>
-        
-                <!-- Full Description with Scroll -->
-                <div class="text-sm text-gray-600 text-left hidden mt-4 max-h-64 overflow-y-auto" id="full-description-school">
-                    <strong class="block mb-2 text-gray-800">Technologies Used:</strong>
-                    <ul class="list-disc list-inside mb-4">
-                        <li>Backend: Django (Python) for robust server-side processing and API management.</li>
-                        <li>Frontend: React and Next.js for dynamic and responsive user interfaces.</li>
-                        <li>Database: PostgreSQL for secure and reliable data storage.</li>
-                    </ul>
-        
-                    <strong class="block mb-2 text-gray-800">Key Features:</strong>
-                    <ul class="list-disc list-inside mb-4">
-                        <li>Student Information Management: Seamlessly manage student records, including personal details, academic performance, and attendance.</li>
-                        <li>Scheduling and Timetabling: Automate the creation of class schedules and examination timetables.</li>
-                        <li>Communication Tools: Integrated messaging system for efficient communication between teachers, students, and parents.</li>
-                        <li>Exam Management: Streamline the creation, scheduling, and grading of exams with automated tools.</li>
-                        <li>Attendance Management: Track and manage student attendance with real-time updates and reporting.</li>
-                        <li>Invoice Management: Generate and manage invoices for school fees, events, and other expenses.</li>
-                        <li>Fees Collection: Simplify the process of collecting and tracking school fees with integrated payment systems.</li>
-                        <li>Transportation Management: Manage school transportation, including bus routes, schedules, and student assignments.</li>
-                        <li>Website Management: Customizable school websites with content management capabilities.</li>
-                        <li>Reporting and Analytics: Generate detailed reports and analytics to monitor school performance and student progress.</li>
-                    </ul>
-                </div>
-        
-                <!-- View More Button -->
-                <button id="view-more-btn-school" class="mt-4 border border-orange text-orange px-6 py-2 text-sm hover:bg-orange hover:text-white transition-colors">
-                    VIEW MORE
-                </button>
-            </div>
-        </div>
-       
-        <!-- Project Card 2 -->
-        <div class="card bg-white text-black p-8 rounded-lg fade-in delay-300">
-            <div class="flex flex-col items-center">
-                <!-- Color Grid -->
-                <div class="grid grid-cols-2 gap-2 mb-4">
-                    <div class="bg-teal-500 h-16"></div>
-                    <div class="bg-yellow-200 h-16"></div>
-                    <div class="bg-purple-300 h-16"></div>
-                    <div class="bg-orange h-16"></div>
-                </div>
-        
-                <!-- Title -->
-                <h3 class="text-2xl font-medium mb-4">Laboratory Management System</h3>
-        
-                <!-- Short Description -->
-                <p class="text-sm text-gray-600 text-center" id="short-description">
-                    Customizing Dolibarr ERP for Medical Laboratories
-                    This project focuses on the customization of Dolibarr ERP, an open-source enterprise resource planning system, tailored for medical laboratory management. Dolibarr’s modular structure allows for seamless adaptation to meet the unique requirements of healthcare environments, particularly in managing lab workflows, patient records, and report generation.
-                    Key custom modules include:
-                </p>
-        
-                <!-- Full Description with Scroll -->
-                <div class="text-sm text-gray-600 text-left hidden mt-4 max-h-64 overflow-y-auto" id="full-description">
-                    <strong class="block mb-2 text-gray-800">Gross Module:</strong>
-                    <ul class="list-disc list-inside mb-4">
-                        <li>Automates the documentation of tissue sample examinations.</li>
-                        <li>Allows lab technicians to record size, shape, and other characteristics with image integration.</li>
-                        <li>Ensures data is accurately captured and linked to patient records.</li>
-                    </ul>
-                
-                    <strong class="block mb-2 text-gray-800">Transcription Module:</strong>
-                    <ul class="list-disc list-inside mb-4">
-                        <li>Integrates voice recognition to transcribe verbal findings from lab technicians and doctors.</li>
-                        <li>Minimizes errors and speeds up documentation.</li>
-                    </ul>
-                
-                    <strong class="block mb-2 text-gray-800">Doctor Module:</strong>
-                    <ul class="list-disc list-inside mb-4">
-                        <li>Provides doctors with streamlined access to lab results, patient records, and diagnostic tools.</li>
-                        <li>Enables efficient collaboration with lab personnel and allows requesting additional tests through the system.</li>
-                    </ul>
-                
-                    <strong class="block mb-2 text-gray-800">Automated Report Generation Module:</strong>
-                    <ul class="list-disc list-inside mb-4">
-                        <li>Compiles data from other modules (e.g., gross examinations, transcription) into cohesive reports.</li>
-                        <li>Uses predefined templates to reduce manual reporting efforts and ensure consistency.</li>
-                    </ul>
-                
-                    <strong class="block mb-2 text-gray-800">Histopath Lab Module:</strong>
-                    <ul class="list-disc list-inside mb-4">
-                        <li>Manages the examination of tissue samples under a microscope.</li>
-                        <li>Integrates with other modules to streamline the diagnostic process for diseases like cancer.</li>
-                        <li>Allows image attachments for more comprehensive reporting.</li>
-                    </ul>
-                
-                    <strong class="block mb-2 text-gray-800">Cytopath Lab Module:</strong>
-                    <ul class="list-disc list-inside mb-4">
-                        <li>Focuses on cell-level analysis for diagnosing diseases such as cancers and infections.</li>
-                        <li>Integrates with patient records and allows high-resolution image storage for accurate cell analysis.</li>
-                    </ul>
-                </div>
-        
-                <!-- View More Button -->
-                <button id="view-more-btn" class="mt-4 border border-orange text-orange px-6 py-2 text-sm hover:bg-orange hover:text-white transition-colors">
-                    VIEW MORE
-                </button>
-            </div>
-        </div>
-        
-        <!-- Project Card 3 -->
-        <div class="card bg-white text-black p-8 rounded-lg fade-in delay-300">
-            <div class="flex flex-col items-center">
-                <!-- Color Grid -->
-                <div class="grid grid-cols-2 gap-2 mb-4">
-                    <div class="bg-blue-500 h-16"></div>
-                    <div class="bg-green-200 h-16"></div>
-                    <div class="bg-pink-300 h-16"></div>
-                    <div class="bg-purple-500 h-16"></div>
-                </div>
-        
-                <!-- Title -->
-                <h3 class="text-2xl font-medium mb-4">Ecommerce Platform</h3>
-        
-                <!-- Short Description -->
-                <p class="text-sm text-gray-600 text-center" id="short-description-ecommerce">
-                    Developed a robust Ecommerce Platform with a personalized recommendation system to enhance user experience. This platform provides seamless product browsing, secure payments, and efficient order management.
-                </p>
-        
-                <!-- Full Description with Scroll -->
-                <div class="text-sm text-gray-600 text-left hidden mt-4 max-h-64 overflow-y-auto" id="full-description-ecommerce">
-                    <strong class="block mb-2 text-gray-800">Technologies Used:</strong>
-                    <ul class="list-disc list-inside mb-4">
-                        <li>Backend: Django REST API for scalable and secure server-side operations.</li>
-                        <li>Frontend: Next.js for dynamic and responsive user interfaces.</li>
-                        <li>Database: PostgreSQL for reliable and efficient data storage.</li>
-                        <li>Recommendation System: Collaborative filtering and machine learning algorithms for personalized product recommendations.</li>
-                    </ul>
-        
-                    <strong class="block mb-2 text-gray-800">Key Features:</strong>
-                    <ul class="list-disc list-inside mb-4">
-                        <li>Product Catalog: Browse and search products with filters and categories.</li>
-                        <li>User Authentication: Secure login and registration with JWT (JSON Web Tokens).</li>
-                        <li>Shopping Cart: Add, remove, and manage items in the cart.</li>
-                        <li>Payment Integration: Secure payment gateway integration for seamless transactions.</li>
-                        <li>Order Management: Track orders, view order history, and manage returns.</li>
-                        <li>Recommendation System: Personalized product recommendations based on user behavior and preferences.</li>
-                        <li>Admin Panel: Manage products, orders, and users with an intuitive admin interface.</li>
-                        <li>Responsive Design: Fully responsive UI for seamless browsing on all devices.</li>
-                    </ul>
-        
-                    <strong class="block mb-2 text-gray-800">Recommendation System:</strong>
-                    <ul class="list-disc list-inside mb-4">
-                        <li>Uses collaborative filtering to recommend products based on user behavior and purchase history.</li>
-                        <li>Implements machine learning algorithms to improve recommendation accuracy over time.</li>
-                        <li>Provides personalized product suggestions on the homepage, product pages, and checkout.</li>
-                    </ul>
-                </div>
-        
-                <!-- View More Button -->
-                <button id="view-more-btn-ecommerce" class="mt-4 border border-purple-500 text-purple-500 px-6 py-2 text-sm hover:bg-purple-500 hover:text-white transition-colors">
-                    VIEW MORE
-                </button>
-            </div>
-        </div>
-
-        <div class="card bg-white text-black p-8 rounded-lg fade-in delay-300">
-            <div class="flex flex-col items-center">
-                <!-- Color Grid -->
-                <div class="grid grid-cols-2 gap-2 mb-4">
-                    <div class="bg-indigo-500 h-16"></div>
-                    <div class="bg-teal-200 h-16"></div>
-                    <div class="bg-amber-300 h-16"></div>
-                    <div class="bg-rose-500 h-16"></div>
-                </div>
-        
-                <!-- Title -->
-                <h3 class="text-2xl font-medium mb-4">Digital Yearbook</h3>
-        
-                <!-- Short Description -->
-                <p class="text-sm text-gray-600 text-center" id="short-description-yearbook">
-                    Developed a Digital Yearbook platform for an Upwork client, enabling schools to create, manage, and share yearbooks digitally. This platform simplifies the process of collecting and organizing student memories, photos, and achievements.
-                </p>
-        
-                <!-- Full Description with Scroll -->
-                <div class="text-sm text-gray-600 text-left hidden mt-4 max-h-64 overflow-y-auto" id="full-description-yearbook">
-                    <strong class="block mb-2 text-gray-800">Technologies Used:</strong>
-                    <ul class="list-disc list-inside mb-4">
-                        <li>Backend: Django REST API for robust and scalable server-side operations.</li>
-                        <li>Frontend: Next.js for a dynamic and responsive user interface.</li>
-                        <li>Database: PostgreSQL for secure and efficient data storage.</li>
-                        <li>Admin Panel: Jasmin Admin Panel for easy management of yearbook content and users.</li>
-                    </ul>
-        
-                    <strong class="block mb-2 text-gray-800">Key Features:</strong>
-                    <ul class="list-disc list-inside mb-4">
-                        <li>Yearbook Creation: Schools can create and customize digital yearbooks with ease.</li>
-                        <li>Photo Uploads: Students and teachers can upload photos and memories to the yearbook.</li>
-                        <li>User Roles: Different roles for admins, teachers, and students with appropriate permissions.</li>
-                        <li>Search and Filters: Easily search and filter yearbook content by name, year, or event.</li>
-                        <li>Responsive Design: Fully responsive UI for seamless access on all devices.</li>
-                        <li>Export Options: Export yearbooks as PDFs or share them digitally via links.</li>
-                        <li>Admin Panel: Jasmin Admin Panel for managing users, content, and yearbook settings.</li>
-                    </ul>
-        
-                    <strong class="block mb-2 text-gray-800">Project Highlights:</strong>
-                    <ul class="list-disc list-inside mb-4">
-                        <li>Collaborated with an Upwork client to deliver a tailored solution for digital yearbooks.</li>
-                        <li>Implemented a user-friendly interface for schools to manage yearbooks effortlessly.</li>
-                        <li>Integrated Jasmin Admin Panel for efficient content and user management.</li>
-                        <li>Enabled seamless photo uploads and sharing for students and teachers.</li>
-                    </ul>
-                </div>
-        
-                <!-- View More Button -->
-                <button id="view-more-btn-yearbook" class="mt-4 border border-rose-500 text-rose-500 px-6 py-2 text-sm hover:bg-rose-500 hover:text-white transition-colors">
-                    VIEW MORE
-                </button>
-            </div>
-        </div>
-
-        <div class="card bg-white text-black p-8 rounded-lg fade-in delay-300">
-            <div class="flex flex-col items-center">
-                <!-- Color Grid -->
-                <div class="grid grid-cols-2 gap-2 mb-4">
-                    <div class="bg-gray-700 h-16"></div>
-                    <div class="bg-blue-500 h-16"></div>
-                    <div class="bg-green-400 h-16"></div>
-                    <div class="bg-yellow-400 h-16"></div>
-                </div>
-        
-                <!-- Title -->
-                <h3 class="text-2xl font-medium mb-4">Linux & Docker Skills</h3>
-        
-                <!-- Short Description -->
-                <p class="text-sm text-gray-600 text-center" id="short-description-linux">
-                    Intermediate Linux user with expertise in Ubuntu and Debian-based systems. Proficient in Docker, including advanced configurations like changing the Docker root directory. Passionate about system optimization and containerization.
-                </p>
-        
-                <!-- Full Description with Scroll -->
-                <div class="text-sm text-gray-600 text-left hidden mt-4 max-h-64 overflow-y-auto" id="full-description-linux">
-                    <strong class="block mb-2 text-gray-800">Linux Skills:</strong>
-                    <ul class="list-disc list-inside mb-4">
-                        <li>Proficient in Ubuntu and Debian-based Linux distributions.</li>
-                        <li>Experience with system administration, package management, and shell scripting.</li>
-                        <li>Familiar with Linux file systems, permissions, and networking.</li>
-                        <li>Skilled in troubleshooting and optimizing Linux systems.</li>
-                    </ul>
-        
-                    <strong class="block mb-2 text-gray-800">Docker Skills:</strong>
-                    <ul class="list-disc list-inside mb-4">
-                        <li>Proficient in Docker containerization and orchestration.</li>
-                        <li>Experience with Docker Compose for multi-container applications.</li>
-                        <li>Familiar with Docker networking, volumes, and image management.</li>
-                        <li>Advanced knowledge of Docker daemon configurations.</li>
-                    </ul>
-        
-                    <strong class="block mb-2 text-gray-800">Achievements:</strong>
-                    <ul class="list-disc list-inside mb-4">
-                        <li>Successfully changed the Docker root directory from <code>/var/lib/docker</code> to another location to optimize storage usage.</li>
-                        <li>Published a detailed guide on GitHub: <a href="https://github.com/tasim313/Changing-Docker-Root-Directory-from-var-lib-docker-to-Another-Location" target="_blank" class="text-blue-500 hover:underline">Changing Docker Root Directory</a>.</li>
-                    </ul>
-        
-                    <strong class="block mb-2 text-gray-800">Key Projects:</strong>
-                    <ul class="list-disc list-inside mb-4">
-                        <li>Optimized Docker configurations for better resource management.</li>
-                        <li>Automated deployment workflows using Docker and shell scripts.</li>
-                        <li>Migrated legacy applications to Docker containers for improved scalability.</li>
-                    </ul>
-                </div>
-        
-                <!-- View More Button -->
-                <button id="view-more-btn-linux" class="mt-4 border border-blue-500 text-blue-500 px-6 py-2 text-sm hover:bg-blue-500 hover:text-white transition-colors">
-                    VIEW MORE
-                </button>
-            </div>
-        </div>
-
-        <div class="card bg-white text-black p-8 rounded-lg fade-in delay-300">
-            <div class="flex flex-col items-center">
-                <!-- Color Grid -->
-                <div class="grid grid-cols-2 gap-2 mb-4">
-                    <div class="bg-red-500 h-16"></div>
-                    <div class="bg-blue-400 h-16"></div>
-                    <div class="bg-green-300 h-16"></div>
-                    <div class="bg-yellow-400 h-16"></div>
-                </div>
-        
-                <!-- Title -->
-                <h3 class="text-2xl font-medium mb-4">Professor Scraper</h3>
-        
-                <!-- Short Description -->
-                <p class="text-sm text-gray-600 text-center" id="short-description-professor-scraper">
-                    An open-source web scraping tool to collect data about professors from various online sources. Built with Django, Django Rest Framework (DRF), and PostgreSQL, this project provides a robust backend for managing scraped data.
-                </p>
-        
-                <!-- Full Description with Scroll -->
-                <div class="text-sm text-gray-600 text-left hidden mt-4 max-h-64 overflow-y-auto" id="full-description-professor-scraper">
-                    <strong class="block mb-2 text-gray-800">Project Goal:</strong>
-                    <p class="mb-4">
-                        The Professor Scraper project aims to provide an efficient web scraping tool that collects data about professors from various online sources. This data can be used for analysis, academic purposes, or to enhance educational resources.
+    <!-- About Section -->
+    <section id="about" class="py-20 px-6 md:px-12 bg-gray-50">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="section-heading">About Me</h2>
+            
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="fade-in-up">
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800">Software Engineer & Web Developer</h3>
+                    <p class="text-gray-600 mb-4 leading-relaxed">
+                        I'm a passionate full-stack engineer with expertise in building robust, scalable applications. Currently working at AI Khan Lab Ltd., where I develop comprehensive laboratory management systems for medical facilities.
                     </p>
-        
-                    <strong class="block mb-2 text-gray-800">Features:</strong>
-                    <ul class="list-disc list-inside mb-4">
-                        <li><strong>Web Scraping:</strong> Uses Beautiful Soup and Requests libraries to scrape information from designated websites.</li>
-                        <li><strong>API Development:</strong> Provides a RESTful API using Django Rest Framework for easy access to scraped data.</li>
-                        <li><strong>Data Storage:</strong> Supports PostgreSQL (recommended) or SQLite for database management, allowing for easy data persistence and retrieval.</li>
-                        <li><strong>CORS Handling:</strong> Includes configuration for Cross-Origin Resource Sharing (CORS) to enable frontend applications to communicate with the backend.</li>
-                        <li><strong>Environment Management:</strong> Utilizes django-environ for managing environment variables, making it easy to configure settings based on different environments (development, production).</li>
-                        <li><strong>Code Quality Tools:</strong> Integrated linting and formatting tools (Flake8 and Black) to maintain code quality and consistency.</li>
-                    </ul>
-        
-                    <strong class="block mb-2 text-gray-800">Technologies Used:</strong>
-                    <ul class="list-disc list-inside mb-4">
-                        <li>Backend: Django and Django Rest Framework (DRF).</li>
-                        <li>Database: PostgreSQL (recommended) or SQLite.</li>
-                        <li>Web Scraping: Beautiful Soup and Requests.</li>
-                        <li>Environment Management: django-environ.</li>
-                        <li>Code Quality: Flake8 and Black.</li>
-                    </ul>
-        
-                    <strong class="block mb-2 text-gray-800">GitHub Repository:</strong>
-                    <p class="mb-4">
-                        <a href="https://github.com/tasim313/professor_scraper.git" target="_blank" class="text-blue-500 hover:underline">Professor Scraper on GitHub</a>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        With a strong foundation in Django, React, Next.js, and PostgreSQL, I create end-to-end solutions that streamline operations and improve efficiency.
                     </p>
-        
-                    <strong class="block mb-2 text-gray-800">Open Source Contribution:</strong>
-                    <p class="mb-4">
-                        This project is open-source, and contributions from other developers are welcome! Join the project to help improve the tool and add new features.
-                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="skill-badge">Python (Django)</span>
+                        <span class="skill-badge">React</span>
+                        <span class="skill-badge">Next.js</span>
+                        <span class="skill-badge">PostgreSQL</span>
+                        <span class="skill-badge">REST APIs</span>
+                        <span class="skill-badge">System Admin</span>
+                    </div>
                 </div>
-        
-                <!-- View More Button -->
-                <button id="view-more-btn-professor-scraper" class="mt-4 border border-red-500 text-red-500 px-6 py-2 text-sm hover:bg-red-500 hover:text-white transition-colors">
-                    VIEW MORE
-                </button>
+                
+                <div class="bg-gradient-to-br from-blue-500 to-orange-500 rounded-12 p-1 fade-in-up delay-200">
+                    <div class="bg-white rounded-lg p-8">
+                        <h4 class="text-xl font-bold mb-4">Key Strengths</h4>
+                        <ul class="space-y-3 text-gray-700">
+                            <li class="flex items-start gap-3">
+                                <span class="text-blue-600 font-bold text-lg">✓</span>
+                                <span>Full-Stack Development</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="text-blue-600 font-bold text-lg">✓</span>
+                                <span>Database Design & Optimization</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="text-blue-600 font-bold text-lg">✓</span>
+                                <span>System Architecture</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="text-blue-600 font-bold text-lg">✓</span>
+                                <span>API Development</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
-
     </section>
 
-    <!-- Brand Strategy Section -->
-    <section class="relative py-24 px-8 md:px-16 z-10">
-        <div class="max-w-4xl mx-auto text-center fade-in delay-100">
-            <h2 class="section-title text-4xl mb-2">Software Engineer</h2>
-            <h3 class="section-title text-4xl mb-8">& Open Source Contributor</h3>
-            <div class="w-24 h-0.5 bg-white mx-auto mb-4"></div>
-            <p class="text-sm tracking-widest uppercase">BUILDING INNOVATIVE SOLUTIONS</p>
+    <!-- Experience Section -->
+    <section id="experience" class="py-20 px-6 md:px-12">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="section-heading">Experience</h2>
+            
+            <div class="space-y-6">
+                <div class="project-card fade-in-up">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-800">Software Engineer | Web Developer</h3>
+                            <p class="text-orange-600 font-semibold">AI Khan Lab Ltd.</p>
+                        </div>
+                        <span class="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">
+                            Dec 2023 - Present
+                        </span>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed mb-4">
+                        Developed and maintained comprehensive Laboratory Management System for histopathology and cancer testing. Implemented features for patient registration, report generation, inventory tracking, and streamlined lab operations.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="skill-badge">Django</span>
+                        <span class="skill-badge">Next Js</span>
+                        <span class="skill-badge">React</span>
+                        <span class="skill-badge">PostgreSQL</span>
+                        <span class="skill-badge">REST API</span>
+                        <span class="skill-badge">Dolibarr ERP</span>
+                        <span class="skill-badge">ERPNext</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
-    <!-- Services Grid -->
-    <section class="relative py-12 px-8 md:px-16 grid grid-cols-1 md:grid-cols-3 gap-4 z-10">
-        <!-- Service 1 -->
-        <div class="border border-white/30 p-8 flex flex-col items-center justify-center h-64 fade-in delay-200">
-            <h3 class="text-xl font-medium">Web Development</h3>
-            <p class="text-sm text-white-400 mt-2 text-center">
-                Building responsive, dynamic, and user-friendly websites using modern technologies like React, Next.js, and Tailwind CSS.
+    <!-- Projects Section -->
+    <section id="projects" class="py-20 px-6 md:px-12 bg-gray-50">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="section-heading">Featured Projects</h2>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Project 1 -->
+                <div class="project-card fade-in-up">
+                    <div class="color-grid mb-4">
+                        <div class="bg-cyan-500"></div>
+                        <div class="bg-yellow-300"></div>
+                        <div class="bg-purple-400"></div>
+                        <div class="bg-orange-500"></div>
+                    </div>
+                    
+                    <h3 class="text-2xl font-bold mb-3 text-gray-800">School Management System</h3>
+                    
+                    <p class="text-gray-600 mb-4 text-sm leading-relaxed">
+                        Comprehensive school management platform handling student information, academic schedules, communication, attendance, exams, fees, transportation, and website management.
+                    </p>
+                    
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold">Django</span>
+                        <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold">React</span>
+                        <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold">PostgreSQL</span>
+                        <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold">Next.js</span>
+                    </div>
+                    
+                    <button class="btn-secondary text-sm view-more-btn">View More</button>
+                </div>
+
+                <!-- Project 2 -->
+                <div class="project-card fade-in-up delay-100">
+                    <div class="color-grid mb-4">
+                        <div class="bg-teal-500"></div>
+                        <div class="bg-yellow-200"></div>
+                        <div class="bg-pink-300"></div>
+                        <div class="bg-orange-500"></div>
+                    </div>
+                    
+                    <h3 class="text-2xl font-bold mb-3 text-gray-800">Laboratory Management System</h3>
+                    
+                    <p class="text-gray-600 mb-4 text-sm leading-relaxed">
+                        Customized Dolibarr ERP for medical labs with modules for Gross examination, Transcription, Doctor portal, Report generation, Histopath and Cytopath labs.
+                    </p>
+                    
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-semibold">Dolibarr</span>
+                        <span class="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-semibold">ERP</span>
+                        <span class="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-semibold">PostgreSQL</span>
+                        <span class="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-semibold">Custom Modules</span>
+                    </div>
+                    
+                    <button class="btn-secondary text-sm view-more-btn">View More</button>
+                </div>
+
+                <!-- Project 3 -->
+                <div class="project-card fade-in-up delay-200">
+                    <div class="color-grid mb-4">
+                        <div class="bg-blue-500"></div>
+                        <div class="bg-green-200"></div>
+                        <div class="bg-pink-400"></div>
+                        <div class="bg-purple-500"></div>
+                    </div>
+                    
+                    <h3 class="text-2xl font-bold mb-3 text-gray-800">Ecommerce Platform</h3>
+                    
+                    <p class="text-gray-600 mb-4 text-sm leading-relaxed">
+                        Robust ecommerce platform with personalized recommendation system, secure payments, order management, and ML-powered product suggestions.
+                    </p>
+                    
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-semibold">Next.js</span>
+                        <span class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-semibold">Django API</span>
+                        <span class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-semibold">ML</span>
+                        <span class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-semibold">PostgreSQL</span>
+                    </div>
+                    
+                    <button class="btn-secondary text-sm view-more-btn">View More</button>
+                </div>
+
+                <!-- Project 4 -->
+                <div class="project-card fade-in-up delay-300">
+                    <div class="color-grid mb-4">
+                        <div class="bg-indigo-500"></div>
+                        <div class="bg-teal-200"></div>
+                        <div class="bg-amber-300"></div>
+                        <div class="bg-rose-500"></div>
+                    </div>
+                    
+                    <h3 class="text-2xl font-bold mb-3 text-gray-800">Digital Yearbook</h3>
+                    
+                    <p class="text-gray-600 mb-4 text-sm leading-relaxed">
+                        Digital yearbook platform for schools enabling creation, management, and sharing of student memories, photos, and achievements with advanced search capabilities.
+                    </p>
+                    
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full font-semibold">Django</span>
+                        <span class="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full font-semibold">Next.js</span>
+                        <span class="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full font-semibold">PostgreSQL</span>
+                        <span class="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full font-semibold">Admin Panel</span>
+                    </div>
+                    
+                    <button class="btn-secondary text-sm view-more-btn">View More</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 px-6 md:px-12">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="section-heading mb-6">Let's Connect</h2>
+            
+            <p class="text-xl text-gray-600 mb-10 leading-relaxed">
+                I'm always interested in hearing about new projects and opportunities. Whether you have a question or just want to say hi, feel free to get in touch!
             </p>
-        </div>
-
-        <!-- Service 2 -->
-        <div class="bg-orange p-8 flex flex-col items-center justify-center h-64 relative overflow-hidden fade-in delay-300">
-            <div class="absolute top-4 right-4 text-2xl font-bold">02</div>
-            <div class="circle-number absolute -bottom-10 -right-10">17</div>
-            <h3 class="text-xl font-medium mt-8">Backend Development</h3>
-            <p class="text-sm text-gray-800 mt-2 text-center">
-                Developing robust and scalable backend systems using Django, Django REST Framework, and PostgreSQL.
-            </p>
-        </div>
-
-        <!-- Service 3 -->
-        <div class="border border-white/30 p-8 flex flex-col items-center justify-center h-64 fade-in delay-400">
-            <h3 class="text-xl font-medium">Open Source</h3>
-            <p class="text-sm text-white-400 mt-2 text-center">
-                Contributing to and maintaining open-source projects, fostering collaboration and innovation in the developer community.
-            </p>
-        </div>
-
-        <!-- Service 4 -->
-        <div class="col-span-1 md:col-span-3 border border-white/30 p-8 flex flex-col items-center justify-center h-32 fade-in delay-500">
-            <h3 class="text-xl font-medium">Full-Stack Solutions</h3>
-            <p class="text-sm text-white-400 mt-2 text-center">
-                Delivering end-to-end solutions, from frontend design to backend development, ensuring seamless integration and performance.
-            </p>
-        </div>
-    </section>
-
-    <!-- Pagination -->
-    <!-- <div class="flex justify-between items-center px-8 md:px-16 py-8 fade-in">
-        <button class="px-4 py-2 border border-white/30 rounded-full">PREV</button>
-        <button class="px-4 py-2 border border-white/30 rounded-full">NEXT</button>
-    </div> -->
-
-
-    <!-- Promotion Section -->
-    <section class="relative py-24 px-8 md:px-16 z-10">
-        <div class="max-w-4xl mx-auto text-center fade-in delay-100">
-            <h2 class="section-title text-4xl mb-2">My Expertise & Skill Set</h2>
-            <div class="w-24 h-0.5 bg-white mx-auto mb-4"></div>
-            <h4 class="text-xl font-semibold mb-3">🖥️ Backend Development</h4><br>
-            <div class="flex flex-wrap justify-center gap-4 mb-6">
-                <span class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm">Django Rest Framework</span>
-                <span class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm">Node.js</span>
-                <span class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm">FastAPI</span>
-                <span class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm">Flask</span>
-                <span class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm">PHP</span>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+                <button class="btn-primary">Send Me an Email</button>
+                <button class="btn-secondary">Schedule a Call</button>
             </div>
-            <h4 class="text-xl font-semibold mb-3">🎨 Frontend Development</h4>
-            <div class="flex flex-wrap justify-center gap-4 mb-6">
-                <span class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm">Next.js</span>
-                <span class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm">React.js</span>
-                <span class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm">JavaScript (ES6+)</span>
-                <span class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm">Tailwind CSS</span>
-                <span class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm">Bootstrap</span>
-            </div>
-            <!-- Database Management -->
-            <h4 class="text-xl font-semibold mb-3">🗄️ Database Management</h4>
-            <div class="flex flex-wrap justify-center gap-4 mb-6">
-                <span class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm">PostgreSQL</span>
-                <span class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm">MongoDB</span>
-                <span class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm">MySQL</span>
-                <span class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm">SQLite</span>
-            </div>
-             <!-- DevOps & Server Management -->
-            <h4 class="text-xl font-semibold mb-3">☁️ DevOps & Server Management</h4>
-            <div class="flex flex-wrap justify-center gap-4 mb-6">
-                <span class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm">Docker</span>
-                <span class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm">Linux Server Administration</span>
-                <span class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm">Nginx</span>
-                <span class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm">Apache</span>
-                <span class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm">PostgreSQL Performance Tuning</span>
-            </div>
-            <!-- Project & Team Management -->
-            <h4 class="text-xl font-semibold mb-3">📊 Project & Team Management</h4>
-            <div class="flex flex-wrap justify-center gap-4">
-                <span class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm">Agile Methodologies</span>
-                <span class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm">Scrum & Kanban</span>
-                <span class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm">Project Planning</span>
-                <span class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm">Team Leadership</span>
+            
+            <div class="flex justify-center gap-4 mb-8">
+                <a href="#" class="social-icon" title="LinkedIn">in</a>
+                <a href="#" class="social-icon" title="GitHub">gh</a>
+                <a href="#" class="social-icon" title="Twitter">𝕏</a>
+                <a href="#" class="social-icon" title="Email">✉</a>
             </div>
         </div>
     </section>
-
-    <section class="relative py-24 px-8 md:px-16 z-10">
-        <div class="max-w-4xl mx-auto text-center fade-in delay-100">
-             <!-- GitHub Profile -->
-            <h4 class="text-xl font-semibold mb-3">GitHub</h4>
-            <div class="flex flex-wrap justify-center gap-4">
-                <span class="px-4 py-2 text-white rounded-full text-sm">
-                    <!-- GitHub Stats -->
-                    <img src="https://github-readme-stats.vercel.app/api?username=tasim313&show_icons=true&theme=radical&include_all_commits=true&count_private=true" alt="GitHub Stats" />
-                </span>
-                <span class="px-4 py-2  text-white rounded-full text-sm">
-                    <!-- GitHub Streak -->
-                    <img src="https://github-readme-streak-stats.herokuapp.com/?user=tasim313&theme=radical" alt="GitHub Streak" />
-                </span>
-                <span class="px-4 py-2  text-white rounded-full text-sm">
-                    <!-- Top Languages -->
-                    <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=tasim313&layout=compact&theme=radical&langs_count=8" alt="Top Languages" />
-                </span>
-                <span class="px-4 py-2  text-white rounded-full text-sm">
-                    <!-- Trophy Stats -->
-                    <img src="https://github-profile-trophy.vercel.app/?username=tasim313&theme=radical&row=2&column=3" alt="GitHub Trophy" />
-                </span>
-                <span class="px-4 py-2  text-white rounded-full text-sm">
-                    <!-- activity graphs -->
-                    <img src="https://github-readme-activity-graph.vercel.app/graph?username=tasim313&bg_color=658b73&color=a6fe4d&line=1c1c1c&point=00d60e&area=true&hide_border=true" alt="github activity graph" />
-                </span>
-               
-
-            </div>
-
-        </div>
-    </section>
-
-    <!-- LeetCode -->
-    <section class="relative py-24 px-8 md:px-16 z-10">
-        <div class="max-w-7xl mx-auto text-center fade-in delay-100">
-            <!-- LeetCode Profile -->
-            <h4 class="text-xl font-semibold mb-8">LeetCode</h4>
-            <div class="flex flex-wrap justify-center items-center gap-6 overflow-x-auto py-6">
-                <span class="inline-block">
-                    <img src="https://leetcard.jacoblin.cool/tasim313?theme=unicorn" alt="LeetCode Profile Card" class="w-80" />
-                </span>
-                <span class="inline-block">
-                    <img src="https://leetcard.jacoblin.cool/tasim313?theme=unicorn&ext=heatmap" alt="LeetCode Activity Heatmap" class="w-80" />
-                </span>
-                <span class="inline-block">
-                    <img src="https://leetcard.jacoblin.cool/tasim313?theme=unicorn&ext=contest" alt="LeetCode Contest Progress" class="w-80" />
-                </span>
-                <span class="inline-block">
-                    <img src="https://leetcard.jacoblin.cool/tasim313?theme=unicorn&layout=horizontal" alt="LeetCode Horizontal Card" class="w-80" />
-                </span>
-                <span class="inline-block">
-                    <img src="https://leetcard.jacoblin.cool/tasim313?bg=1a1b27&font=00ff00" alt="Custom LeetCode Card" class="w-80" />
-                </span>
-            </div>
-        </div>
-    </section>
-    
-    
-
-   
 
     <!-- Footer -->
-    <footer class="footer py-16 px-8 md:px-16 mt-24">
-        <div class="flex flex-col items-center justify-center">
-            <div class="text-3xl font-bold mb-12">Md Mostasim Mahmud</div>
-            <div class="flex space-x-12 mb-12">
-                <a href="#" class="nav-link">ABOUT</a>
-                <a href="#" class="nav-link">WORKS</a>
-                <a href="#" class="nav-link">TEAM</a>
-                <a href="#" class="nav-link">CONTACT</a>
-            </div>
-            <div class="flex space-x-6 mb-12">
-                <a href="#" class="social-icon w-12 h-12 rounded-full border border-white flex items-center justify-center">FB</a>
-                <a href="#" class="social-icon w-12 h-12 rounded-full border border-white flex items-center justify-center">TW</a>
-                <a href="#" class="social-icon w-12 h-12 rounded-full border border-white flex items-center justify-center">IN</a>
-            </div>
-            <p class="text-sm opacity-70">© Script Park 2024</p>
+    <footer class="py-8 px-6 md:px-12">
+        <div class="max-w-6xl mx-auto text-center text-gray-600">
+            <p>&copy; 2025 Md. Mostasim Mahmud</p>
         </div>
     </footer>
 
     <script>
-        // Create floating bubbles
-        document.addEventListener('DOMContentLoaded', () => {
-            const bubblesContainer = document.getElementById('bubbles-container');
-            const colors = ['#E67E45', '#F5EFD7', '#8BA888', '#4A5D4A'];
-            const bubbleCount = 20;
+        // Scroll Progress Bar
+        window.addEventListener('scroll', () => {
+            const scrollProgress = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+            document.getElementById('scrollProgress').style.width = scrollProgress + '%';
+        });
 
-            for (let i = 0; i < bubbleCount; i++) {
-                const size = Math.random() * 150 + 50;
-                const bubble = document.createElement('div');
-                bubble.className = 'bubble animate-float';
-                bubble.style.width = `${size}px`;
-                bubble.style.height = `${size}px`;
-                bubble.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                bubble.style.left = `${Math.random() * 100}%`;
-                bubble.style.top = `${Math.random() * 100}%`;
-                bubble.style.animationDelay = `${Math.random() * 5}s`;
-                bubble.style.animationDuration = `${Math.random() * 10 + 5}s`;
+        // Smooth Scrolling for Navigation Links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Mobile Menu Toggle
+        const menuBtn = document.getElementById('menuBtn');
+        if (menuBtn) {
+            menuBtn.addEventListener('click', function() {
+                alert('Mobile menu - Add your menu items here');
+            });
+        }
+
+        // View More Button Animation
+        document.querySelectorAll('.view-more-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.textContent = this.textContent === 'View More' ? 'Show Less' : 'View More';
+                this.classList.toggle('btn-primary');
+                this.classList.toggle('btn-secondary');
+            });
+        });
+
+        // Button Click Effects
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple');
                 
-                bubblesContainer.appendChild(bubble);
-            }
-
-            // Parallax effect for bubbles
-            document.addEventListener('mousemove', (e) => {
-                const bubbles = document.querySelectorAll('.bubble');
-                const mouseX = e.clientX / window.innerWidth - 0.5;
-                const mouseY = e.clientY / window.innerHeight - 0.5;
-
-                bubbles.forEach((bubble, index) => {
-                    const depth = (index % 5 + 1) / 10;
-                    const moveX = mouseX * depth * 100;
-                    const moveY = mouseY * depth * 100;
-                    bubble.style.transform = `translate(${moveX}px, ${moveY}px) scale(${1 + depth/10})`;
-                });
-            });
-
-            // Scroll animations
-            const fadeElements = document.querySelectorAll('.fade-in');
-            
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.opacity = 1;
-                    }
-                });
-            }, { threshold: 0.1 });
-
-            fadeElements.forEach(element => {
-                observer.observe(element);
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
             });
         });
-    </script>
 
-    <script>
-        const viewMoreBtn = document.getElementById('view-more-btn');
-        const shortDescription = document.getElementById('short-description');
-        const fullDescription = document.getElementById('full-description');
-    
-        viewMoreBtn.addEventListener('click', () => {
-            if (fullDescription.classList.contains('hidden')) {
-                fullDescription.classList.remove('hidden');
-                viewMoreBtn.textContent = 'VIEW LESS';
-            } else {
-                fullDescription.classList.add('hidden');
-                viewMoreBtn.textContent = 'VIEW MORE';
-            }
+        // Intersection Observer for Fade-in Animation
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in-up, .slide-in-right').forEach(el => {
+            observer.observe(el);
         });
     </script>
 
-    <script>
-        const viewMoreBtnSchool = document.getElementById('view-more-btn-school');
-        const shortDescriptionSchool = document.getElementById('short-description-school');
-        const fullDescriptionSchool = document.getElementById('full-description-school');
-
-        viewMoreBtnSchool.addEventListener('click', () => {
-            if (fullDescriptionSchool.classList.contains('hidden')) {
-                fullDescriptionSchool.classList.remove('hidden');
-                viewMoreBtnSchool.textContent = 'VIEW LESS';
-            } else {
-                fullDescriptionSchool.classList.add('hidden');
-                viewMoreBtnSchool.textContent = 'VIEW MORE';
-            }
-        });
-    </script>
-
-    <script>
-        const viewMoreBtnEcommerce = document.getElementById('view-more-btn-ecommerce');
-        const shortDescriptionEcommerce = document.getElementById('short-description-ecommerce');
-        const fullDescriptionEcommerce = document.getElementById('full-description-ecommerce');
-
-        viewMoreBtnEcommerce.addEventListener('click', () => {
-            if (fullDescriptionEcommerce.classList.contains('hidden')) {
-                fullDescriptionEcommerce.classList.remove('hidden');
-                viewMoreBtnEcommerce.textContent = 'VIEW LESS';
-            } else {
-                fullDescriptionEcommerce.classList.add('hidden');
-                viewMoreBtnEcommerce.textContent = 'VIEW MORE';
-            }
-        });
-    </script>
-
-    <script>
-        const viewMoreBtnYearbook = document.getElementById('view-more-btn-yearbook');
-        const shortDescriptionYearbook = document.getElementById('short-description-yearbook');
-        const fullDescriptionYearbook = document.getElementById('full-description-yearbook');
-
-        viewMoreBtnYearbook.addEventListener('click', () => {
-            if (fullDescriptionYearbook.classList.contains('hidden')) {
-                fullDescriptionYearbook.classList.remove('hidden');
-                viewMoreBtnYearbook.textContent = 'VIEW LESS';
-            } else {
-                fullDescriptionYearbook.classList.add('hidden');
-                viewMoreBtnYearbook.textContent = 'VIEW MORE';
-            }
-        });
-    </script>
-
-    <script>
-        const viewMoreBtnLinux = document.getElementById('view-more-btn-linux');
-        const shortDescriptionLinux = document.getElementById('short-description-linux');
-        const fullDescriptionLinux = document.getElementById('full-description-linux');
-
-        viewMoreBtnLinux.addEventListener('click', () => {
-            if (fullDescriptionLinux.classList.contains('hidden')) {
-                fullDescriptionLinux.classList.remove('hidden');
-                viewMoreBtnLinux.textContent = 'VIEW LESS';
-            } else {
-                fullDescriptionLinux.classList.add('hidden');
-                viewMoreBtnLinux.textContent = 'VIEW MORE';
-            }
-        });
-    </script>
-
-    <script>
-        const viewMoreBtnProfessorScraper = document.getElementById('view-more-btn-professor-scraper');
-        const shortDescriptionProfessorScraper = document.getElementById('short-description-professor-scraper');
-        const fullDescriptionProfessorScraper = document.getElementById('full-description-professor-scraper');
-
-        viewMoreBtnProfessorScraper.addEventListener('click', () => {
-            if (fullDescriptionProfessorScraper.classList.contains('hidden')) {
-                fullDescriptionProfessorScraper.classList.remove('hidden');
-                viewMoreBtnProfessorScraper.textContent = 'VIEW LESS';
-            } else {
-                fullDescriptionProfessorScraper.classList.add('hidden');
-                viewMoreBtnProfessorScraper.textContent = 'VIEW MORE';
-            }
-        });
-    </script>
-    
     <script>
         // Disable right-click
         document.addEventListener('contextmenu', function (e) {
@@ -907,6 +745,29 @@
             };
         })();
     </script>
-    
+
+    <script>
+        (function () {
+            let devtoolsOpen = false;
+        
+            const threshold = 160;
+        
+            setInterval(() => {
+                const widthDiff = window.outerWidth - window.innerWidth;
+                const heightDiff = window.outerHeight - window.innerHeight;
+        
+                if (widthDiff > threshold || heightDiff > threshold) {
+                    if (!devtoolsOpen) {
+                        devtoolsOpen = true;
+                        document.body.innerHTML = '';
+                        window.location.href = '/access-denied.html';
+                    }
+                } else {
+                    devtoolsOpen = false;
+                }
+            }, 500);
+        })();
+    </script>
+        
 </body>
 </html>
