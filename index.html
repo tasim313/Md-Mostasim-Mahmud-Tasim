@@ -504,6 +504,29 @@
                         <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold">PostgreSQL</span>
                         <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold">Next.js</span>
                     </div>
+
+                    <div class="full-description text-sm text-gray-600 text-left hidden mt-4 max-h-64 overflow-y-auto">
+                        <strong class="block mb-2 text-gray-800">Technologies Used:</strong>
+                        <ul class="list-disc list-inside mb-4">
+                            <li>Backend: Django (Python) for robust server-side processing and API management.</li>
+                            <li>Frontend: React and Next.js for dynamic and responsive user interfaces.</li>
+                            <li>Database: PostgreSQL for secure and reliable data storage.</li>
+                        </ul>
+                
+                        <strong class="block mb-2 text-gray-800">Key Features:</strong>
+                        <ul class="list-disc list-inside mb-4">
+                            <li>Student Information Management: Seamlessly manage student records, including personal details, academic performance, and attendance.</li>
+                            <li>Scheduling and Timetabling: Automate the creation of class schedules and examination timetables.</li>
+                            <li>Communication Tools: Integrated messaging system for efficient communication between teachers, students, and parents.</li>
+                            <li>Exam Management: Streamline the creation, scheduling, and grading of exams with automated tools.</li>
+                            <li>Attendance Management: Track and manage student attendance with real-time updates and reporting.</li>
+                            <li>Invoice Management: Generate and manage invoices for school fees, events, and other expenses.</li>
+                            <li>Fees Collection: Simplify the process of collecting and tracking school fees with integrated payment systems.</li>
+                            <li>Transportation Management: Manage school transportation, including bus routes, schedules, and student assignments.</li>
+                            <li>Website Management: Customizable school websites with content management capabilities.</li>
+                            <li>Reporting and Analytics: Generate detailed reports and analytics to monitor school performance and student progress.</li>
+                        </ul>
+                    </div>
                     
                     <button class="btn-secondary text-sm view-more-btn">View More</button>
                 </div>
@@ -520,7 +543,9 @@
                     <h3 class="text-2xl font-bold mb-3 text-gray-800">Laboratory Management System</h3>
                     
                     <p class="text-gray-600 mb-4 text-sm leading-relaxed">
-                        Customized Dolibarr ERP for medical labs with modules for Gross examination, Transcription, Doctor portal, Report generation, Histopath and Cytopath labs.
+                        Customizing Dolibarr ERP for Medical Laboratories
+                        This project focuses on the customization of Dolibarr ERP, an open-source enterprise resource planning system, tailored for medical laboratory management. Dolibarr’s modular structure allows for seamless adaptation to meet the unique requirements of healthcare environments, particularly in managing lab workflows, patient records, and report generation.
+                        Key custom modules include:
                     </p>
                     
                     <div class="flex flex-wrap gap-2 mb-4">
@@ -528,6 +553,47 @@
                         <span class="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-semibold">ERP</span>
                         <span class="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-semibold">PostgreSQL</span>
                         <span class="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-semibold">Custom Modules</span>
+                    </div>
+
+
+                    <div class="text-sm text-gray-600 text-left hidden mt-4 max-h-64 overflow-y-auto" id="full-description">
+                        <strong class="block mb-2 text-gray-800">Gross Module:</strong>
+                        <ul class="list-disc list-inside mb-4">
+                            <li>Automates the documentation of tissue sample examinations.</li>
+                            <li>Allows lab technicians to record size, shape, and other characteristics with image integration.</li>
+                            <li>Ensures data is accurately captured and linked to patient records.</li>
+                        </ul>
+                    
+                        <strong class="block mb-2 text-gray-800">Transcription Module:</strong>
+                        <ul class="list-disc list-inside mb-4">
+                            <li>Integrates voice recognition to transcribe verbal findings from lab technicians and doctors.</li>
+                            <li>Minimizes errors and speeds up documentation.</li>
+                        </ul>
+                    
+                        <strong class="block mb-2 text-gray-800">Doctor Module:</strong>
+                        <ul class="list-disc list-inside mb-4">
+                            <li>Provides doctors with streamlined access to lab results, patient records, and diagnostic tools.</li>
+                            <li>Enables efficient collaboration with lab personnel and allows requesting additional tests through the system.</li>
+                        </ul>
+                    
+                        <strong class="block mb-2 text-gray-800">Automated Report Generation Module:</strong>
+                        <ul class="list-disc list-inside mb-4">
+                            <li>Compiles data from other modules (e.g., gross examinations, transcription) into cohesive reports.</li>
+                            <li>Uses predefined templates to reduce manual reporting efforts and ensure consistency.</li>
+                        </ul>
+                    
+                        <strong class="block mb-2 text-gray-800">Histopath Lab Module:</strong>
+                        <ul class="list-disc list-inside mb-4">
+                            <li>Manages the examination of tissue samples under a microscope.</li>
+                            <li>Integrates with other modules to streamline the diagnostic process for diseases like cancer.</li>
+                            <li>Allows image attachments for more comprehensive reporting.</li>
+                        </ul>
+                    
+                        <strong class="block mb-2 text-gray-800">Cytopath Lab Module:</strong>
+                        <ul class="list-disc list-inside mb-4">
+                            <li>Focuses on cell-level analysis for diagnosing diseases such as cancers and infections.</li>
+                            <li>Integrates with patient records and allows high-resolution image storage for accurate cell analysis.</li>
+                        </ul>
                     </div>
                     
                     <button class="btn-secondary text-sm view-more-btn">View More</button>
@@ -769,6 +835,26 @@
                 }
             }, 500);
         })();
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const viewBtns = document.querySelectorAll('.view-more-btn');
+        viewBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const card = btn.closest('.project-card');
+                const desc = card.querySelector('#full-description');
+    
+                if (desc.classList.contains('hidden')) {
+                    desc.classList.remove('hidden');
+                    btn.textContent = 'View Less';
+                } else {
+                    desc.classList.add('hidden');
+                    btn.textContent = 'View More';
+                }
+            });
+        });
+    });
     </script>
         
 </body>
