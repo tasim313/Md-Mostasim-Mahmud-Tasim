@@ -385,8 +385,8 @@
             </p>
             
             <div class="flex flex-wrap gap-4 justify-center fade-in-up delay-400">
-                <button class="btn-primary">View My Work</button>
-                <button class="btn-secondary">Get In Touch</button>
+                <button id="view-work-btn" class="btn-primary">View My Work</button>
+                <button id="get-in-touch-btn" class="btn-secondary">Get In Touch</button>
             </div>
         </div>
     </section>
@@ -484,7 +484,7 @@
             
             <div class="grid md:grid-cols-2 gap-8">
                 <!-- Project 1 -->
-                <div class="project-card fade-in-up">
+                <div id="full-description-school" class="project-card fade-in-up">
                     <div class="color-grid mb-4">
                         <div class="bg-cyan-500"></div>
                         <div class="bg-yellow-300"></div>
@@ -528,11 +528,11 @@
                         </ul>
                     </div>
                     
-                    <button class="btn-secondary text-sm view-more-btn">View More</button>
+                    <button id="full-description-school-btn" class="btn-secondary text-sm view-more-btn" data-target="full-description-school">View More</button>
                 </div>
 
                 <!-- Project 2 -->
-                <div class="project-card fade-in-up delay-100">
+                <div id="full-description-laboratory" class="project-card fade-in-up delay-100">
                     <div class="color-grid mb-4">
                         <div class="bg-teal-500"></div>
                         <div class="bg-yellow-200"></div>
@@ -556,7 +556,7 @@
                     </div>
 
 
-                    <div class="text-sm text-gray-600 text-left hidden mt-4 max-h-64 overflow-y-auto" id="full-description">
+                    <div class="full-description text-sm text-gray-600 text-left hidden mt-4 max-h-64 overflow-y-auto" id="full-description">
                         <strong class="block mb-2 text-gray-800">Gross Module:</strong>
                         <ul class="list-disc list-inside mb-4">
                             <li>Automates the documentation of tissue sample examinations.</li>
@@ -596,11 +596,11 @@
                         </ul>
                     </div>
                     
-                    <button class="btn-secondary text-sm view-more-btn">View More</button>
+                    <button id="full-description-laboratory-btn" class="btn-secondary text-sm view-more-btn" data-target="full-description-laboratory">View More</button>
                 </div>
 
                 <!-- Project 3 -->
-                <div class="project-card fade-in-up delay-200">
+                <div id="full-description-ecommerce" class="project-card fade-in-up delay-200">
                     <div class="color-grid mb-4">
                         <div class="bg-blue-500"></div>
                         <div class="bg-green-200"></div>
@@ -620,12 +620,42 @@
                         <span class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-semibold">ML</span>
                         <span class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-semibold">PostgreSQL</span>
                     </div>
+
+                     <!-- Full Description with Scroll -->
+                    <div class="full-description text-sm text-gray-600 text-left hidden mt-4 max-h-64 overflow-y-auto" id="full-description-ecommerce">
+                        <strong class="block mb-2 text-gray-800">Technologies Used:</strong>
+                        <ul class="list-disc list-inside mb-4">
+                            <li>Backend: Django REST API for scalable and secure server-side operations.</li>
+                            <li>Frontend: Next.js for dynamic and responsive user interfaces.</li>
+                            <li>Database: PostgreSQL for reliable and efficient data storage.</li>
+                            <li>Recommendation System: Collaborative filtering and machine learning algorithms for personalized product recommendations.</li>
+                        </ul>
+            
+                        <strong class="block mb-2 text-gray-800">Key Features:</strong>
+                        <ul class="list-disc list-inside mb-4">
+                            <li>Product Catalog: Browse and search products with filters and categories.</li>
+                            <li>User Authentication: Secure login and registration with JWT (JSON Web Tokens).</li>
+                            <li>Shopping Cart: Add, remove, and manage items in the cart.</li>
+                            <li>Payment Integration: Secure payment gateway integration for seamless transactions.</li>
+                            <li>Order Management: Track orders, view order history, and manage returns.</li>
+                            <li>Recommendation System: Personalized product recommendations based on user behavior and preferences.</li>
+                            <li>Admin Panel: Manage products, orders, and users with an intuitive admin interface.</li>
+                            <li>Responsive Design: Fully responsive UI for seamless browsing on all devices.</li>
+                        </ul>
+            
+                        <strong class="block mb-2 text-gray-800">Recommendation System:</strong>
+                        <ul class="list-disc list-inside mb-4">
+                            <li>Uses collaborative filtering to recommend products based on user behavior and purchase history.</li>
+                            <li>Implements machine learning algorithms to improve recommendation accuracy over time.</li>
+                            <li>Provides personalized product suggestions on the homepage, product pages, and checkout.</li>
+                        </ul>
+                    </div>
                     
-                    <button class="btn-secondary text-sm view-more-btn">View More</button>
+                    <button id="full-description-ecommerce-btn" class="btn-secondary text-sm view-more-btn" data-target="full-description-ecommerce">View More</button>
                 </div>
 
                 <!-- Project 4 -->
-                <div class="project-card fade-in-up delay-300">
+                <div id="full-description-yearbook" class="project-card fade-in-up delay-300">
                     <div class="color-grid mb-4">
                         <div class="bg-indigo-500"></div>
                         <div class="bg-teal-200"></div>
@@ -645,8 +675,38 @@
                         <span class="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full font-semibold">PostgreSQL</span>
                         <span class="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full font-semibold">Admin Panel</span>
                     </div>
+
+                    <!-- Full Description with Scroll -->
+                    <div class="full-description text-sm text-gray-600 text-left hidden mt-4 max-h-64 overflow-y-auto" id="full-description-yearbook">
+                        <strong class="block mb-2 text-gray-800">Technologies Used:</strong>
+                        <ul class="list-disc list-inside mb-4">
+                            <li>Backend: Django REST API for robust and scalable server-side operations.</li>
+                            <li>Frontend: Next.js for a dynamic and responsive user interface.</li>
+                            <li>Database: PostgreSQL for secure and efficient data storage.</li>
+                            <li>Admin Panel: Jasmin Admin Panel for easy management of yearbook content and users.</li>
+                        </ul>
+            
+                        <strong class="block mb-2 text-gray-800">Key Features:</strong>
+                        <ul class="list-disc list-inside mb-4">
+                            <li>Yearbook Creation: Schools can create and customize digital yearbooks with ease.</li>
+                            <li>Photo Uploads: Students and teachers can upload photos and memories to the yearbook.</li>
+                            <li>User Roles: Different roles for admins, teachers, and students with appropriate permissions.</li>
+                            <li>Search and Filters: Easily search and filter yearbook content by name, year, or event.</li>
+                            <li>Responsive Design: Fully responsive UI for seamless access on all devices.</li>
+                            <li>Export Options: Export yearbooks as PDFs or share them digitally via links.</li>
+                            <li>Admin Panel: Jasmin Admin Panel for managing users, content, and yearbook settings.</li>
+                        </ul>
+            
+                        <strong class="block mb-2 text-gray-800">Project Highlights:</strong>
+                        <ul class="list-disc list-inside mb-4">
+                            <li>Collaborated with an Upwork client to deliver a tailored solution for digital yearbooks.</li>
+                            <li>Implemented a user-friendly interface for schools to manage yearbooks effortlessly.</li>
+                            <li>Integrated Jasmin Admin Panel for efficient content and user management.</li>
+                            <li>Enabled seamless photo uploads and sharing for students and teachers.</li>
+                        </ul>
+                    </div>
                     
-                    <button class="btn-secondary text-sm view-more-btn">View More</button>
+                    <button id="full-description-yearbook-btn" class="btn-secondary text-sm view-more-btn"  data-target="full-description-yearbook">View More</button>
                 </div>
             </div>
         </div>
@@ -662,18 +722,25 @@
             </p>
             
             <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-                <button class="btn-primary">Send Me an Email</button>
-                <button class="btn-secondary">Schedule a Call</button>
+                <button id="email-btn" class="btn-primary">Send Me an Email</button>
+                <button id="call-btn" class="btn-secondary">Schedule a Call</button>
             </div>
             
             <div class="flex justify-center gap-4 mb-8">
-                <a href="#" class="social-icon" title="LinkedIn">in</a>
-                <a href="#" class="social-icon" title="GitHub">gh</a>
+                <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" class="social-icon" title="LinkedIn">in</a>
+                <a href="https://github.com/tasim313" class="social-icon" title="GitHub">gh</a>
                 <a href="#" class="social-icon" title="Twitter">𝕏</a>
-                <a href="#" class="social-icon" title="Email">✉</a>
+                <a href="#" id="email-btn" class="social-icon" title="Email">✉</a>
             </div>
         </div>
     </section>
+
+    <div id="email-popup" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 z-50">
+        Email: <span class="font-semibold">tasim.swe@gmail.com</span>
+    </div>
+    <div id="call-popup" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 z-50">
+        Call Or Whatsapp: <span class="font-semibold">01865632882</span>
+    </div>
 
     <!-- Footer -->
     <footer class="py-8 px-6 md:px-12">
@@ -838,24 +905,89 @@
     </script>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const viewBtns = document.querySelectorAll('.view-more-btn');
-        viewBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                const card = btn.closest('.project-card');
-                const desc = card.querySelector('#full-description');
+        document.addEventListener('DOMContentLoaded', function () {
+            const viewBtns = document.querySelectorAll('.view-more-btn');
+            
+            viewBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Get the card that contains this button
+                    const card = this.closest('.project-card');
+                    // Get the description div inside this card
+                    const desc = card.querySelector('.full-description');
+                    
+                    // Toggle the hidden class
+                    desc.classList.toggle('hidden');
+                    
+                    // Change button text
+                    this.textContent = desc.classList.contains('hidden') 
+                        ? 'View More' 
+                        : 'View Less';
+                });
+            });
+        });
+    </script>
     
-                if (desc.classList.contains('hidden')) {
-                    desc.classList.remove('hidden');
-                    btn.textContent = 'View Less';
-                } else {
-                    desc.classList.add('hidden');
-                    btn.textContent = 'View More';
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const emailBtn = document.getElementById('email-btn');
+            const emailPopup = document.getElementById('email-popup');
+    
+            emailBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+    
+                // Show popup
+                emailPopup.classList.remove('opacity-0', 'pointer-events-none');
+    
+                // Hide popup after 3 seconds
+                setTimeout(() => {
+                    emailPopup.classList.add('opacity-0', 'pointer-events-none');
+                }, 3000);
+            });
+        });
+    </script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const callBtn = document.getElementById('call-btn');
+            const callPopup = document.getElementById('call-popup');
+    
+            callBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+    
+                // Show popup
+                callPopup.classList.remove('opacity-0', 'pointer-events-none');
+    
+                // Hide popup after 3 seconds
+                setTimeout(() => {
+                    callPopup.classList.add('opacity-0', 'pointer-events-none');
+                }, 3000);
+            });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const viewWorkBtn = document.getElementById('view-work-btn');
+            const getInTouchBtn = document.getElementById('get-in-touch-btn');
+        
+            viewWorkBtn.addEventListener('click', () => {
+                const projectsSection = document.querySelector('#projects');
+                if (projectsSection) {
+                    projectsSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        
+            getInTouchBtn.addEventListener('click', () => {
+                const contactSection = document.querySelector('#contact');
+                if (contactSection) {
+                    contactSection.scrollIntoView({ behavior: 'smooth' });
                 }
             });
         });
-    });
     </script>
+    
+    
+    
         
 </body>
 </html>
