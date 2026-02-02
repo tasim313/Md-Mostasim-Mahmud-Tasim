@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostgreSQL WAL Archiving & Point-in-Time Recovery | Production Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --accent: #f97316;
+            --accent-light: #fed7aa;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --border: #e5e7eb;
+            --bg-light: #f9fafb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+        }
+
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            z-index: 100;
+            width: 0%;
+        }
+
+        nav {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .nav-link {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .category-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .reading-time {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Article Content Styles */
+        .article-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .article-content {
+            font-size: 1.125rem;
+            line-height: 1.8;
+        }
+
+        .article-content h2 {
+            font-size: 2rem;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .article-content h3 {
+            font-size: 1.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .article-content h4 {
+            font-size: 1.25rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .article-content p {
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .article-content ul, .article-content ol {
+            margin: 1.5rem 0;
+            padding-left: 2rem;
+        }
+
+        .article-content li {
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .article-content pre {
+            background: #1a1a1a;
+            color: #f8f8f2;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .article-content code {
+            background: #f1f5f9;
+            color: #334155;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .article-content blockquote {
+            border-left: 4px solid var(--primary);
+            padding-left: 1.5rem;
+            margin: 2rem 0;
+            font-style: italic;
+            color: var(--text-secondary);
+            background: var(--bg-light);
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(249, 115, 22, 0.05) 100%);
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.05) 0%, rgba(220, 38, 38, 0.05) 100%);
+            border-left: 4px solid #f97316;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, rgba(22, 163, 74, 0.05) 100%);
+            border-left: 4px solid #22c55e;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .table-of-contents {
+            background: var(--bg-light);
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .table-of-contents ul {
+            margin: 0;
+            padding-left: 1rem;
+            list-style: none;
+        }
+
+        .table-of-contents li {
+            margin-bottom: 0.75rem;
+            padding-left: 1rem;
+            position: relative;
+        }
+
+        .table-of-contents li:before {
+            content: "→";
+            position: absolute;
+            left: -0.5rem;
+            color: var(--primary);
+        }
+
+        .table-of-contents a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .table-of-contents a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            transition: transform 0.3s ease;
+            z-index: 40;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .article-container {
+                padding: 0 16px;
+            }
+            
+            .article-content h2 {
+                font-size: 1.75rem;
+            }
+            
+            .article-content h3 {
+                font-size: 1.375rem;
+            }
+            
+            .article-content {
+                font-size: 1rem;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <!-- Scroll Progress Bar -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- Navigation -->
+    <nav class="py-4 px-6 md:px-12">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500">
+                Md. Mostasim Mahmud
+            </a>
+            <div class="hidden md:flex gap-8">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="blog.html" class="nav-link" style="color: #2563eb;">Blog</a>
+                <a href="index.html#projects" class="nav-link">Projects</a>
+                <a href="index.html#contact" class="nav-link">Contact</a>
+            </div>
+            <button class="md:hidden text-2xl" id="menuBtn">☰</button>
+        </div>
+    </nav>
+
+    <!-- Article Header -->
+    <header class="pt-12 pb-8">
+        <div class="article-container">
+            <div class="text-center mb-8">
+                <span class="category-badge">Database & DevOps</span>
+                <span class="reading-time ml-4">📖 8 min read</span>
+            </div>
+            
+            <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500 fade-in">
+                PostgreSQL WAL Archiving & Point-in-Time Recovery: A Production Guide
+            </h1>
+            
+            <div class="text-center text-gray-600 mb-8">
+                <p class="text-sm">Published: <span class="font-semibold">Dec 15, 2025</span> • Last Updated: <span class="font-semibold">Jan 10, 2026</span></p>
+            </div>
+            
+            <div class="mb-8">
+                <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
+                     alt="PostgreSQL Backup Strategy" 
+                     class="w-full h-64 md:h-96 object-cover rounded-xl shadow-lg">
+                <p class="text-sm text-gray-500 mt-2 text-center">PostgreSQL Write-Ahead Logging ensures zero data loss in production environments</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Article Content -->
+    <main class="pb-16">
+        <div class="article-container">
+            <!-- Table of Contents -->
+            <div class="table-of-contents fade-in">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">📋 Table of Contents</h3>
+                <ul class="space-y-2">
+                    <li><a href="#introduction">Introduction to PostgreSQL WAL</a></li>
+                    <li><a href="#architecture">Backup Architecture Overview</a></li>
+                    <li><a href="#primary-setup">Primary Server Setup</a></li>
+                    <li><a href="#backup-process">Backup Process Implementation</a></li>
+                    <li><a href="#standby-setup">Standby Server Configuration</a></li>
+                    <li><a href="#pitr">Point-in-Time Recovery (PITR)</a></li>
+                    <li><a href="#monitoring">Monitoring & Maintenance</a></li>
+                    <li><a href="#best-practices">Production Best Practices</a></li>
+                </ul>
+            </div>
+
+            <!-- Article Content -->
+            <article class="article-content fade-in">
+                <!-- Introduction -->
+                <section id="introduction">
+                    <h2>Introduction to PostgreSQL WAL Archiving</h2>
+                    <p>Write-Ahead Logging (WAL) is PostgreSQL's fundamental mechanism for ensuring data durability and providing the foundation for various backup and replication strategies. In production environments, implementing a robust WAL archiving system is critical for:</p>
+                    
+                    <ul>
+                        <li><strong>Data Durability:</strong> Ensuring no committed transaction is lost</li>
+                        <li><strong>Point-in-Time Recovery (PITR):</strong> Restoring the database to any specific moment</li>
+                        <li><strong>High Availability:</strong> Maintaining standby servers for failover</li>
+                        <li><strong>Zero Data Loss:</strong> Even in catastrophic hardware failures</li>
+                    </ul>
+                    
+                    <blockquote>
+                        "A properly configured WAL archiving system can mean the difference between a 5-minute recovery and a 5-hour data loss incident."
+                    </blockquote>
+                </section>
+
+                <!-- Architecture -->
+                <section id="architecture">
+                    <h2>Backup Architecture Overview</h2>
+                    <p>Our backup architecture consists of three main components:</p>
+                    
+                    <div class="grid md:grid-cols-3 gap-4 my-6">
+                        <div class="p-4 border border-gray-200 rounded-lg">
+                            <h4 class="font-bold text-blue-600 mb-2">Primary Server</h4>
+                            <p class="text-sm">Production database server with WAL archiving enabled</p>
+                        </div>
+                        <div class="p-4 border border-gray-200 rounded-lg">
+                            <h4 class="font-bold text-green-600 mb-2">WAL Archive Storage</h4>
+                            <p class="text-sm">Secure, redundant storage for transaction logs</p>
+                        </div>
+                        <div class="p-4 border border-gray-200 rounded-lg">
+                            <h4 class="font-bold text-purple-600 mb-2">Standby Server</h4>
+                            <p class="text-sm">Hot standby for immediate failover capability</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Primary Server Setup -->
+                <section id="primary-setup">
+                    <h2>Primary Server Configuration</h2>
+                    
+                    <h3>Step 1: Create Archive & Backup Directories</h3>
+                    <pre><code># Create archive & backup directories
+sudo mkdir -p /mnt/server/archivedir
+sudo mkdir -p /mnt/pg_backup
+
+# Set proper permissions
+sudo chown -R postgres:postgres /mnt/server/archivedir
+sudo chmod -R 700 /mnt/server/archivedir
+sudo chown -R postgres:postgres /mnt/pg_backup
+sudo chmod -R 700 /mnt/pg_backup</code></pre>
+
+                    <div class="info-box">
+                        <strong>💡 Note:</strong> Always use dedicated storage for WAL archives, separate from the database files for better performance and reliability.
+                    </div>
+
+                    <h3>Step 2: Configure postgresql.conf</h3>
+                    <pre><code># Enable WAL archiving
+archive_mode = on
+archive_command = 'cp %p /mnt/server/archivedir/%f'
+wal_level = replica
+max_wal_senders = 3
+wal_keep_size = 64
+max_replication_slots = 3
+
+# Recommended production settings
+wal_compression = on
+archive_timeout = 300
+synchronous_commit = remote_write</code></pre>
+
+                    <h3>Step 3: Configure pg_hba.conf</h3>
+                    <pre><code># Allow replication connections from standby servers
+host    replication     replicator      standby_ip/32        scram-sha-256</code></pre>
+
+                    <h3>Step 4: Reload PostgreSQL Configuration</h3>
+                    <pre><code>sudo -u postgres pg_ctl reload -D /var/lib/postgresql/14/main
+# Or using systemctl
+sudo systemctl reload postgresql</code></pre>
+                </section>
+
+                <!-- Backup Process -->
+                <section id="backup-process">
+                    <h2>Backup Process Implementation</h2>
+                    
+                    <h3>Method 1: Using pg_basebackup (Recommended)</h3>
+                    <pre><code># Take base backup with WAL streaming
+sudo -u postgres pg_basebackup -D /mnt/pg_backup/base_backup -Ft -z -P -Xs -c fast
+
+# Options explained:
+# -D : Directory for backup
+# -Ft : Tar format output
+# -z : Compress with gzip
+# -P : Show progress
+# -Xs : Stream WAL during backup
+# -c fast : Start backup immediately</code></pre>
+
+                    <h3>Method 2: Manual Backup with pg_start_backup</h3>
+                    <pre><code># Start the backup
+psql -c "SELECT pg_start_backup('backup_label', false, false);"
+
+# Use rsync to copy data directory
+sudo rsync -av /var/lib/postgresql/14/main/ /mnt/pg_backup/manual_backup/
+
+# Stop the backup
+psql -c "SELECT pg_stop_backup(false, true);"</code></pre>
+
+                    <div class="warning-box">
+                        <strong>⚠️ Important:</strong> Manual backup method requires careful coordination and monitoring to ensure consistency.
+                    </div>
+
+                    <h3>Automated Backup Script</h3>
+                    <pre><code>#!/bin/bash
+# backup_postgres.sh
+
+BACKUP_DIR="/mnt/pg_backup"
+DATE=$(date +%Y%m%d_%H%M%S)
+LOG_FILE="/var/log/postgresql/backup_${DATE}.log"
+
+echo "Starting PostgreSQL backup at $(date)" >> ${LOG_FILE}
+
+# Create backup directory
+mkdir -p ${BACKUP_DIR}/${DATE}
+
+# Perform base backup
+sudo -u postgres pg_basebackup \
+  -D ${BACKUP_DIR}/${DATE} \
+  -Ft \
+  -z \
+  -P \
+  -Xs \
+  -c fast 2>> ${LOG_FILE}
+
+# Check if backup was successful
+if [ $? -eq 0 ]; then
+    echo "Backup completed successfully at $(date)" >> ${LOG_FILE}
+    
+    # Remove old backups (keep last 7 days)
+    find ${BACKUP_DIR} -type d -mtime +7 -exec rm -rf {} \;
+    
+    echo "Old backups cleanup completed" >> ${LOG_FILE}
+else
+    echo "Backup failed at $(date)" >> ${LOG_FILE}
+    exit 1
+fi</code></pre>
+                </section>
+
+                <!-- Standby Server Setup -->
+                <section id="standby-setup">
+                    <h2>Standby Server Configuration</h2>
+                    
+                    <h3>Step 1: Prepare Standby Server</h3>
+                    <pre><code># Install PostgreSQL
+sudo apt update
+sudo apt install postgresql-14 postgresql-client-14
+
+# Stop PostgreSQL service
+sudo systemctl stop postgresql
+
+# Remove existing data directory
+sudo rm -rf /var/lib/postgresql/14/main/*</code></pre>
+
+                    <h3>Step 2: Clone Primary Database</h3>
+                    <pre><code># From standby server, clone primary database
+sudo -u postgres pg_basebackup \
+  -h primary_server_ip \
+  -D /var/lib/postgresql/14/main \
+  -U replicator \
+  -v \
+  -P \
+  -Xs \
+  -R \
+  -S standby_slot1</code></pre>
+
+                    <h3>Step 3: Configure Standby Settings</h3>
+                    <pre><code># Edit postgresql.conf on standby
+hot_standby = on
+max_standby_streaming_delay = 30s
+max_standby_archive_delay = 30s
+hot_standby_feedback = on</code></pre>
+
+                    <h3>Step 4: Create Recovery Configuration</h3>
+                    <pre><code># Create standby.signal file
+sudo -u postgres touch /var/lib/postgresql/14/main/standby.signal
+
+# Configure recovery settings in postgresql.conf
+primary_conninfo = 'host=primary_server_ip port=5432 user=replicator password=your_password application_name=standby1'
+primary_slot_name = 'standby_slot1'
+restore_command = 'cp /mnt/server/archivedir/%f %p'
+recovery_target_timeline = 'latest'</code></pre>
+
+                    <h3>Step 5: Start Standby Server</h3>
+                    <pre><code># Start PostgreSQL service
+sudo systemctl start postgresql
+
+# Check replication status
+psql -c "SELECT * FROM pg_stat_replication;"</code></pre>
+                </section>
+
+                <!-- PITR -->
+                <section id="pitr">
+                    <h2>Point-in-Time Recovery (PITR)</h2>
+                    
+                    <h3>Recovery Process</h3>
+                    <pre><code># Step 1: Restore base backup
+tar -xzf /mnt/pg_backup/base_backup.tar.gz -C /var/lib/postgresql/14/main/
+
+# Step 2: Create recovery configuration
+cat > /var/lib/postgresql/14/main/recovery.conf << EOF
+restore_command = 'cp /mnt/server/archivedir/%f %p'
+recovery_target_time = '2024-01-15 14:30:00'
+recovery_target_action = 'promote'
+EOF
+
+# Step 3: Create recovery.signal
+sudo -u postgres touch /var/lib/postgresql/14/main/recovery.signal
+
+# Step 4: Start PostgreSQL in recovery mode
+sudo -u postgres /usr/lib/postgresql/14/bin/pg_ctl \
+  -D /var/lib/postgresql/14/main \
+  -l /var/log/postgresql/recovery.log \
+  start</code></pre>
+
+                    <h3>Monitoring Recovery Progress</h3>
+                    <pre><code># Check recovery status
+psql -c "SELECT * FROM pg_stat_recovery_progress;"
+
+# Monitor WAL replay
+psql -c "SELECT * FROM pg_stat_wal_receiver;"</code></pre>
+                </section>
+
+                <!-- Monitoring -->
+                <section id="monitoring">
+                    <h2>Monitoring & Maintenance</h2>
+                    
+                    <h3>Essential Monitoring Commands</h3>
+                    <pre><code># Check WAL archiving status
+psql -c "SELECT * FROM pg_stat_archiver;"
+
+# Monitor replication slots
+psql -c "SELECT * FROM pg_replication_slots;"
+
+# Check WAL file generation
+psql -c "SELECT pg_current_wal_lsn(), pg_walfile_name(pg_current_wal_lsn());"
+
+# Archive directory usage
+du -sh /mnt/server/archivedir/
+find /mnt/server/archivedir/ -name "*.backup" | wc -l</code></pre>
+
+                    <h3>Maintenance Script</h3>
+                    <pre><code>#!/bin/bash
+# wal_maintenance.sh
+
+ARCHIVE_DIR="/mnt/server/archivedir"
+LOG_FILE="/var/log/postgresql/wal_maintenance.log"
+
+echo "Starting WAL maintenance at $(date)" >> ${LOG_FILE}
+
+# Remove WAL files older than 30 days
+find ${ARCHIVE_DIR} -name "*.backup" -mtime +30 -delete >> ${LOG_FILE} 2>&1
+
+# Check for failed archiving attempts
+FAILED_COUNT=$(psql -t -c "SELECT failed_count FROM pg_stat_archiver;" | tr -d ' ')
+if [ ${FAILED_COUNT} -gt 0 ]; then
+    echo "WARNING: ${FAILED_COUNT} failed archiving attempts detected" >> ${LOG_FILE}
+fi
+
+echo "WAL maintenance completed at $(date)" >> ${LOG_FILE}</code></pre>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices">
+                    <h2>Production Best Practices</h2>
+                    
+                    <div class="info-box">
+                        <h3>Security Considerations</h3>
+                        <ul>
+                            <li>Use separate replication users with limited privileges</li>
+                            <li>Implement SSL/TLS for replication connections</li>
+                            <li>Regularly rotate passwords and encryption keys</li>
+                            <li>Monitor access logs for unauthorized attempts</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-box">
+                        <h3>Performance Optimization</h3>
+                        <ul>
+                            <li>Tune <code>wal_buffers</code> based on workload</li>
+                            <li>Adjust <code>checkpoint_timeout</code> and <code>max_wal_size</code></li>
+                            <li>Use separate storage for WAL files</li>
+                            <li>Implement connection pooling for standby servers</li>
+                        </ul>
+                    </div>
+
+                    <div class="success-box">
+                        <h3>Disaster Recovery Testing</h3>
+                        <ul>
+                            <li>Test failover procedures monthly</li>
+                            <li>Validate backup restores quarterly</li>
+                            <li>Document recovery time objectives (RTO/RPO)</li>
+                            <li>Conduct disaster recovery drills annually</li>
+                        </ul>
+                    </div>
+
+                    <h3>Troubleshooting Common Issues</h3>
+                    <div class="warning-box">
+                        <h4 class="font-bold text-yellow-800 mb-2">Issue: Replication Lag</h4>
+                        <p>Check network latency, disk I/O, and <code>max_standby_streaming_delay</code> settings. Consider increasing WAL buffers and optimizing queries.</p>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4 class="font-bold text-red-800 mb-2">Issue: Archive Command Failure</h4>
+                        <p>Verify permissions, disk space, and command syntax. Check PostgreSQL logs for specific error messages.</p>
+                    </div>
+                </section>
+
+                <!-- Conclusion -->
+                <section class="mt-12 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-l-4 border-blue-500">
+                    <h3 class="text-xl font-bold mb-4">Conclusion</h3>
+                    <p>Implementing PostgreSQL WAL archiving with Point-in-Time Recovery provides enterprise-grade data protection. The key takeaways are:</p>
+                    <ul class="mt-4 space-y-2">
+                        <li>✅ Regular base backups combined with continuous WAL archiving</li>
+                        <li>✅ Properly configured standby servers for high availability</li>
+                        <li>✅ Comprehensive monitoring and alerting systems</li>
+                        <li>✅ Regular testing of backup and recovery procedures</li>
+                        <li>✅ Documentation of recovery processes and timelines</li>
+                    </ul>
+                    <p class="mt-6 font-bold text-gray-800">Remember: A backup is only as good as your last successful restore test.</p>
+                    
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <a href="blog.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold">
+                            ← Back to Blog
+                        </a>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        ↑
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-8 px-6 md:px-12 bg-gray-50 border-t border-gray-200">
+        <div class="max-w-4xl mx-auto text-center">
+            <p class="text-gray-600 mb-4">© 2025 Md. Mostasim Mahmud. All rights reserved.</p>
+            <div class="flex justify-center gap-6">
+                <a href="blog.html" class="text-blue-600 hover:text-blue-800 font-medium">Blog</a>
+                <a href="index.html#projects" class="text-blue-600 hover:text-blue-800 font-medium">Projects</a>
+                <a href="index.html#contact" class="text-blue-600 hover:text-blue-800 font-medium">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll Progress Bar
+        window.addEventListener('scroll', () => {
+            const scrollProgress = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+            document.getElementById('scrollProgress').style.width = scrollProgress + '%';
+        });
+
+        // Back to Top Button
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 500) {
+                backToTop.style.display = 'flex';
+            } else {
+                backToTop.style.display = 'none';
+            }
+        });
+
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Smooth scrolling for table of contents links
+        document.querySelectorAll('.table-of-contents a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    const offset = 80;
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Mobile Menu Toggle
+        const menuBtn = document.getElementById('menuBtn');
+        if (menuBtn) {
+            menuBtn.addEventListener('click', function() {
+                alert('Mobile menu - Navigation links would appear here');
+            });
+        }
+
+        // Copy code blocks on click
+        document.querySelectorAll('pre').forEach(pre => {
+            pre.addEventListener('click', function() {
+                const code = this.querySelector('code');
+                if (code) {
+                    navigator.clipboard.writeText(code.textContent).then(() => {
+                        const originalText = this.textContent;
+                        this.style.backgroundColor = '#10b981';
+                        this.textContent = '✓ Copied!';
+                        
+                        setTimeout(() => {
+                            this.style.backgroundColor = '#1a1a1a';
+                            this.textContent = originalText;
+                        }, 1500);
+                    });
+                }
+            });
+        });
+
+        // Add intersection observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all sections
+        document.querySelectorAll('section').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+
+    <script>
+        // Disable right-click
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        });
+
+        // Disable keyboard shortcuts (Ctrl+Shift+I, Ctrl+U, F12, etc.)
+        document.addEventListener('keydown', function (e) {
+            // Disable F12, Ctrl+Shift+I, Ctrl+U, Ctrl+Shift+C
+            if (
+                e.key === 'F12' ||
+                (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                (e.ctrlKey && e.key === 'u') ||
+                (e.ctrlKey && e.shiftKey && e.key === 'C')
+            ) {
+                e.preventDefault();
+            }
+        });
+
+        // Prevent image dragging
+        document.addEventListener('dragstart', function (e) {
+            if (e.target.tagName === 'IMG') {
+                e.preventDefault();
+            }
+        });
+
+        // Prevent image saving
+        document.addEventListener('mousedown', function (e) {
+            if (e.target.tagName === 'IMG') {
+                e.preventDefault();
+            }
+        });
+
+        // Prevent opening images in new tabs
+        document.addEventListener('auxclick', function (e) {
+            if (e.button === 1 && e.target.tagName === 'IMG') { // Middle mouse button
+                e.preventDefault();
+            }
+        });
+
+        // Prevent copying image URLs
+        document.addEventListener('copy', function (e) {
+            if (e.target.tagName === 'IMG') {
+                e.preventDefault();
+            }
+        });
+
+        // Prevent opening developer tools
+        (function () {
+            let devtools = function () {};
+            devtools.toString = function () {
+                if (window.console) {
+                    console.log('%c ', 'font-size: 1px;');
+                    console.clear();
+                }
+                return '';
+            };
+        })();
+    </script>
+    <script>
+        (function () {
+            let devtoolsOpen = false;
+        
+            const threshold = 160;
+        
+            setInterval(() => {
+                const widthDiff = window.outerWidth - window.innerWidth;
+                const heightDiff = window.outerHeight - window.innerHeight;
+        
+                if (widthDiff > threshold || heightDiff > threshold) {
+                    if (!devtoolsOpen) {
+                        devtoolsOpen = true;
+                        document.body.innerHTML = '';
+                        window.location.href = 'access-denied.html';
+                    }
+                } else {
+                    devtoolsOpen = false;
+                }
+            }, 500);
+        })();
+    </script>
+</body>
+</html>
