@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dolibarr ERP Customization for Medical Laboratories | Complete Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --accent: #f97316;
+            --medical-blue: #1e88e5;
+            --medical-green: #43a047;
+            --medical-red: #e53935;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --border: #e5e7eb;
+            --bg-light: #f9fafb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+        }
+
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--medical-blue), var(--medical-green));
+            z-index: 100;
+            width: 0%;
+        }
+
+        nav {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .nav-link {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--medical-blue);
+        }
+
+        .category-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--medical-blue) 0%, var(--medical-green) 100%);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .reading-time {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Article Content Styles */
+        .article-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .article-content {
+            font-size: 1.125rem;
+            line-height: 1.8;
+        }
+
+        .article-content h2 {
+            font-size: 2rem;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .article-content h3 {
+            font-size: 1.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--medical-blue);
+        }
+
+        .article-content h4 {
+            font-size: 1.25rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .article-content p {
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .article-content ul, .article-content ol {
+            margin: 1.5rem 0;
+            padding-left: 2rem;
+        }
+
+        .article-content li {
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .article-content pre {
+            background: #1a1a1a;
+            color: #f8f8f2;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .article-content code {
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .article-content blockquote {
+            border-left: 4px solid var(--medical-blue);
+            padding-left: 1.5rem;
+            margin: 2rem 0;
+            font-style: italic;
+            color: var(--text-secondary);
+            background: var(--bg-light);
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, rgba(30, 136, 229, 0.05) 0%, rgba(67, 160, 71, 0.05) 100%);
+            border-left: 4px solid var(--medical-blue);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, rgba(229, 57, 53, 0.05) 0%, rgba(244, 67, 54, 0.05) 100%);
+            border-left: 4px solid var(--medical-red);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, rgba(67, 160, 71, 0.05) 0%, rgba(56, 142, 60, 0.05) 100%);
+            border-left: 4px solid var(--medical-green);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .table-of-contents {
+            background: var(--bg-light);
+            border-left: 4px solid var(--medical-blue);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .table-of-contents ul {
+            margin: 0;
+            padding-left: 1rem;
+            list-style: none;
+        }
+
+        .table-of-contents li {
+            margin-bottom: 0.75rem;
+            padding-left: 1rem;
+            position: relative;
+        }
+
+        .table-of-contents li:before {
+            content: "→";
+            position: absolute;
+            left: -0.5rem;
+            color: var(--medical-blue);
+        }
+
+        .table-of-contents a {
+            color: var(--medical-blue);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .table-of-contents a:hover {
+            color: var(--medical-green);
+            text-decoration: underline;
+        }
+
+        .module-card {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .module-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .module-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: linear-gradient(135deg, var(--medical-blue) 0%, var(--medical-green) 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(30, 136, 229, 0.2);
+            transition: transform 0.3s ease;
+            z-index: 40;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-2px);
+        }
+
+        .workflow-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: var(--bg-light);
+            border-radius: 12px;
+            border-left: 4px solid var(--medical-blue);
+        }
+
+        .step-number {
+            background: var(--medical-blue);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 768px) {
+            .article-container {
+                padding: 0 16px;
+            }
+            
+            .article-content h2 {
+                font-size: 1.75rem;
+            }
+            
+            .article-content h3 {
+                font-size: 1.375rem;
+            }
+            
+            .article-content {
+                font-size: 1rem;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <!-- Scroll Progress Bar -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- Navigation -->
+    <nav class="py-4 px-6 md:px-12">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500">
+                Md. Mostasim Mahmud
+            </a>
+            <div class="hidden md:flex gap-8">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="blog.html" class="nav-link" style="color: #1e88e5;">Blog</a>
+                <a href="index.html#projects" class="nav-link">Projects</a>
+                <a href="index.html#contact" class="nav-link">Contact</a>
+            </div>
+            <button class="md:hidden text-2xl" id="menuBtn">☰</button>
+        </div>
+    </nav>
+
+    <!-- Article Header -->
+    <header class="pt-12 pb-8">
+        <div class="article-container">
+            <div class="text-center mb-8">
+                <span class="category-badge">ERP Systems & Medical Technology</span>
+                <span class="reading-time ml-4">📖 15 min read</span>
+            </div>
+            
+            <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-500 fade-in">
+                Dolibarr ERP Customization for Medical Laboratories: Complete Implementation Guide
+            </h1>
+            
+            <div class="text-center text-gray-600 mb-8">
+                <p class="text-sm">Published: <span class="font-semibold">Nov 15, 2024</span> • Last Updated: <span class="font-semibold">Jan 12, 2025</span></p>
+            </div>
+            
+            <div class="mb-8">
+                <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
+                     alt="Dolibarr ERP Medical Lab" 
+                     class="w-full h-64 md:h-96 object-cover rounded-xl shadow-lg">
+                <p class="text-sm text-gray-500 mt-2 text-center">Customized Dolibarr ERP system managing histopathology, cytopathology, and automated report generation for cancer testing laboratories</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Article Content -->
+    <main class="pb-16">
+        <div class="article-container">
+            <!-- Table of Contents -->
+            <div class="table-of-contents fade-in">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">📋 Table of Contents</h3>
+                <ul class="space-y-2">
+                    <li><a href="#introduction">Introduction to Dolibarr ERP for Healthcare</a></li>
+                    <li><a href="#overview">Medical Laboratory Requirements Overview</a></li>
+                    <li><a href="#modules">Custom Module Development</a></li>
+                    <li><a href="#gross-module">Gross Examination Module</a></li>
+                    <li><a href="#transcription-module">Transcription Module</a></li>
+                    <li><a href="#doctor-module">Doctor Module</a></li>
+                    <li><a href="#report-module">Automated Report Generation</a></li>
+                    <li><a href="#histopath-module">Histopathology Lab Module</a></li>
+                    <li><a href="#cytopath-module">Cytopathology Lab Module</a></li>
+                    <li><a href="#delivery-module">Delivery & Communication Module</a></li>
+                    <li="#hooks-ui">Hooks & UI Optimization</a></li>
+                    <li><a href="#implementation">Implementation Steps</a></li>
+                    <li><a href="#benefits">Benefits & Impact</a></li>
+                </ul>
+            </div>
+
+            <!-- Article Content -->
+            <article class="article-content fade-in">
+                <!-- Introduction -->
+                <section id="introduction">
+                    <h2>Introduction to Dolibarr ERP for Healthcare</h2>
+                    <p>Dolibarr ERP & CRM is an open-source software package designed to manage organizations' activities including contacts, quotes, invoices, orders, stocks, agenda, human resources, ECM, manufacturing, and more. For medical laboratories, Dolibarr provides a flexible, modular foundation that can be customized to handle complex healthcare workflows, patient data management, and regulatory compliance requirements.</p>
+                    
+                    <div class="info-box">
+                        <h4 class="font-bold mb-2">Why Choose Dolibarr for Medical Laboratories?</h4>
+                        <ul>
+                            <li><strong>Open-Source Flexibility:</strong> Written in PHP with JavaScript enhancements</li>
+                            <li><strong>Modular Architecture:</strong> Enable only the modules you need</li>
+                            <li><strong>Multi-Language Support:</strong> Localization in major languages including medical terminology</li>
+                            <li><strong>GDPR Compliant:</strong> Built-in data privacy features for healthcare regulations</li>
+                            <li><strong>API Integration:</strong> REST and SOAP APIs for system integration</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Overview -->
+                <section id="overview">
+                    <h2>Medical Laboratory Requirements Overview</h2>
+                    <p>Medical laboratories handling cancer testing require specialized features that standard ERPs don't provide. Our customization addresses these critical needs:</p>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 my-6">
+                        <div class="p-4 border border-gray-200 rounded-lg">
+                            <h4 class="font-bold text-blue-600 mb-2">Patient Management</h4>
+                            <ul class="text-sm space-y-1">
+                                <li>Patient registration with medical history</li>
+                                <li>Sample tracking with barcodes</li>
+                                <li>Multi-test request handling</li>
+                                <li>Insurance and billing integration</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 border border-gray-200 rounded-lg">
+                            <h4 class="font-bold text-green-600 mb-2">Lab Workflow</h4>
+                            <ul class="text-sm space-y-1">
+                                <li>Gross examination documentation</li>
+                                <li>Microscopic analysis tracking</li>
+                                <li>Quality control procedures</li>
+                                <li>Pathologist review workflows</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 border border-gray-200 rounded-lg">
+                            <h4 class="font-bold text-purple-600 mb-2">Reporting</h4>
+                            <ul class="text-sm space-y-1">
+                                <li>Automated report generation</li>
+                                <li>Customizable report templates</li>
+                                <li>Digital signature integration</li>
+                                <li>Multi-format export (PDF, DOC, HTML)</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 border border-gray-200 rounded-lg">
+                            <h4 class="font-bold text-red-600 mb-2">Communication</h4>
+                            <ul class="text-sm space-y-1">
+                                <li>Email/SMS notifications</li>
+                                <li>Doctor portal access</li>
+                                <li>Delivery tracking</li>
+                                <li>Emergency alert systems</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Modules -->
+                <section id="modules">
+                    <h2>Custom Module Development</h2>
+                    <p>We developed several specialized modules to address specific medical laboratory requirements:</p>
+                </section>
+
+                <!-- Gross Module -->
+                <section id="gross-module">
+                    <div class="module-card" style="border-left-color: #1e88e5;">
+                        <div class="flex items-start gap-4">
+                            <div class="module-icon" style="background: rgba(30, 136, 229, 0.1); color: #1e88e5;">
+                                🔬
+                            </div>
+                            <div>
+                                <h3>Gross Examination Module</h3>
+                                <p class="text-gray-600 mt-2">Automates documentation of tissue sample examinations with image integration and structured data capture.</p>
+                                
+                                <div class="mt-4 space-y-3">
+                                    <div class="workflow-step">
+                                        <div class="step-number">1</div>
+                                        <div>
+                                            <h4 class="font-semibold">Sample Registration</h4>
+                                            <p class="text-sm text-gray-600">Barcode scanning for sample identification and patient matching</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="workflow-step">
+                                        <div class="step-number">2</div>
+                                        <div>
+                                            <h4 class="font-semibold">Examination Documentation</h4>
+                                            <p class="text-sm text-gray-600">Record size, shape, color, consistency with image upload capability</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="workflow-step">
+                                        <div class="step-number">3</div>
+                                        <div>
+                                            <h4 class="font-semibold">Quality Control</h4>
+                                            <p class="text-sm text-gray-600">Automated validation checks and technician approval workflow</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h4 class="mt-6 mb-3">Key Features:</h4>
+                                <ul class="space-y-2">
+                                    <li>✅ Image upload with annotation tools</li>
+                                    <li>✅ Structured data templates for different sample types</li>
+                                    <li>✅ Integration with patient records and test requests</li>
+                                    <li>✅ Automated data validation and error checking</li>
+                                    <li>✅ Audit trail for all examinations</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Transcription Module -->
+                <section id="transcription-module">
+                    <div class="module-card" style="border-left-color: #43a047;">
+                        <div class="flex items-start gap-4">
+                            <div class="module-icon" style="background: rgba(67, 160, 71, 0.1); color: #43a047;">
+                                🎤
+                            </div>
+                            <div>
+                                <h3>Transcription Module</h3>
+                                <p class="text-gray-600 mt-2">Voice-to-text transcription integrated with Dolibarr for efficient documentation of verbal findings.</p>
+                                
+                                <div class="mt-4 grid md:grid-cols-2 gap-4">
+                                    <div class="p-4 bg-gray-50 rounded-lg">
+                                        <h4 class="font-semibold mb-2">Voice Recognition</h4>
+                                        <ul class="text-sm space-y-1">
+                                            <li>• Google Speech-to-Text API integration</li>
+                                            <li>• Multiple language support</li>
+                                            <li>• Medical terminology dictionary</li>
+                                            <li>• Custom voice commands</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="p-4 bg-gray-50 rounded-lg">
+                                        <h4 class="font-semibold mb-2">Quality Assurance</h4>
+                                        <ul class="text-sm space-y-1">
+                                            <li>• Auto-correction for medical terms</li>
+                                            <li>• Transcription review workflow</li>
+                                            <li>• Version control and revisions</li>
+                                            <li>• Doctor approval system</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <h4 class="mt-6 mb-3">Technical Implementation:</h4>
+                                <pre><code>// Voice transcription integration example
+class TranscriptionModule {
+    public function processVoiceInput($audioFile) {
+        // Convert audio to text using Google API
+        $transcription = $this->googleSpeechToText($audioFile);
+        
+        // Apply medical terminology correction
+        $correctedText = $this->medicalTermCorrection($transcription);
+        
+        // Save to Dolibarr database
+        $this->saveToDatabase($correctedText);
+        
+        return $correctedText;
+    }
+    
+    private function googleSpeechToText($audioFile) {
+        // Google Cloud Speech-to-Text API call
+        // Implementation details...
+    }
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Doctor Module -->
+                <section id="doctor-module">
+                    <div class="module-card" style="border-left-color: #7b1fa2;">
+                        <div class="flex items-start gap-4">
+                            <div class="module-icon" style="background: rgba(123, 31, 162, 0.1); color: #7b1fa2;">
+                                👨‍⚕️
+                            </div>
+                            <div>
+                                <h3>Doctor Portal Module</h3>
+                                <p class="text-gray-600 mt-2">Comprehensive interface for doctors to access lab results, request additional tests, and collaborate with lab personnel.</p>
+                                
+                                <div class="mt-4">
+                                    <h4 class="font-semibold mb-3">Features:</h4>
+                                    <div class="grid md:grid-cols-3 gap-3">
+                                        <div class="p-3 bg-blue-50 rounded-lg">
+                                            <h5 class="font-semibold text-sm">Patient Dashboard</h5>
+                                            <p class="text-xs mt-1">Complete patient history and current tests</p>
+                                        </div>
+                                        <div class="p-3 bg-green-50 rounded-lg">
+                                            <h5 class="font-semibold text-sm">Result Viewing</h5>
+                                            <p class="text-xs mt-1">Test results with images and annotations</p>
+                                        </div>
+                                        <div class="p-3 bg-purple-50 rounded-lg">
+                                            <h5 class="font-semibold text-sm">Test Requests</h5>
+                                            <p class="text-xs mt-1">Request additional tests with priority levels</p>
+                                        </div>
+                                        <div class="p-3 bg-yellow-50 rounded-lg">
+                                            <h5 class="font-semibold text-sm">Collaboration</h5>
+                                            <p class="text-xs mt-1">Direct messaging with lab technicians</p>
+                                        </div>
+                                        <div class="p-3 bg-red-50 rounded-lg">
+                                            <h5 class="font-semibold text-sm">Reporting</h5>
+                                            <p class="text-xs mt-1">Generate patient reports and summaries</p>
+                                        </div>
+                                        <div class="p-3 bg-indigo-50 rounded-lg">
+                                            <h5 class="font-semibold text-sm">Analytics</h5>
+                                            <p class="text-xs mt-1">Patient statistics and trend analysis</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Report Generation Module -->
+                <section id="report-module">
+                    <div class="module-card" style="border-left-color: #ff9800;">
+                        <div class="flex items-start gap-4">
+                            <div class="module-icon" style="background: rgba(255, 152, 0, 0.1); color: #ff9800;">
+                                📄
+                            </div>
+                            <div>
+                                <h3>Automated Report Generation Module</h3>
+                                <p class="text-gray-600 mt-2">Compiles data from all modules into cohesive, professional medical reports using customizable templates.</p>
+                                
+                                <h4 class="mt-6 mb-3">Report Templates:</h4>
+                                <pre><code>// Report template configuration example
+$reportTemplates = [
+    'histopathology' => [
+        'sections' => [
+            'patient_info' => true,
+            'clinical_history' => true,
+            'gross_description' => true,
+            'microscopic_description' => true,
+            'diagnosis' => true,
+            'comments' => true,
+            'doctor_signature' => true
+        ],
+        'format' => 'A4',
+        'header_logo' => 'hospital_logo.png',
+        'footer_text' => 'Confidential Medical Report'
+    ],
+    'cytopathology' => [
+        'sections' => [
+            'patient_info' => true,
+            'sample_details' => true,
+            'cellular_description' => true,
+            'diagnostic_interpretation' => true,
+            'recommendations' => true
+        ],
+        'format' => 'A4',
+        'include_images' => true
+    }
+];</code></pre>
+
+                                <h4 class="mt-6 mb-3">Report Generation Workflow:</h4>
+                                <div class="space-y-2">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center">1</div>
+                                        <span>Data collection from all modules</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center">2</div>
+                                        <span>Template selection based on test type</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center">3</div>
+                                        <span>Automatic data population</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center">4</div>
+                                        <span>Quality validation checks</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center">5</div>
+                                        <span>Pathologist review and approval</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center">6</div>
+                                        <span>Digital signature application</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center">7</div>
+                                        <span>Automatic delivery to doctors/patients</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Histopath Module -->
+                <section id="histopath-module">
+                    <div class="module-card" style="border-left-color: #d81b60;">
+                        <div class="flex items-start gap-4">
+                            <div class="module-icon" style="background: rgba(216, 27, 96, 0.1); color: #d81b60;">
+                                🔍
+                            </div>
+                            <div>
+                                <h3>Histopathology Lab Module</h3>
+                                <p class="text-gray-600 mt-2">Specialized module for tissue sample examination under microscope with comprehensive diagnostic tools.</p>
+                                
+                                <h4 class="mt-6 mb-3">Features:</h4>
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <div>
+                                        <h5 class="font-semibold mb-2">Sample Processing</h5>
+                                        <ul class="text-sm space-y-1">
+                                            <li>• Tissue embedding and sectioning tracking</li>
+                                            <li>• Staining protocol management</li>
+                                            <li>• Slide preparation documentation</li>
+                                            <li>• Quality control at each step</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-semibold mb-2">Microscopic Analysis</h5>
+                                        <ul class="text-sm space-y-1">
+                                            <li>• Digital slide image integration</li>
+                                            <li>• Annotation and measurement tools</li>
+                                            <li>• Multi-user collaborative review</li>
+                                            <li>• Diagnostic decision support</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <h4 class="mt-6 mb-3">Database Schema Extension:</h4>
+                                <pre><code>-- Histopathology specific tables
+CREATE TABLE llx_histo_samples (
+    rowid integer AUTO_INCREMENT PRIMARY KEY,
+    fk_patient integer NOT NULL,
+    sample_type varchar(50),
+    tissue_source varchar(100),
+    fixation_method varchar(50),
+    embedding_medium varchar(50),
+    section_thickness decimal(5,2),
+    staining_protocol text,
+    microscopic_findings text,
+    diagnosis_code varchar(20),
+    fk_pathologist integer,
+    review_date datetime,
+    status varchar(20)
+);
+
+CREATE TABLE llx_histo_slide_images (
+    rowid integer AUTO_INCREMENT PRIMARY KEY,
+    fk_sample integer NOT NULL,
+    magnification varchar(20),
+    image_path varchar(255),
+    annotations json,
+    created_date datetime
+);</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Cytopath Module -->
+                <section id="cytopath-module">
+                    <div class="module-card" style="border-left-color: #5e35b1;">
+                        <div class="flex items-start gap-4">
+                            <div class="module-icon" style="background: rgba(94, 53, 177, 0.1); color: #5e35b1;">
+                                🦠
+                            </div>
+                            <div>
+                                <h3>Cytopathology Lab Module</h3>
+                                <p class="text-gray-600 mt-2">Cell-level analysis system for diagnosing cancers, infections, and other cellular abnormalities.</p>
+                                
+                                <h4 class="mt-6 mb-3">Cytology Workflow:</h4>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <span class="font-medium">Sample Collection</span>
+                                        <span class="text-sm text-gray-500">Fine needle aspiration, brushings, fluids</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <span class="font-medium">Slide Preparation</span>
+                                        <span class="text-sm text-gray-500">Smear, liquid-based cytology, staining</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <span class="font-medium">Screening</span>
+                                        <span class="text-sm text-gray-500">Automated + manual screening</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <span class="font-medium">Diagnosis</span>
+                                        <span class="text-sm text-gray-500">Bethesda system, Paris system</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <span class="font-medium">Reporting</span>
+                                        <span class="text-sm text-gray-500">Structured cytology reports</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Delivery Module -->
+                <section id="delivery-module">
+                    <div class="module-card" style="border-left-color: #00acc1;">
+                        <div class="flex items-start gap-4">
+                            <div class="module-icon" style="background: rgba(0, 172, 193, 0.1); color: #00acc1;">
+                                📱
+                            </div>
+                            <div>
+                                <h3>Delivery Report & Communication Module</h3>
+                                <p class="text-gray-600 mt-2">Automated delivery of reports via multiple channels with tracking and confirmation systems.</p>
+                                
+                                <h4 class="mt-6 mb-3">Communication Channels:</h4>
+                                <div class="grid md:grid-cols-3 gap-4">
+                                    <div class="p-4 bg-blue-50 rounded-lg">
+                                        <h5 class="font-semibold mb-2">Email Integration</h5>
+                                        <ul class="text-sm space-y-1">
+                                            <li>• SMTP/IMAP configuration</li>
+                                            <li>• Encrypted PDF attachments</li>
+                                            <li>• Custom email templates</li>
+                                            <li>• Read receipts tracking</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="p-4 bg-green-50 rounded-lg">
+                                        <h5 class="font-semibold mb-2">SMS Gateway</h5>
+                                        <ul class="text-sm space-y-1">
+                                            <li>• Twilio/Plivo integration</li>
+                                            <li>• Status updates delivery</li>
+                                            <li>• Appointment reminders</li>
+                                            <li>• Emergency notifications</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="p-4 bg-purple-50 rounded-lg">
+                                        <h5 class="font-semibold mb-2">Doctor Portal</h5>
+                                        <ul class="text-sm space-y-1">
+                                            <li>• Secure web access</li>
+                                            <li>• Real-time notifications</li>
+                                            <li>• Chat/messaging system</li>
+                                            <li>• Mobile app integration</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <h4 class="mt-6 mb-3">SMS Configuration Example:</h4>
+                                <pre><code>// SMS notification configuration
+$smsConfig = [
+    'provider' => 'twilio', // twilio, plivo, nexmo
+    'account_sid' => 'your_account_sid',
+    'auth_token' => 'your_auth_token',
+    'from_number' => '+1234567890',
+    'templates' => [
+        'report_ready' => 'Your lab report is ready. Download: {link}',
+        'appointment_reminder' => 'Reminder: Lab appointment on {date} at {time}',
+        'status_update' => 'Test {test_id} status: {status}'
+    ],
+    'delivery_status' => true,
+    'retry_failed' => true,
+    'max_retries' => 3
+];</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Hooks & UI -->
+                <section id="hooks-ui">
+                    <h2>Hooks & UI Optimization</h2>
+                    
+                    <div class="info-box">
+                        <h4 class="font-bold mb-3">Dolibarr Hooks Implementation</h4>
+                        <p>We extensively used Dolibarr's hook system to customize functionality without modifying core files:</p>
+                        
+                        <pre><code>// Example hook for custom field validation
+function addMedicalValidationHooks($parameters, &$object, &$action, $hookmanager) {
+    if ($action == 'create' || $action == 'update') {
+        // Validate medical-specific fields
+        if (empty($object->medical_history)) {
+            setEventMessages('Medical history is required', null, 'errors');
+            $action = '';
+        }
+    }
+    return 0;
+}
+
+// Register hook
+$hookmanager->initHooks(array('patientcard'));
+$hookmanager->addHook('formObjectOptions', 'addMedicalValidationHooks');</code></pre>
+                    </div>
+                    
+                    <h4 class="mt-6 mb-3">UI Optimization Features:</h4>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="p-4 border border-gray-200 rounded-lg">
+                            <h5 class="font-semibold mb-2">Custom Dashboards</h5>
+                            <ul class="text-sm space-y-1">
+                                <li>• Lab technician dashboard</li>
+                                <li>• Pathologist review interface</li>
+                                <li>• Sample tracking board</li>
+                                <li>• Quality control dashboard</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="p-4 border border-gray-200 rounded-lg">
+                            <h5 class="font-semibold mb-2">Responsive Design</h5>
+                            <ul class="text-sm space-y-1">
+                                <li>• Mobile-friendly interfaces</li>
+                                <li>• Touch-screen optimization</li>
+                                <li>• Tablet compatibility</li>
+                                <li>• High-contrast modes</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="p-4 border border-gray-200 rounded-lg">
+                            <h5 class="font-semibold mb-2">Accessibility Features</h5>
+                            <ul class="text-sm space-y-1">
+                                <li>• Screen reader compatibility</li>
+                                <li>• Keyboard navigation</li>
+                                <li>• Large font options</li>
+                                <li>• Color blindness modes</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="p-4 border border-gray-200 rounded-lg">
+                            <h5 class="font-semibold mb-2">Performance Optimization</h5>
+                            <ul class="text-sm space-y-1">
+                                <li>• Lazy loading of images</li>
+                                <li>• Database query optimization</li>
+                                <li>• Caching mechanisms</li>
+                                <li>• CDN integration</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Implementation -->
+                <section id="implementation">
+                    <h2>Implementation Steps</h2>
+                    
+                    <div class="warning-box">
+                        <h4 class="font-bold mb-2">⚠️ Important Pre-requisites</h4>
+                        <ul>
+                            <li>PHP 7.4+ with required extensions (gd, mysqli, json, xml)</li>
+                            <li>MySQL 5.7+ or MariaDB 10.3+</li>
+                            <li>SSL/TLS for secure data transmission</li>
+                            <li>Backup system for medical data</li>
+                            <li>HIPAA/GDPR compliance infrastructure</li>
+                        </ul>
+                    </div>
+                    
+                    <h4 class="mt-6 mb-3">Step-by-Step Installation:</h4>
+                    <div class="space-y-3">
+                        <div class="workflow-step">
+                            <div class="step-number">1</div>
+                            <div>
+                                <h4 class="font-semibold">Install Base Dolibarr</h4>
+                                <pre class="mt-2 text-sm"><code># Clone Dolibarr repository
+git clone https://github.com/dolibarr/dolibarr -b 19.0
+cd dolibarr
+
+# Set up web server
+sudo cp -r htdocs /var/www/html/dolibarr
+sudo chown -R www-data:www-data /var/www/html/dolibarr</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="workflow-step">
+                            <div class="step-number">2</div>
+                            <div>
+                                <h4 class="font-semibold">Database Configuration</h4>
+                                <pre class="mt-2 text-sm"><code># Create database and user
+mysql -u root -p
+CREATE DATABASE dolibarr_medical;
+CREATE USER 'medlab'@'localhost' IDENTIFIED BY 'secure_password';
+GRANT ALL PRIVILEGES ON dolibarr_medical.* TO 'medlab'@'localhost';
+FLUSH PRIVILEGES;</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="workflow-step">
+                            <div class="step-number">3</div>
+                            <div>
+                                <h4 class="font-semibold">Install Medical Modules</h4>
+                                <pre class="mt-2 text-sm"><code># Copy custom modules to Dolibarr
+cp -r medical_modules/* /var/www/html/dolibarr/htdocs/custom/
+
+# Enable modules through Dolibarr interface
+# Go to Home → Setup → Modules/Applications
+# Enable: Gross Module, Transcription Module, etc.</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="workflow-step">
+                            <div class="step-number">4</div>
+                            <div>
+                                <h4 class="font-semibold">Configure Medical Settings</h4>
+                                <ul class="text-sm space-y-1">
+                                    <li>• Set up user roles (Technician, Pathologist, Doctor)</li>
+                                    <li>• Configure report templates</li>
+                                    <li>• Set up email/SMS gateways</li>
+                                    <li>• Configure backup schedules</li>
+                                    <li>• Set up audit logging</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Benefits -->
+                <section id="benefits">
+                    <h2>Benefits & Impact</h2>
+                    
+                    <div class="success-box">
+                        <h4 class="font-bold mb-3">Transformation Achieved:</h4>
+                        
+                        <div class="grid md:grid-cols-2 gap-6 mt-4">
+                            <div>
+                                <h5 class="font-semibold mb-2">🚀 Efficiency Gains</h5>
+                                <ul class="text-sm space-y-1">
+                                    <li>• 60% reduction in report generation time</li>
+                                    <li>• 75% faster sample tracking</li>
+                                    <li>• 50% reduction in manual data entry</li>
+                                    <li>• 90% automated communication</li>
+                                </ul>
+                            </div>
+                            
+                            <div>
+                                <h5 class="font-semibold mb-2">🎯 Accuracy Improvements</h5>
+                                <ul class="text-sm space-y-1">
+                                    <li>• 95% reduction in transcription errors</li>
+                                    <li>• 100% sample tracking accuracy</li>
+                                    <li>• Automated validation checks</li>
+                                    <li>• Real-time error detection</li>
+                                </ul>
+                            </div>
+                            
+                            <div>
+                                <h5 class="font-semibold mb-2">💼 Operational Benefits</h5>
+                                <ul class="text-sm space-y-1">
+                                    <li>• Centralized patient data management</li>
+                                    <li>• Improved inter-department collaboration</li>
+                                    <li>• Better resource utilization</li>
+                                    <li>• Enhanced patient experience</li>
+                                </ul>
+                            </div>
+                            
+                            <div>
+                                <h5 class="font-semibold mb-2">🛡️ Compliance & Security</h5>
+                                <ul class="text-sm space-y-1">
+                                    <li>• HIPAA/GDPR compliance built-in</li>
+                                    <li>• Complete audit trails</li>
+                                    <li>• Data encryption at rest and transit</li>
+                                    <li>• Role-based access control</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 p-6 bg-gradient-to-r from-blue-50 to-green-50 rounded-xl border-l-4 border-blue-500">
+                        <h3 class="text-xl font-bold mb-4">Conclusion</h3>
+                        <p>Customizing Dolibarr ERP for medical laboratories transforms a general-purpose ERP into a specialized medical management system. The modular approach allows laboratories to start with essential features and expand as needed, ensuring scalability and future-proofing.</p>
+                        
+                        <p class="mt-4 font-bold text-gray-800">Key Success Factors:</p>
+                        <ul class="mt-2 space-y-2">
+                            <li>✅ Thorough requirement analysis with medical staff</li>
+                            <li>✅ Modular development approach</li>
+                            <li>✅ Extensive testing with real-world scenarios</li>
+                            <li>✅ Comprehensive training programs</li>
+                            <li>✅ Ongoing support and updates</li>
+                        </ul>
+                        
+                        <div class="mt-6 pt-6 border-t border-gray-200">
+                            <a href="blog.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold">
+                                ← Back to Blog
+                            </a>
+                        </div>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        ↑
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-8 px-6 md:px-12 bg-gray-50 border-t border-gray-200">
+        <div class="max-w-4xl mx-auto text-center">
+            <p class="text-gray-600 mb-4">© 2025 Dolibarr Medical Laboratory Customization. All rights reserved.</p>
+            <div class="flex justify-center gap-6">
+                <a href="blog.html" class="text-blue-600 hover:text-blue-800 font-medium">Blog</a>
+                <a href="index.html#projects" class="text-blue-600 hover:text-blue-800 font-medium">Projects</a>
+                <a href="index.html#contact" class="text-blue-600 hover:text-blue-800 font-medium">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll Progress Bar
+        window.addEventListener('scroll', () => {
+            const scrollProgress = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+            document.getElementById('scrollProgress').style.width = scrollProgress + '%';
+        });
+
+        // Back to Top Button
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 500) {
+                backToTop.style.display = 'flex';
+            } else {
+                backToTop.style.display = 'none';
+            }
+        });
+
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Smooth scrolling for table of contents links
+        document.querySelectorAll('.table-of-contents a, .article-content a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    const offset = 80;
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Copy code blocks on click
+        document.querySelectorAll('pre').forEach(pre => {
+            pre.addEventListener('click', function() {
+                const code = this.querySelector('code');
+                if (code) {
+                    navigator.clipboard.writeText(code.textContent).then(() => {
+                        const originalText = this.textContent;
+                        this.style.backgroundColor = '#10b981';
+                        this.textContent = '✓ Copied!';
+                        
+                        setTimeout(() => {
+                            this.style.backgroundColor = '#1a1a1a';
+                            this.textContent = originalText;
+                        }, 1500);
+                    });
+                }
+            });
+        });
+
+        // Mobile Menu Toggle
+        const menuBtn = document.getElementById('menuBtn');
+        if (menuBtn) {
+            menuBtn.addEventListener('click', function() {
+                alert('Mobile menu - Navigation links would appear here');
+            });
+        }
+
+        // Add intersection observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all sections
+        document.querySelectorAll('section').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>
