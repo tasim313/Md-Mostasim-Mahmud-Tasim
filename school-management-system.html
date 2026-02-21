@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building Scalable School Management Systems with Django & Next.js</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --accent: #f97316;
+            --accent-light: #fed7aa;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --border: #e5e7eb;
+            --bg-light: #f9fafb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+        }
+
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            z-index: 100;
+            width: 0%;
+        }
+
+        nav {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .nav-link {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .category-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .reading-time {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Article Content Styles */
+        .article-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .article-content {
+            font-size: 1.125rem;
+            line-height: 1.8;
+        }
+
+        .article-content h2 {
+            font-size: 2rem;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .article-content h3 {
+            font-size: 1.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .article-content h4 {
+            font-size: 1.25rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .article-content p {
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .article-content ul, .article-content ol {
+            margin: 1.5rem 0;
+            padding-left: 2rem;
+        }
+
+        .article-content li {
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .article-content pre {
+            background: #1a1a1a;
+            color: #f8f8f2;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .article-content code {
+            background: #f1f5f9;
+            color: #334155;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .article-content blockquote {
+            border-left: 4px solid var(--primary);
+            padding-left: 1.5rem;
+            margin: 2rem 0;
+            font-style: italic;
+            color: var(--text-secondary);
+            background: var(--bg-light);
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(249, 115, 22, 0.05) 100%);
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.05) 0%, rgba(220, 38, 38, 0.05) 100%);
+            border-left: 4px solid #f97316;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, rgba(22, 163, 74, 0.05) 100%);
+            border-left: 4px solid #22c55e;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .feature-description {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .tech-item {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 500;
+        }
+
+        .table-of-contents {
+            background: var(--bg-light);
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .table-of-contents ul {
+            margin: 0;
+            padding-left: 1rem;
+            list-style: none;
+        }
+
+        .table-of-contents li {
+            margin-bottom: 0.75rem;
+            padding-left: 1rem;
+            position: relative;
+        }
+
+        .table-of-contents li:before {
+            content: "→";
+            position: absolute;
+            left: -0.5rem;
+            color: var(--primary);
+        }
+
+        .table-of-contents a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .table-of-contents a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            transition: transform 0.3s ease;
+            z-index: 40;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .article-container {
+                padding: 0 16px;
+            }
+            
+            .article-content h2 {
+                font-size: 1.75rem;
+            }
+            
+            .article-content h3 {
+                font-size: 1.375rem;
+            }
+            
+            .article-content {
+                font-size: 1rem;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <!-- Scroll Progress Bar -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- Navigation -->
+    <nav class="py-4 px-6 md:px-12">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500">
+                Md. Mostasim Mahmud
+            </a>
+            <div class="hidden md:flex gap-8">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="index.html#about" class="nav-link">About</a>
+                <a href="index.html#experience" class="nav-link">Experience</a>
+                <a href="index.html#projects" class="nav-link">Projects</a>
+                <a href="index.html#contact" class="nav-link">Contact</a>
+                <a href="blog.html" class="nav-link" style="color: #2563eb;">Blog</a>
+            </div>
+            <button class="md:hidden text-2xl" id="menuBtn">☰</button>
+        </div>
+    </nav>
+
+    <!-- Article Header -->
+    <header class="pt-12 pb-8">
+        <div class="article-container">
+            <div class="text-center mb-8">
+                <span class="category-badge">Full-Stack</span>
+                <span class="reading-time ml-4">📖 7 min read</span>
+            </div>
+            
+            <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500 fade-in">
+                Building Scalable School Management Systems with Django & Next.js
+            </h1>
+            
+            <div class="text-center text-gray-600 mb-8">
+                <p class="text-sm">Published: <span class="font-semibold">Nov 5, 2024</span> • Last Updated: <span class="font-semibold">Dec 10, 2024</span></p>
+            </div>
+            
+            <div class="mb-8">
+                <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
+                     alt="School Management System" 
+                     class="w-full h-64 md:h-96 object-cover rounded-xl shadow-lg">
+                <p class="text-sm text-gray-500 mt-2 text-center">Modern school management systems combine powerful backend architecture with intuitive frontend interfaces</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Article Content -->
+    <main class="pb-16">
+        <div class="article-container">
+            <!-- Table of Contents -->
+            <div class="table-of-contents fade-in">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">📋 Table of Contents</h3>
+                <ul class="space-y-2">
+                    <li><a href="#introduction">Introduction</a></li>
+                    <li><a href="#technologies">Technology Stack</a></li>
+                    <li><a href="#key-features">Key Features</a></li>
+                    <li><a href="#architecture">System Architecture</a></li>
+                    <li><a href="#getting-started">Getting Started</a></li>
+                    <li><a href="#project-structure">Project Structure</a></li>
+                    <li><a href="#database-design">Database Design</a></li>
+                    <li><a href="#api-integration">API Integration with Next.js</a></li>
+                    <li><a href="#deployment">Deployment Strategies</a></li>
+                    <li><a href="#best-practices">Best Practices</a></li>
+                    <li><a href="#conclusion">Conclusion</a></li>
+                </ul>
+            </div>
+
+            <!-- Article Content -->
+            <article class="article-content fade-in">
+                <!-- Introduction -->
+                <section id="introduction">
+                    <h2>Introduction</h2>
+                    <p>The education sector is rapidly evolving, and schools need robust digital solutions to manage their daily operations efficiently. A School Management System (SMS) is a comprehensive software solution designed to automate and streamline administrative tasks, academic processes, and communication between stakeholders.</p>
+                    
+                    <p>In this guide, I'll walk you through building a scalable school management system using Django for the backend and Next.js for the frontend. This combination provides enterprise-level robustness with modern, responsive user interfaces.</p>
+                    
+                    <blockquote>
+                        "A well-designed school management system can reduce administrative workload by up to 40% and improve parent-teacher communication by 60%."
+                    </blockquote>
+                </section>
+
+                <!-- Technology Stack -->
+                <section id="technologies">
+                    <h2>Technology Stack</h2>
+                    
+                    <div class="tech-stack">
+                        <span class="tech-item">Django (Python)</span>
+                        <span class="tech-item">React & Next.js</span>
+                        <span class="tech-item">PostgreSQL</span>
+                        <span class="tech-item">Django REST Framework</span>
+                        <span class="tech-item">Redis</span>
+                        <span class="tech-item">Docker</span>
+                        <span class="tech-item">Celery</span>
+                    </div>
+                    
+                    <h3>Backend: Django (Python)</h3>
+                    <p>Django provides robust server-side processing and API management. Its built-in admin interface, ORM, and security features make it ideal for complex educational systems.</p>
+                    
+                    <h3>Frontend: React & Next.js</h3>
+                    <p>Next.js enables dynamic and responsive user interfaces with server-side rendering capabilities, ensuring fast page loads and excellent SEO performance.</p>
+                    
+                    <h3>Database: PostgreSQL</h3>
+                    <p>PostgreSQL offers secure and reliable data storage with advanced features like JSON fields, full-text search, and excellent performance for complex queries.</p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="key-features">
+                    <h2>Key Features</h2>
+                    
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">👨‍🎓</div>
+                            <h4 class="feature-title">Student Information Management</h4>
+                            <p class="feature-description">Seamlessly manage student records, including personal details, academic performance, attendance, and disciplinary records.</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon">📅</div>
+                            <h4 class="feature-title">Scheduling & Timetabling</h4>
+                            <p class="feature-description">Automate the creation of class schedules, examination timetables, and event calendars with conflict detection.</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon">💬</div>
+                            <h4 class="feature-title">Communication Tools</h4>
+                            <p class="feature-description">Integrated messaging system for efficient communication between teachers, students, and parents with real-time notifications.</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon">📝</div>
+                            <h4 class="feature-title">Exam Management</h4>
+                            <p class="feature-description">Streamline the creation, scheduling, and grading of exams with automated result calculation and report card generation.</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon">✅</div>
+                            <h4 class="feature-title">Attendance Management</h4>
+                            <p class="feature-description">Track and manage student attendance with real-time updates, biometric integration, and automated parent notifications.</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon">💰</div>
+                            <h4 class="feature-title">Fees Collection</h4>
+                            <p class="feature-description">Simplify fee collection with integrated payment gateways, automated reminders, and detailed financial reporting.</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon">🚌</div>
+                            <h4 class="feature-title">Transportation Management</h4>
+                            <p class="feature-description">Manage school transportation including bus routes, schedules, driver assignments, and real-time GPS tracking.</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon">📊</div>
+                            <h4 class="feature-title">Reporting & Analytics</h4>
+                            <p class="feature-description">Generate detailed reports and analytics to monitor school performance, student progress, and operational efficiency.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- System Architecture -->
+                <section id="architecture">
+                    <h2>System Architecture</h2>
+                    
+                    <p>The system follows a modular architecture with clear separation of concerns:</p>
+                    
+                    <pre><code>School Management System Architecture
+├── Frontend (Next.js)
+│   ├── Student Portal
+│   ├── Teacher Portal
+│   ├── Admin Dashboard
+│   └── Parent Portal
+├── API Layer (Django REST Framework)
+│   ├── RESTful Endpoints
+│   ├── JWT Authentication
+│   └── WebSocket for Real-time
+├── Backend Services
+│   ├── Django Apps
+│   ├── Celery for Async Tasks
+│   └── Redis for Caching
+└── Database
+    ├── PostgreSQL (Primary)
+    └── Redis (Session/Cache)</code></pre>
+                </section>
+
+                <!-- Getting Started -->
+                <section id="getting-started">
+                    <h2>Getting Started</h2>
+                    
+                    <h3>Prerequisites</h3>
+                    <ul>
+                        <li>Python 3.9+</li>
+                        <li>Node.js 16+</li>
+                        <li>PostgreSQL 13+</li>
+                        <li>Redis (for caching and real-time features)</li>
+                    </ul>
+                    
+                    <h3>Setting up the Backend</h3>
+                    
+                    <h4>Create a virtual environment</h4>
+                    <pre><code>python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate</code></pre>
+                    
+                    <h4>Install dependencies</h4>
+                    <pre><code>pip install -r requirements.txt</code></pre>
+                    
+                    <p>Example <code>requirements.txt</code>:</p>
+                    <pre><code>Django==4.2.0
+djangorestframework==3.14.0
+django-cors-headers==4.0.0
+psycopg2-binary==2.9.6
+python-dotenv==1.0.0
+celery==5.3.0
+redis==5.0.0
+django-redis==5.3.0
+channels==4.0.0
+channels-redis==4.1.0
+django-filter==23.2
+djangorestframework-simplejwt==5.2.2</code></pre>
+                    
+                    <h4>Configure Database</h4>
+                    <pre><code># settings.py
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'school_management',
+        'USER': 'postgres',
+        'PASSWORD': 'your_password',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}</code></pre>
+                    
+                    <h4>Run migrations</h4>
+                    <pre><code>python manage.py migrate
+python manage.py createsuperuser</code></pre>
+                    
+                    <h4>Start the development server</h4>
+                    <pre><code>python manage.py runserver</code></pre>
+                    
+                    <h3>Setting up the Frontend (Next.js)</h3>
+                    
+                    <pre><code>npx create-next-app@latest school-frontend
+cd school-frontend
+npm install axios react-query tailwindcss @headlessui/react
+npm run dev</code></pre>
+                </section>
+
+                <!-- Project Structure -->
+                <section id="project-structure">
+                    <h2>Project Structure</h2>
+                    
+                    <p>The Django project is organized into modular apps for better maintainability:</p>
+                    
+                    <pre><code>SchoolManagementSystem/
+├── manage.py
+├── requirements.txt
+├── school/                      # Main project folder
+│   ├── settings/
+│   │   ├── base.py
+│   │   ├── development.py
+│   │   └── production.py
+│   └── urls.py
+├── apps/
+│   ├── core/                    # Core functionality
+│   │   ├── models.py
+│   │   ├── views.py
+│   │   └── serializers.py
+│   ├── students/                # Student management
+│   │   ├── models.py
+│   │   ├── views.py
+│   │   └── serializers.py
+│   ├── teachers/                # Teacher management
+│   │   ├── models.py
+│   │   ├── views.py
+│   │   └── serializers.py
+│   ├── academics/               # Academic management
+│   │   ├── models.py
+│   │   ├── views.py
+│   │   └── serializers.py
+│   ├── finance/                  # Fee management
+│   │   ├── models.py
+│   │   ├── views.py
+│   │   └── serializers.py
+│   ├── transport/                # Transportation
+│   │   ├── models.py
+│   │   ├── views.py
+│   │   └── serializers.py
+│   ├── communication/            # Messaging system
+│   │   ├── models.py
+│   │   ├── views.py
+│   │   └── serializers.py
+│   └── common/                    # Shared utilities
+│       ├── utils.py
+│       └── decorators.py
+├── static/
+├── media/
+└── templates/</code></pre>
+                </section>
+
+                <!-- Database Design -->
+                <section id="database-design">
+                    <h2>Database Design</h2>
+                    
+                    <p>Key models in the system:</p>
+                    
+                    <pre><code># core/models.py
+from django.db import models
+from django.contrib.auth.models import AbstractUser
+
+class User(AbstractUser):
+    USER_TYPES = (
+        ('admin', 'Administrator'),
+        ('teacher', 'Teacher'),
+        ('student', 'Student'),
+        ('parent', 'Parent'),
+        ('staff', 'Staff'),
+    )
+    user_type = models.CharField(max_length=20, choices=USER_TYPES)
+    phone = models.CharField(max_length=15)
+    address = models.TextField()
+    profile_picture = models.ImageField(upload_to='profiles/')
+
+class Student(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    admission_number = models.CharField(max_length=20, unique=True)
+    date_of_birth = models.DateField()
+    class_grade = models.ForeignKey('academics.Class', on_delete=models.SET_NULL, null=True)
+    parent = models.ForeignKey('Parent', on_delete=models.SET_NULL, null=True)
+    emergency_contact = models.CharField(max_length=15)
+
+class Teacher(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    employee_id = models.CharField(max_length=20, unique=True)
+    qualification = models.CharField(max_length=100)
+    subjects = models.ManyToManyField('academics.Subject')
+    joining_date = models.DateField()
+
+class Class(models.Model):
+    name = models.CharField(max_length=50)
+    section = models.CharField(max_length=10)
+    class_teacher = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True)
+    academic_year = models.CharField(max_length=9)
+
+class Attendance(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    date = models.DateField()
+    status = models.CharField(max_length=10, choices=(
+        ('present', 'Present'),
+        ('absent', 'Absent'),
+        ('late', 'Late'),
+        ('excused', 'Excused')
+    ))
+    marked_by = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True)
+
+class Fee(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    fee_type = models.CharField(max_length=50)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    due_date = models.DateField()
+    status = models.CharField(max_length=20, choices=(
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('overdue', 'Overdue'),
+        ('partial', 'Partially Paid')
+    ))
+    payment_date = models.DateField(null=True, blank=True)</code></pre>
+                </section>
+
+                <!-- API Integration -->
+                <section id="api-integration">
+                    <h2>API Integration with Next.js</h2>
+                    
+                    <h3>Django REST Framework Setup</h3>
+                    
+                    <pre><code># serializers.py
+from rest_framework import serializers
+from .models import Student, Class
+
+class StudentSerializer(serializers.ModelSerializer):
+    class_name = serializers.CharField(source='class_grade.name', read_only=True)
+    
+    class Meta:
+        model = Student
+        fields = ['id', 'admission_number', 'user', 'class_grade', 'class_name', 
+                 'date_of_birth', 'emergency_contact']
+
+# views.py
+from rest_framework import viewsets
+from .models import Student
+from .serializers import StudentSerializer
+
+class StudentViewSet(viewsets.ModelViewSet):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        class_id = self.request.query_params.get('class')
+        if class_id:
+            queryset = queryset.filter(class_grade_id=class_id)
+        return queryset</code></pre>
+                    
+                    <h3>Next.js API Integration</h3>
+                    
+                    <pre><code>// lib/api.js
+import axios from 'axios';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+
+const api = axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
+
+// Add token to requests
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
+
+export const studentAPI = {
+    getAll: () => api.get('/students/'),
+    getById: (id) => api.get(`/students/${id}/`),
+    create: (data) => api.post('/students/', data),
+    update: (id, data) => api.put(`/students/${id}/`, data),
+    delete: (id) => api.delete(`/students/${id}/`),
+    getByClass: (classId) => api.get(`/students/?class=${classId}`),
+};
+
+export default api;</code></pre>
+                    
+                    <h3>React Component Example</h3>
+                    
+                    <pre><code>// components/StudentList.js
+import { useState, useEffect } from 'react';
+import { studentAPI } from '../lib/api';
+
+export default function StudentList() {
+    const [students, setStudents] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedClass, setSelectedClass] = useState('');
+
+    useEffect(() => {
+        fetchStudents();
+    }, [selectedClass]);
+
+    const fetchStudents = async () => {
+        try {
+            setLoading(true);
+            const response = selectedClass 
+                ? await studentAPI.getByClass(selectedClass)
+                : await studentAPI.getAll();
+            setStudents(response.data);
+        } catch (error) {
+            console.error('Error fetching students:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) return <div>Loading...</div>;
+
+    return (
+        <div className="p-4">
+            <h2 className="text-2xl font-bold mb-4">Student List</h2>
+            <select 
+                value={selectedClass} 
+                onChange={(e) => setSelectedClass(e.target.value)}
+                className="mb-4 p-2 border rounded"
+            >
+                <option value="">All Classes</option>
+                <option value="1">Class 1</option>
+                <option value="2">Class 2</option>
+            </select>
+            <div className="grid gap-4">
+                {students.map(student => (
+                    <div key={student.id} className="p-4 border rounded shadow">
+                        <h3 className="font-bold">{student.user?.name}</h3>
+                        <p>Admission: {student.admission_number}</p>
+                        <p>Class: {student.class_name}</p>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}</code></pre>
+                </section>
+
+                <!-- Deployment Strategies -->
+                <section id="deployment">
+                    <h2>Deployment Strategies</h2>
+                    
+                    <h3>Docker Setup</h3>
+                    
+                    <pre><code># Dockerfile (Backend)
+FROM python:3.9-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY . .
+
+CMD ["gunicorn", "school.wsgi:application", "--bind", "0.0.0.0:8000"]</code></pre>
+                    
+                    <pre><code># docker-compose.yml
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: school_management
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secure_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:alpine
+
+  backend:
+    build: ./backend
+    command: gunicorn school.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+    depends_on:
+      - db
+      - redis
+    environment:
+      DATABASE_URL: postgres://postgres:secure_password@db:5432/school_management
+      REDIS_URL: redis://redis:6379
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - backend
+      - frontend
+    volumes:
+      - static_volume:/static
+      - media_volume:/media
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:</code></pre>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices">
+                    <h2>Best Practices</h2>
+                    
+                    <div class="info-box">
+                        <h3>Security Considerations</h3>
+                        <ul>
+                            <li>Implement role-based access control (RBAC) for different user types</li>
+                            <li>Use JWT tokens with short expiration times</li>
+                            <li>Encrypt sensitive student data at rest</li>
+                            <li>Implement rate limiting for API endpoints</li>
+                            <li>Regular security audits and penetration testing</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="info-box">
+                        <h3>Performance Optimization</h3>
+                        <ul>
+                            <li>Use Redis for caching frequently accessed data</li>
+                            <li>Implement database indexing on frequently queried fields</li>
+                            <li>Use pagination for large data sets</li>
+                            <li>Optimize N+1 queries with select_related and prefetch_related</li>
+                            <li>Implement CDN for static assets</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="info-box">
+                        <h3>Scalability Strategies</h3>
+                        <ul>
+                            <li>Design modular Django apps for independent scaling</li>
+                            <li>Use Celery for background tasks (report generation, notifications)</li>
+                            <li>Implement database read replicas for reporting queries</li>
+                            <li>Use message queues for inter-service communication</li>
+                            <li>Containerize with Docker for easy horizontal scaling</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Conclusion -->
+                <section id="conclusion">
+                    <h2>Conclusion</h2>
+                    
+                    <p>Building a school management system with Django and Next.js provides a robust, scalable solution for educational institutions. The combination offers:</p>
+                    
+                    <ul>
+                        <li>✅ Enterprise-grade security and data protection</li>
+                        <li>✅ Modern, responsive user interfaces</li>
+                        <li>✅ Scalable architecture for growing institutions</li>
+                        <li>✅ Real-time communication capabilities</li>
+                        <li>✅ Comprehensive reporting and analytics</li>
+                    </ul>
+                    
+                    <div class="success-box">
+                        <h3 class="font-bold mb-2">Key Takeaways:</h3>
+                        <ul>
+                            <li>Modular design is essential for maintainability</li>
+                            <li>Choose the right database schema for educational data</li>
+                            <li>Implement proper authentication and authorization</li>
+                            <li>Optimize for performance from the start</li>
+                            <li>Regular testing and monitoring are crucial</li>
+                        </ul>
+                    </div>
+                    
+                    <p>This architecture has been successfully implemented in multiple schools, handling thousands of students and millions of transactions efficiently.</p>
+                    
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <a href="blog.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold">
+                            ← Back to Blog
+                        </a>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        ↑
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-8 px-6 md:px-12 bg-gray-50 border-t border-gray-200">
+        <div class="max-w-4xl mx-auto text-center">
+            <p class="text-gray-600 mb-4">© 2024 Md. Mostasim Mahmud. All rights reserved.</p>
+            <div class="flex justify-center gap-6">
+                <a href="blog.html" class="text-blue-600 hover:text-blue-800 font-medium">Blog</a>
+                <a href="index.html#projects" class="text-blue-600 hover:text-blue-800 font-medium">Projects</a>
+                <a href="index.html#contact" class="text-blue-600 hover:text-blue-800 font-medium">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll Progress Bar
+        window.addEventListener('scroll', () => {
+            const scrollProgress = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+            document.getElementById('scrollProgress').style.width = scrollProgress + '%';
+        });
+
+        // Back to Top Button
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 500) {
+                backToTop.style.display = 'flex';
+            } else {
+                backToTop.style.display = 'none';
+            }
+        });
+
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Smooth scrolling for table of contents links
+        document.querySelectorAll('.table-of-contents a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    const offset = 80;
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Mobile Menu Toggle
+        const menuBtn = document.getElementById('menuBtn');
+        if (menuBtn) {
+            menuBtn.addEventListener('click', function() {
+                alert('Mobile menu - Navigation links would appear here');
+            });
+        }
+
+        // Copy code blocks on click
+        document.querySelectorAll('pre').forEach(pre => {
+            pre.addEventListener('click', function() {
+                const code = this.textContent;
+                navigator.clipboard.writeText(code).then(() => {
+                    const originalText = this.textContent;
+                    const originalBg = this.style.backgroundColor;
+                    
+                    this.style.backgroundColor = '#10b981';
+                    this.textContent = '✓ Copied to clipboard!';
+                    
+                    setTimeout(() => {
+                        this.style.backgroundColor = originalBg;
+                        this.textContent = originalText;
+                    }, 1500);
+                });
+            });
+        });
+
+        // Add intersection observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('section').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+
+    <script>
+        // Disable right-click
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        });
+
+        // Disable keyboard shortcuts (Ctrl+Shift+I, Ctrl+U, F12, etc.)
+        document.addEventListener('keydown', function (e) {
+            if (
+                e.key === 'F12' ||
+                (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                (e.ctrlKey && e.key === 'u') ||
+                (e.ctrlKey && e.shiftKey && e.key === 'C')
+            ) {
+                e.preventDefault();
+            }
+        });
+
+        // Prevent image dragging
+        document.addEventListener('dragstart', function (e) {
+            if (e.target.tagName === 'IMG') {
+                e.preventDefault();
+            }
+        });
+
+        // Prevent image saving
+        document.addEventListener('mousedown', function (e) {
+            if (e.target.tagName === 'IMG') {
+                e.preventDefault();
+            }
+        });
+
+        // Prevent opening images in new tabs
+        document.addEventListener('auxclick', function (e) {
+            if (e.button === 1 && e.target.tagName === 'IMG') {
+                e.preventDefault();
+            }
+        });
+
+        // Prevent copying image URLs
+        document.addEventListener('copy', function (e) {
+            if (e.target.tagName === 'IMG') {
+                e.preventDefault();
+            }
+        });
+    </script>
+    <script>
+        (function () {
+            let devtoolsOpen = false;
+            const threshold = 160;
+            
+            setInterval(() => {
+                const widthDiff = window.outerWidth - window.innerWidth;
+                const heightDiff = window.outerHeight - window.innerHeight;
+                
+                if (widthDiff > threshold || heightDiff > threshold) {
+                    if (!devtoolsOpen) {
+                        devtoolsOpen = true;
+                        document.body.innerHTML = '';
+                        window.location.href = 'access-denied.html';
+                    }
+                } else {
+                    devtoolsOpen = false;
+                }
+            }, 500);
+        })();
+    </script>
+</body>
+</html>
