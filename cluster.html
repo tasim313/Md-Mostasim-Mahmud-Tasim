@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostgreSQL Cluster & High-Traffic Django Architecture | Complete Production Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --accent: #f97316;
+            --accent-light: #fed7aa;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --border: #e5e7eb;
+            --bg-light: #f9fafb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+        }
+
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            z-index: 100;
+            width: 0%;
+        }
+
+        nav {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .nav-link {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .category-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .reading-time {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .article-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .article-content {
+            font-size: 1.125rem;
+            line-height: 1.8;
+        }
+
+        .article-content h2 {
+            font-size: 2rem;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .article-content h3 {
+            font-size: 1.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .article-content h4 {
+            font-size: 1.25rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .article-content p {
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .article-content ul, .article-content ol {
+            margin: 1.5rem 0;
+            padding-left: 2rem;
+        }
+
+        .article-content li {
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .article-content pre {
+            background: #1a1a1a;
+            color: #f8f8f2;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .article-content code {
+            background: #f1f5f9;
+            color: #334155;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .article-content blockquote {
+            border-left: 4px solid var(--primary);
+            padding-left: 1.5rem;
+            margin: 2rem 0;
+            font-style: italic;
+            color: var(--text-secondary);
+            background: var(--bg-light);
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(249, 115, 22, 0.05) 100%);
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.05) 0%, rgba(220, 38, 38, 0.05) 100%);
+            border-left: 4px solid #f97316;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, rgba(22, 163, 74, 0.05) 100%);
+            border-left: 4px solid #22c55e;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .table-of-contents {
+            background: var(--bg-light);
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .table-of-contents ul {
+            margin: 0;
+            padding-left: 1rem;
+            list-style: none;
+        }
+
+        .table-of-contents li {
+            margin-bottom: 0.75rem;
+            padding-left: 1rem;
+            position: relative;
+        }
+
+        .table-of-contents li:before {
+            content: "→";
+            position: absolute;
+            left: -0.5rem;
+            color: var(--primary);
+        }
+
+        .table-of-contents a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .table-of-contents a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            transition: transform 0.3s ease;
+            z-index: 40;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .article-container {
+                padding: 0 16px;
+            }
+            
+            .article-content h2 {
+                font-size: 1.75rem;
+            }
+            
+            .article-content h3 {
+                font-size: 1.375rem;
+            }
+            
+            .article-content {
+                font-size: 1rem;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <!-- Scroll Progress Bar -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- Navigation -->
+    <nav class="py-4 px-6 md:px-12">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500">
+                Md. Mostasim Mahmud
+            </a>
+            <div class="hidden md:flex gap-8">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="index.html#about" class="nav-link">About</a>
+                <a href="index.html#experience" class="nav-link">Experience</a>
+                <a href="index.html#projects" class="nav-link">Projects</a>
+                <a href="index.html#contact" class="nav-link">Contact</a>
+                <a href="blog.html" class="nav-link" style="color: #2563eb;">Blog</a>
+            </div>
+            <button class="md:hidden text-2xl" id="menuBtn">☰</button>
+        </div>
+    </nav>
+
+    <!-- Article Header -->
+    <header class="pt-12 pb-8">
+        <div class="article-container">
+            <div class="text-center mb-8">
+                <span class="category-badge">Database & High-Traffic Architecture</span>
+                <span class="reading-time ml-4">📖 12 min read</span>
+            </div>
+            
+            <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500 fade-in">
+                PostgreSQL Database Cluster & High-Traffic Django Architecture: Zero to Production
+            </h1>
+            
+            <div class="text-center text-gray-600 mb-8">
+                <p class="text-sm">Published: <span class="font-semibold">Feb 15, 2026</span> • Last Updated: <span class="font-semibold">Feb 18, 2026</span></p>
+            </div>
+            
+            <div class="mb-8">
+                <img src="https://images.unsplash.com/photo-1544383835-bda2bc66a55d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
+                     alt="PostgreSQL Cluster and Django High Traffic Architecture" 
+                     class="w-full h-64 md:h-96 object-cover rounded-xl shadow-lg">
+                <p class="text-sm text-gray-500 mt-2 text-center">Production-ready PostgreSQL cluster with Django handling millions of requests per second</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Article Content -->
+    <main class="pb-16">
+        <div class="article-container">
+            <!-- Table of Contents -->
+            <div class="table-of-contents fade-in">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">📋 Table of Contents</h3>
+                <ul class="space-y-2">
+                    <li><a href="#what-is-cluster">What is PostgreSQL Database Cluster? (Beginner Friendly)</a></li>
+                    <li><a href="#install-postgres">Step-by-Step PostgreSQL Installation</a></li>
+                    <li><a href="#cluster-structure">Inside a PostgreSQL Cluster: Architecture Explained</a></li>
+                    <li><a href="#create-cluster">Creating & Managing Multiple Clusters</a></li>
+                    <li><a href="#high-availability">High Availability: Replication Setup (Primary + Standby)</a></li>
+                    <li><a href="#django-basics">Django + PostgreSQL: Basic Integration</a></li>
+                    <li><a href="#read-write-split">Read/Write Splitting for High Traffic</a></li>
+                    <li><a href="#connection-pooling">Connection Pooling with pgBouncer (Critical for Scaling)</a></li>
+                    <li><a href="#caching-redis">Caching Layer with Redis</a></li>
+                    <li><a href="#nginx-gunicorn">Nginx + Gunicorn: Production WSGI Setup</a></li>
+                    <li><a href="#full-architecture">Full Production Architecture Diagram & Flow</a></li>
+                    <li><a href="#optimization">Performance Optimization: N+1, Select_related, Prefetch</a></li>
+                    <li><a href="#monitoring">Monitoring & Troubleshooting Guide</a></li>
+                    <li><a href="#best-practices">Production Best Practices (Zero to Pro)</a></li>
+                </ul>
+            </div>
+
+            <!-- Article Content -->
+            <article class="article-content fade-in">
+                <!-- Section 1 -->
+                <section id="what-is-cluster">
+                    <h2>📌 What is PostgreSQL Database Cluster? (Beginner Friendly)</h2>
+                    <p>If you're new to PostgreSQL, the term <strong>"Cluster"</strong> might sound intimidating. In simple terms, a PostgreSQL cluster is <strong>a single PostgreSQL server instance that manages multiple databases</strong>. Think of it as an apartment building: the building itself is the cluster, and each apartment is a separate database — all managed under one roof.</p>
+                    <ul>
+                        <li><strong>Cluster:</strong> A collection of databases managed by one PostgreSQL server process.</li>
+                        <li><strong>Database:</strong> Logical container for tables, indexes, and schemas.</li>
+                        <li><strong>Data Directory:</strong> Physical location on disk where all cluster data resides.</li>
+                    </ul>
+                    <div class="info-box">
+                        <strong>💡 Why Clusters Matter:</strong> Clusters enable resource isolation, separate backup strategies, and multi-tenant architectures. For high-traffic Django apps, clusters form the backbone of scalability.
+                    </div>
+                </section>
+
+                <!-- Section 2 -->
+                <section id="install-postgres">
+                    <h2>🛠️ Step-by-Step PostgreSQL Installation (Any OS)</h2>
+                    <h3>Ubuntu / Debian</h3>
+                    <pre><code># Update system packages
+sudo apt update
+# Install PostgreSQL 15 with contrib modules
+sudo apt install postgresql-15 postgresql-contrib-15 -y
+# Start and enable service
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+# Verify installation
+sudo -u postgres psql -c "SELECT version();"</code></pre>
+                    <h3>CentOS / RHEL / Rocky Linux</h3>
+                    <pre><code># Install PostgreSQL repository
+sudo dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+# Disable built-in module
+sudo dnf -qy module disable postgresql
+# Install PostgreSQL 15
+sudo dnf install -y postgresql15-server postgresql15-contrib
+# Initialize database
+sudo /usr/pgsql-15/bin/postgresql-15-setup initdb
+# Start and enable
+sudo systemctl start postgresql-15
+sudo systemctl enable postgresql-15</code></pre>
+                    <div class="success-box">
+                        <strong>✅ Post-Install Checklist:</strong> Ensure service is running: <code>sudo systemctl status postgresql</code>. The default data directory is <code>/var/lib/postgresql/15/main</code> (Ubuntu) or <code>/var/lib/pgsql/15/data</code> (CentOS).
+                    </div>
+                </section>
+
+                <!-- Section 3 -->
+                <section id="cluster-structure">
+                    <h2>🧠 Inside a PostgreSQL Cluster: Architecture Explained</h2>
+                    <p>A PostgreSQL cluster consists of:</p>
+                    <ul>
+                        <li><strong>Postmaster (Main Process):</strong> The main server process that manages connections and forks child processes.</li>
+                        <li><strong>Shared Buffers:</strong> Cache for data pages.</li>
+                        <li><strong>WAL (Write-Ahead Log):</strong> Transaction logs ensuring durability.</li>
+                        <li><strong>Multiple Databases:</strong> Each database has its own schema, tables, and indexes.</li>
+                    </ul>
+                    <pre><code># View all clusters on the system
+sudo pg_lsclusters
+
+# Connect to default cluster and list databases
+sudo -u postgres psql -c "\l"</code></pre>
+                    <p>Default location (Ubuntu): <code>/var/lib/postgresql/15/main</code>. You can have multiple clusters running on different ports!</p>
+                </section>
+
+                <!-- Section 4 -->
+                <section id="create-cluster">
+                    <h2>⚙️ Creating & Managing Multiple PostgreSQL Clusters</h2>
+                    <h3>Create a New Cluster</h3>
+                    <pre><code># Create new data directory
+sudo mkdir -p /data/pg_cluster2
+sudo chown postgres:postgres /data/pg_cluster2
+# Initialize the new cluster
+sudo -u postgres initdb -D /data/pg_cluster2 -E UTF8 --locale=en_US.UTF-8
+# Start the new cluster on port 5433
+sudo -u postgres pg_ctl -D /data/pg_cluster2 -o "-p 5433" start</code></pre>
+                    <h3>Manage Clusters with pg_ctlcluster (Debian/Ubuntu)</h3>
+                    <pre><code># Create cluster using pg_createcluster
+sudo pg_createcluster 15 myapp_cluster --port 5433
+# Start specific cluster
+sudo pg_ctlcluster 15 myapp_cluster start
+# Stop specific cluster
+sudo pg_ctlcluster 15 myapp_cluster stop
+# List all clusters
+sudo pg_lsclusters</code></pre>
+                    <div class="warning-box">
+                        <strong>⚠️ Note:</strong> Multiple clusters allow you to run different PostgreSQL versions or isolate production vs staging databases.
+                    </div>
+                </section>
+
+                <!-- Section 5: High Availability -->
+                <section id="high-availability">
+                    <h2>🔁 High Availability: Replication Setup (Primary + Standby)</h2>
+                    <p>For zero downtime and read scaling, we set up streaming replication.</p>
+                    <h3>1. Configure Primary Server (postgresql.conf)</h3>
+                    <pre><code>wal_level = replica
+max_wal_senders = 5
+wal_keep_size = 512MB
+hot_standby = on
+max_replication_slots = 5</code></pre>
+                    <h3>2. Allow Replication Connections (pg_hba.conf)</h3>
+                    <pre><code>host    replication     replicator      standby_ip/32        scram-sha-256</code></pre>
+                    <h3>3. Create Replication User</h3>
+                    <pre><code>sudo -u postgres psql -c "CREATE USER replicator WITH REPLICATION ENCRYPTED PASSWORD 'strongpassword';"</code></pre>
+                    <h3>4. Take Base Backup on Standby</h3>
+                    <pre><code># Stop PostgreSQL on standby
+sudo systemctl stop postgresql
+# Clear data directory
+sudo rm -rf /var/lib/postgresql/15/main/*
+# Pull base backup from primary
+sudo -u postgres pg_basebackup -h primary_ip -D /var/lib/postgresql/15/main -U replicator -P -v -Xs -R
+# Create standby signal
+sudo -u postgres touch /var/lib/postgresql/15/main/standby.signal
+# Start standby
+sudo systemctl start postgresql</code></pre>
+                    <div class="success-box">
+                        <strong>✅ Verify Replication:</strong> On primary, run <code>SELECT * FROM pg_stat_replication;</code> You should see the standby.
+                    </div>
+                </section>
+
+                <!-- Section 6: Django Basics -->
+                <section id="django-basics">
+                    <h2>🐍 Django + PostgreSQL: Basic Integration</h2>
+                    <p>First, install psycopg2: <code>pip install psycopg2-binary</code></p>
+                    <pre><code># settings.py
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'mydb',
+        'USER': 'postgres',
+        'PASSWORD': 'yourpassword',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}</code></pre>
+                    <p>Run migrations: <code>python manage.py migrate</code></p>
+                    <div class="info-box">
+                        <strong>📦 For production, always use environment variables for credentials.</strong>
+                    </div>
+                </section>
+
+                <!-- Section 7: Read/Write Split -->
+                <section id="read-write-split">
+                    <h2>⚡ Read/Write Splitting for High Traffic (Master-Replica)</h2>
+                    <p>Configure multiple databases in Django: default for writes, replica for reads.</p>
+                    <pre><code># settings.py
+DATABASES = {
+    'default': {   # WRITE
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'prod_db',
+        'HOST': 'primary-db.internal',
+        'PORT': '5432',
+    },
+    'replica': {   # READ
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'prod_db',
+        'HOST': 'replica-db.internal',
+        'PORT': '5432',
+    }
+}
+
+# Database Router
+class PrimaryReplicaRouter:
+    def db_for_read(self, model, **hints):
+        return 'replica'
+    
+    def db_for_write(self, model, **hints):
+        return 'default'
+    
+    def allow_relation(self, obj1, obj2, **hints):
+        return True
+
+# Add to settings
+DATABASE_ROUTERS = ['path.to.PrimaryReplicaRouter']</code></pre>
+                </section>
+
+                <!-- Section 8: pgBouncer -->
+                <section id="connection-pooling">
+                    <h2>🚀 Connection Pooling with pgBouncer (Critical for Scaling)</h2>
+                    <p>Without pooling, each Django thread opens a new database connection, quickly exhausting PostgreSQL's <code>max_connections</code>. pgBouncer manages a pool of connections.</p>
+                    <pre><code># Install pgBouncer
+sudo apt install pgbouncer -y
+
+# Edit /etc/pgbouncer/pgbouncer.ini
+[databases]
+prod_db = host=localhost port=5432 dbname=prod_db
+
+[pgbouncer]
+listen_port = 6432
+listen_addr = 0.0.0.0
+auth_type = md5
+auth_file = /etc/pgbouncer/userlist.txt
+pool_mode = transaction
+max_client_conn = 1000
+default_pool_size = 50
+
+# Create userlist.txt
+echo '"postgres" "md5hashofpassword"' | sudo tee /etc/pgbouncer/userlist.txt
+
+# Restart pgBouncer
+sudo systemctl restart pgbouncer</code></pre>
+                    <p>Now configure Django to connect to <code>localhost:6432</code> instead of direct PostgreSQL port.</p>
+                </section>
+
+                <!-- Section 9: Redis Caching -->
+                <section id="caching-redis">
+                    <h2>💾 Caching Layer with Redis</h2>
+                    <pre><code># Install Redis
+sudo apt install redis-server -y
+sudo systemctl enable redis-server
+sudo systemctl start redis-server
+
+# Install django-redis
+pip install django-redis
+
+# settings.py
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
+# Usage in views
+from django.core.cache import cache
+def expensive_view(request):
+    data = cache.get('key')
+    if not data:
+        data = MyModel.objects.all()
+        cache.set('key', data, 60*5)  # cache for 5 minutes
+    return render(...)</code></pre>
+                </section>
+
+                <!-- Section 10: Nginx + Gunicorn -->
+                <section id="nginx-gunicorn">
+                    <h2>🌐 Nginx + Gunicorn: Production WSGI Setup</h2>
+                    <pre><code># Install Gunicorn
+pip install gunicorn
+
+# Run with 4 workers
+gunicorn myproject.wsgi:application --workers 4 --bind 127.0.0.1:8000
+
+# Nginx configuration (/etc/nginx/sites-available/myproject)
+server {
+    listen 80;
+    server_name yourdomain.com;
+    
+    location /static/ {
+        alias /path/to/staticfiles/;
+    }
+    
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+
+# Enable site and restart
+sudo ln -s /etc/nginx/sites-available/myproject /etc/nginx/sites-enabled/
+sudo systemctl restart nginx</code></pre>
+                </section>
+
+                <!-- Section 11: Full Architecture -->
+                <section id="full-architecture">
+                    <h2>🏗️ Full Production Architecture Diagram & Flow</h2>
+                    <pre><code>┌──────────────┐
+│   Users      │
+└──────┬───────┘
+       │
+┌──────▼───────┐
+│   NGINX      │ (Load Balancer + SSL Termination)
+└──────┬───────┘
+       │
+┌──────▼───────┐
+│ Gunicorn     │ (Multiple Workers)
+└──────┬───────┘
+       │
+┌──────▼───────┐
+│   Redis      │ (Cache Layer)
+└──────┬───────┘
+       │
+┌──────▼───────┐
+│ pgBouncer    │ (Connection Pool)
+└──────┬───────┘
+       │
+   ┌───┴───┐
+   ▼       ▼
+Primary   Replica(s)</code></pre>
+                    <p><strong>Request Flow:</strong> User -> Nginx (load balances) -> Gunicorn handles Django app -> Redis serves cached responses -> pgBouncer provides connection to PostgreSQL cluster -> Primary handles writes, Replica handles reads.</p>
+                </section>
+
+                <!-- Section 12: Optimization -->
+                <section id="optimization">
+                    <h2>📈 Performance Optimization: N+1, Select_related, Prefetch</h2>
+                    <h3>❌ Bad: N+1 Queries</h3>
+                    <pre><code>orders = Order.objects.all()
+for order in orders:
+    print(order.customer.name)  # Hits DB again for each order</code></pre>
+                    <h3>✅ Good: select_related (for ForeignKey)</h3>
+                    <pre><code>orders = Order.objects.select_related('customer').all()
+# Single query with JOIN</code></pre>
+                    <h3>✅ Good: prefetch_related (for ManyToMany)</h3>
+                    <pre><code>products = Product.objects.prefetch_related('tags').all()</code></pre>
+                    <div class="success-box">
+                        <strong>🚀 Pro Tip:</strong> Use Django Debug Toolbar to identify N+1 queries.
+                    </div>
+                </section>
+
+                <!-- Section 13: Monitoring -->
+                <section id="monitoring">
+                    <h2>📊 Monitoring & Troubleshooting Guide</h2>
+                    <pre><code># Check replication lag
+SELECT application_name, write_lag, flush_lag, replay_lag FROM pg_stat_replication;
+
+# Monitor active connections
+SELECT count(*), state FROM pg_stat_activity GROUP BY state;
+
+# Check pgBouncer pools
+SHOW STATS; SHOW POOLS; (connect to pgbouncer admin)
+
+# Redis cache hit rate
+redis-cli info stats | grep hit_rate
+
+# Gunicorn logs
+sudo journalctl -u gunicorn -f
+
+# Nginx error logs
+sudo tail -f /var/log/nginx/error.log</code></pre>
+                </section>
+
+                <!-- Section 14: Best Practices -->
+                <section id="best-practices">
+                    <h2>✅ Production Best Practices (Zero to Pro)</h2>
+                    <div class="info-box">
+                        <h3>📁 Security</h3>
+                        <ul>
+                            <li>Never commit credentials — use env vars or secrets manager.</li>
+                            <li>Use SSL for PostgreSQL connections: <code>sslmode=require</code></li>
+                            <li>Restrict PostgreSQL port (5432) to internal network only.</li>
+                        </ul>
+                    </div>
+                    <div class="info-box">
+                        <h3>⚙️ Performance Tuning</h3>
+                        <ul>
+                            <li>Set <code>shared_buffers</code> to 25% of RAM.</li>
+                            <li>Use <code>pg_stat_statements</code> to find slow queries.</li>
+                            <li>Enable <code>log_min_duration_statement = 1000ms</code> to log slow queries.</li>
+                        </ul>
+                    </div>
+                    <div class="success-box">
+                        <h3>🔥 High Traffic Checklist</h3>
+                        <ul>
+                            <li>✅ Use <strong>pgBouncer</strong> in transaction pooling mode.</li>
+                            <li>✅ Deploy <strong>multiple Gunicorn workers</strong> (2*cores + 1).</li>
+                            <li>✅ Implement <strong>Redis caching</strong> for API responses.</li>
+                            <li>✅ Set up <strong>read replicas</strong> and route read queries.</li>
+                            <li>✅ Use <strong>CDN</strong> for static files.</li>
+                            <li>✅ Regular <strong>load testing</strong> with Locust or k6.</li>
+                        </ul>
+                    </div>
+                    <h3>Final Words</h3>
+                    <p>Building a scalable PostgreSQL cluster with Django is not just about technology — it's about designing for failure, scaling horizontally, and maintaining observability. Start small with replication, then add connection pooling, caching, and finally load balancing. Always test recovery procedures. Your database is the heart of your application; treat it with production-grade care.</p>
+                    
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <a href="blog.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold">
+                            ← Back to Blog
+                        </a>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        ↑
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-8 px-6 md:px-12 bg-gray-50 border-t border-gray-200">
+        <div class="max-w-4xl mx-auto text-center">
+            <p class="text-gray-600 mb-4">© 2026 Md. Mostasim Mahmud. All rights reserved.</p>
+            <div class="flex justify-center gap-6">
+                <a href="blog.html" class="text-blue-600 hover:text-blue-800 font-medium">Blog</a>
+                <a href="index.html#projects" class="text-blue-600 hover:text-blue-800 font-medium">Projects</a>
+                <a href="index.html#contact" class="text-blue-600 hover:text-blue-800 font-medium">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll Progress Bar
+        window.addEventListener('scroll', () => {
+            const scrollProgress = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+            document.getElementById('scrollProgress').style.width = scrollProgress + '%';
+        });
+
+        // Back to Top
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            backToTop.style.display = window.scrollY > 500 ? 'flex' : 'none';
+        });
+        backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+        // Smooth scrolling for TOC
+        document.querySelectorAll('.table-of-contents a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    const offset = 80;
+                    window.scrollTo({ top: targetElement.offsetTop - offset, behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Mobile menu placeholder
+        document.getElementById('menuBtn')?.addEventListener('click', () => alert('Navigation menu would appear here.'));
+
+        // Copy code blocks
+        document.querySelectorAll('pre').forEach(pre => {
+            pre.addEventListener('click', function() {
+                const code = this.querySelector('code');
+                if (code) {
+                    navigator.clipboard.writeText(code.textContent);
+                    const original = this.style.backgroundColor;
+                    this.style.backgroundColor = '#10b981';
+                    setTimeout(() => this.style.backgroundColor = original, 1000);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
