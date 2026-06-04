@@ -1194,5 +1194,86 @@ cp -r medical_modules/* /var/www/html/dolibarr/htdocs/custom/
             observer.observe(section);
         });
     </script>
+     <script>
+        // Disable right-click
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        });
+
+        // Disable keyboard shortcuts (Ctrl+Shift+I, Ctrl+U, F12, etc.)
+        document.addEventListener('keydown', function (e) {
+            // Disable F12, Ctrl+Shift+I, Ctrl+U, Ctrl+Shift+C
+            if (
+                e.key === 'F12' ||
+                (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                (e.ctrlKey && e.key === 'u') ||
+                (e.ctrlKey && e.shiftKey && e.key === 'C')
+            ) {
+                e.preventDefault();
+            }
+        });
+
+        // Prevent image dragging
+        document.addEventListener('dragstart', function (e) {
+            if (e.target.tagName === 'IMG') {
+                e.preventDefault();
+            }
+        });
+
+        // Prevent image saving
+        document.addEventListener('mousedown', function (e) {
+            if (e.target.tagName === 'IMG') {
+                e.preventDefault();
+            }
+        });
+
+        // Prevent opening images in new tabs
+        document.addEventListener('auxclick', function (e) {
+            if (e.button === 1 && e.target.tagName === 'IMG') { // Middle mouse button
+                e.preventDefault();
+            }
+        });
+
+        // Prevent copying image URLs
+        document.addEventListener('copy', function (e) {
+            if (e.target.tagName === 'IMG') {
+                e.preventDefault();
+            }
+        });
+
+        // Prevent opening developer tools
+        (function () {
+            let devtools = function () {};
+            devtools.toString = function () {
+                if (window.console) {
+                    console.log('%c ', 'font-size: 1px;');
+                    console.clear();
+                }
+                return '';
+            };
+        })();
+    </script>
+    <script>
+        (function () {
+            let devtoolsOpen = false;
+        
+            const threshold = 160;
+        
+            setInterval(() => {
+                const widthDiff = window.outerWidth - window.innerWidth;
+                const heightDiff = window.outerHeight - window.innerHeight;
+        
+                if (widthDiff > threshold || heightDiff > threshold) {
+                    if (!devtoolsOpen) {
+                        devtoolsOpen = true;
+                        document.body.innerHTML = '';
+                        window.location.href = 'access-denied.html';
+                    }
+                } else {
+                    devtoolsOpen = false;
+                }
+            }, 500);
+        })();
+    </script>
 </body>
 </html>

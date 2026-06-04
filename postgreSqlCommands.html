@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastering PostgreSQL: Essential SQL Commands & Best Practices | Complete Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --accent: #f97316;
+            --postgres-blue: #336791;
+            --postgres-teal: #008bb9;
+            --sql-orange: #e34f26;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --border: #e5e7eb;
+            --bg-light: #f9fafb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+        }
+
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--postgres-blue), var(--postgres-teal));
+            z-index: 100;
+            width: 0%;
+        }
+
+        nav {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .nav-link {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--postgres-teal);
+        }
+
+        .category-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--postgres-blue) 0%, var(--postgres-teal) 100%);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .reading-time {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .article-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .article-content {
+            font-size: 1.125rem;
+            line-height: 1.8;
+        }
+
+        .article-content h2 {
+            font-size: 2rem;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .article-content h3 {
+            font-size: 1.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--postgres-blue);
+        }
+
+        .article-content h4 {
+            font-size: 1.25rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .article-content p {
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .article-content ul, .article-content ol {
+            margin: 1.5rem 0;
+            padding-left: 2rem;
+        }
+
+        .article-content li {
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .article-content pre {
+            background: #1a1a1a;
+            color: #f8f8f2;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .article-content code {
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .article-content blockquote {
+            border-left: 4px solid var(--postgres-teal);
+            padding-left: 1.5rem;
+            margin: 2rem 0;
+            font-style: italic;
+            color: var(--text-secondary);
+            background: var(--bg-light);
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, rgba(51, 103, 145, 0.05) 0%, rgba(0, 139, 185, 0.05) 100%);
+            border-left: 4px solid var(--postgres-blue);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, rgba(229, 57, 53, 0.05) 0%, rgba(244, 67, 54, 0.05) 100%);
+            border-left: 4px solid #e53935;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, rgba(67, 160, 71, 0.05) 0%, rgba(56, 142, 60, 0.05) 100%);
+            border-left: 4px solid #43a047;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .table-of-contents {
+            background: var(--bg-light);
+            border-left: 4px solid var(--postgres-teal);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .table-of-contents ul {
+            margin: 0;
+            padding-left: 1rem;
+            list-style: none;
+        }
+
+        .table-of-contents li {
+            margin-bottom: 0.75rem;
+            padding-left: 1rem;
+            position: relative;
+        }
+
+        .table-of-contents li:before {
+            content: "→";
+            position: absolute;
+            left: -0.5rem;
+            color: var(--postgres-teal);
+        }
+
+        .table-of-contents a {
+            color: var(--postgres-teal);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .table-of-contents a:hover {
+            color: var(--postgres-blue);
+            text-decoration: underline;
+        }
+
+        .concept-card {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .concept-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .concept-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: linear-gradient(135deg, var(--postgres-blue) 0%, var(--postgres-teal) 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(51, 103, 145, 0.2);
+            transition: transform 0.3s ease;
+            z-index: 40;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-2px);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .feature-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <nav class="py-4 px-6 md:px-12">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500">
+                Md. Mostasim Mahmud
+            </a>
+            <div class="hidden md:flex gap-8">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="index.html#about" class="nav-link">About</a>
+                <a href="index.html#experience" class="nav-link">Experience</a>
+                <a href="index.html#projects" class="nav-link">Projects</a>
+                <a href="index.html#contact" class="nav-link">Contact</a>
+                <a href="blog.html" class="nav-link" style="color: #336791;">Blog</a>
+            </div>
+            <button class="md:hidden text-2xl" id="menuBtn">☰</button>
+        </div>
+    </nav>
+
+    <header class="pt-12 pb-8">
+        <div class="article-container">
+            <div class="text-center mb-8">
+                <span class="category-badge">PostgreSQL & Advanced SQL</span>
+                <span class="reading-time ml-4">📖 13 min read</span>
+            </div>
+            <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-teal-600 fade-in">
+                PostgreSQL Mastery: Essential SQL Commands, Functions & Performance Best Practices
+            </h1>
+            <div class="text-center text-gray-600 mb-8">
+                <p class="text-sm">Published: <span class="font-semibold">June 4, 2026</span> • Last Updated: <span class="font-semibold">June 4, 2026</span></p>
+            </div>
+            <div class="mb-8">
+                <img src="https://t3.ftcdn.net/jpg/01/38/58/62/360_F_138586261_nYWe7WbUi9ouurv6tcl2WmpLaXV1xdea.jpg" 
+                     alt="PostgreSQL Database Management" 
+                     class="w-full h-64 md:h-96 object-cover rounded-xl shadow-lg">
+                <p class="text-sm text-gray-500 mt-2 text-center">Mastering PostgreSQL: from configuration parameters to advanced JSON operators and query optimization</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="pb-16">
+        <div class="article-container">
+            <div class="table-of-contents fade-in">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">📋 Table of Contents</h3>
+                <ul class="space-y-2">
+                    <li><a href="#set">SET Command</a></li>
+                    <li><a href="#to_char">to_char() Formatting</a></li>
+                    <li><a href="#sql-injection">SQL Injection Prevention</a></li>
+                    <li><a href="#prepared-statements">Server-Side Prepared Statements</a></li>
+                    <li><a href="#comments">SQL Comments</a></li>
+                    <li><a href="#cast">CAST & Type Conversion</a></li>
+                    <li><a href="#coalesce">COALESCE() Function</a></li>
+                    <li><a href="#generate_series">generate_series()</a></li>
+                    <li><a href="#contains-operator">@> Contains Operator</a></li>
+                    <li><a href="#jsonb_pretty">jsonb_pretty()</a></li>
+                    <li><a href="#show-version">show server_version;</a></li>
+                    <li><a href="#select-clause">SELECT Clause</a></li>
+                    <li><a href="#from-clause">FROM Clause</a></li>
+                    <li><a href="#where-clause">WHERE Clause</a></li>
+                    <li><a href="#orderby-clause">ORDER BY Clause</a></li>
+                    <li><a href="#join-clause">JOIN Clause</a></li>
+                    <li><a href="#using-keyword">USING Keyword</a></li>
+                    <li><a href="#count-star">COUNT(*)</a></li>
+                </ul>
+            </div>
+
+            <article class="article-content fade-in">
+                <p>PostgreSQL is one of the world's most advanced open‑source relational databases. Understanding its configuration commands, data type conversions, set‑returning functions, and JSONB operators can dramatically improve application performance and code clarity. This guide explores the essential SQL constructs and best practices that every backend developer should master.</p>
+
+                <!-- SET command -->
+                <section id="set">
+                    <div class="concept-card" style="border-left-color: #336791;">
+                        <div class="flex items-start gap-4">
+                            <div class="concept-icon" style="background: rgba(51, 103, 145, 0.1); color: #336791;">
+                                ⚙️
+                            </div>
+                            <div>
+                                <h2 class="!mt-0 !border-0 !mb-2">SET Command</h2>
+                                <p>In PostgreSQL, <code>SET</code> modifies configuration parameters (GUC) for the current session or transaction – allowing runtime behavior changes without server restarts.</p>
+                                <h4>Why Use SET?</h4>
+                                <ul>
+                                    <li><strong>Flexibility:</strong> Adjust memory, planner settings, or locale per task.</li>
+                                    <li><strong>No downtime:</strong> Changes affect only your connection.</li>
+                                    <li><strong>Testing:</strong> Safely test planner options like <code>enable_seqscan = off</code>.</li>
+                                </ul>
+                                <pre><code>-- Change date format for current session
+SET datestyle = 'SQL, DMY';
+
+-- Increase work memory for a heavy sort
+SET work_mem = '64MB';
+
+-- Use SET LOCAL inside a transaction
+BEGIN;
+SET LOCAL work_mem = '128MB';
+-- ... complex query ...
+COMMIT; -- automatically reverts</code></pre>
+                                <div class="info-box">
+                                    <strong>💡 Best Practice:</strong> Use <code>SET LOCAL</code> inside transactions to avoid leaking settings to connection pools. Always <code>RESET</code> after tuning.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- to_char -->
+                <section id="to_char">
+                    <div class="concept-card" style="border-left-color: #008bb9;">
+                        <div class="flex items-start gap-4">
+                            <div class="concept-icon" style="background: rgba(0, 139, 185, 0.1); color: #008bb9;">
+                                📅
+                            </div>
+                            <div>
+                                <h2 class="!mt-0 !border-0 !mb-2">to_char()</h2>
+                                <p>Converts dates, timestamps, or numbers into formatted strings using template patterns.</p>
+                                <pre><code>SELECT to_char(current_date, 'Day, DDth Month YYYY');
+-- Returns: 'Wednesday, 04th June 2026'
+
+SELECT to_char(12345.67, '99,999.99');
+-- Returns: ' 12,345.67'</code></pre>
+                                <div class="warning-box">
+                                    <strong>⚠️ Performance trap:</strong> Never filter with <code>WHERE to_char(date_col, 'YYYY') = '2026'</code>. Use a date range to preserve index efficiency.
+                                </div>
+                                <p><strong>Optimization:</strong> Apply <code>to_char()</code> only at the final SELECT layer, not in joins or WHERE clauses. For recurring formats, consider a generated column or materialized view.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SQL Injection -->
+                <section id="sql-injection">
+                    <div class="concept-card" style="border-left-color: #e34f26;">
+                        <div class="flex items-start gap-4">
+                            <div class="concept-icon" style="background: rgba(227, 79, 38, 0.1); color: #e34f26;">
+                                🛡️
+                            </div>
+                            <div>
+                                <h2 class="!mt-0 !border-0 !mb-2">SQL Injection Prevention</h2>
+                                <p>SQL injection occurs when untrusted input is concatenated directly into SQL strings, allowing attackers to alter query logic.</p>
+                                <h4>Secure Practices:</h4>
+                                <ul>
+                                    <li><strong>Parameterized Queries (Prepared Statements):</strong> The gold standard.</li>
+                                    <li><strong>Input validation:</strong> Allow‑list based validation.</li>
+                                    <li><strong>Least privilege:</strong> Restrict DB user permissions.</li>
+                                    <li><strong>Use ORM frameworks:</strong> Many auto‑parameterize queries.</li>
+                                </ul>
+                                <pre><code>-- Vulnerable (never do this)
+EXECUTE 'SELECT * FROM users WHERE name = ''' || unsafe_input || '''';
+
+-- Safe with parameterized query
+PREPARE safe_user_lookup(text) AS
+  SELECT * FROM users WHERE name = $1;
+EXECUTE safe_user_lookup('Robert');</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Prepared statements -->
+                <section id="prepared-statements">
+                    <div class="concept-card">
+                        <h2>Server‑Side Prepared Statements</h2>
+                        <p>The PostgreSQL protocol allows parsing and planning a query once, then executing it many times with different parameters – boosting performance and blocking injection.</p>
+                        <pre><code>-- Step 1: PREPARE
+PREPURE find_orders_by_status(text) AS
+  SELECT id, total FROM orders WHERE status = $1;
+
+-- Step 2: EXECUTE
+EXECUTE find_orders_by_status('shipped');
+
+-- Step 3: DEALLOCATE
+DEALLOCATE find_orders_by_status;</code></pre>
+                        <div class="info-box">
+                            <strong>⚡ Pro tip:</strong> Use connection poolers like PgBouncer in transaction mode for maximum benefit. Always deallocate statements in long‑running sessions.
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Comments -->
+                <section id="comments">
+                    <div class="concept-card">
+                        <h2>SQL Comments</h2>
+                        <p>Both single‑line (<code>--</code>) and multi‑line (<code>/* */</code>) comments help document complex logic.</p>
+                        <pre><code>/*
+ * Generate monthly calendar then LEFT JOIN factbook data
+ * to ensure every day appears in the result set.
+ */
+SELECT calendar.day, COALESCE(fact.visits, 0) AS visits
+FROM generate_series('2026-01-01', '2026-01-31', '1 day') AS calendar(day)
+LEFT JOIN factbook fact ON fact.day = calendar.day;</code></pre>
+                    </div>
+                </section>
+
+                <!-- CAST -->
+                <section id="cast">
+                    <div class="concept-card">
+                        <h2>CAST & Type Conversion</h2>
+                        <p>Explicitly convert between data types using <code>CAST()</code> or PostgreSQL shorthand <code>::</code>.</p>
+                        <pre><code>SELECT CAST('2026-06-04' AS DATE);
+SELECT '123'::INTEGER;
+SELECT current_date::TEXT;</code></pre>
+                        <div class="warning-box">
+                            Avoid casting indexed columns in WHERE clauses – instead cast the input value to match the column type.
+                        </div>
+                    </div>
+                </section>
+
+                <!-- COALESCE -->
+                <section id="coalesce">
+                    <div class="concept-card">
+                        <h2>COALESCE()</h2>
+                        <p>Returns the first non‑null value in a list – ideal for providing fallback defaults.</p>
+                        <pre><code>SELECT COALESCE(bonus, commission, 0) AS total_incentive FROM employees;</code></pre>
+                        <p><strong>Best practice:</strong> Place the most likely non‑null value first for short‑circuit efficiency. Always use <code>COALESCE</code> in arithmetic to avoid <code>NULL + 10 = NULL</code> pitfalls.</p>
+                    </div>
+                </section>
+
+                <!-- generate_series -->
+                <section id="generate_series">
+                    <div class="concept-card">
+                        <h2>generate_series()</h2>
+                        <p>Set‑returning function that creates a sequence of numbers or timestamps – perfect for filling gaps or generating test data.</p>
+                        <pre><code>-- Generate numbers 1..5
+SELECT * FROM generate_series(1, 5);
+
+-- Generate every day in March 2026
+SELECT generate_series('2026-03-01'::date, '2026-03-31'::date, '1 day');</code></pre>
+                        <div class="info-box">
+                            <strong>📊 Reporting tip:</strong> LEFT JOIN generate_series to ensure all dates appear even when no data exists.
+                        </div>
+                    </div>
+                </section>
+
+                <!-- @> operator -->
+                <section id="contains-operator">
+                    <div class="concept-card">
+                        <h2>@> Contains Operator</h2>
+                        <p>Checks if left operand completely contains the right operand – used with JSONB, arrays, ranges, and geometric types.</p>
+                        <pre><code>-- JSONB: does the document contain this key-value pair?
+SELECT * FROM logs WHERE data @> '{"level": "ERROR"}';
+
+-- Array: does the array contain both 1 and 2?
+SELECT * FROM tags WHERE tag_ids @> ARRAY[1, 2];</code></pre>
+                        <div class="success-box">
+                            🔥 Always create a GIN index on JSONB/array columns when using <code>@></code>: <code>CREATE INDEX idx_gin ON my_table USING gin(data_column);</code>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- jsonb_pretty -->
+                <section id="jsonb_pretty">
+                    <div class="concept-card">
+                        <h2>jsonb_pretty()</h2>
+                        <p>Formats minified JSONB into indented, human‑readable text – invaluable for debugging.</p>
+                        <pre><code>SELECT jsonb_pretty('{"id": 1, "name": "PostgreSQL", "features": ["ACID", "JSONB"]}'::jsonb);</code></pre>
+                        <div class="warning-box">
+                            Never use <code>jsonb_pretty()</code> in production API responses – let your application handle formatting to avoid wasting database CPU.
+                        </div>
+                    </div>
+                </section>
+
+                <!-- show server_version -->
+                <section id="show-version">
+                    <div class="concept-card">
+                        <h2>show server_version;</h2>
+                        <p>Quick utility command to display the exact PostgreSQL version string.</p>
+                        <pre><code>SHOW server_version;
+-- Example output: "16.3 (Debian 16.3-1.pgdg120+1)"</code></pre>
+                    </div>
+                </section>
+
+                <!-- SELECT clause -->
+                <section id="select-clause">
+                    <div class="concept-card">
+                        <h2>SELECT Clause</h2>
+                        <p>Specifies which columns or expressions the query returns.</p>
+                        <pre><code>SELECT first_name, last_name, age + 5 AS future_age FROM users;</code></pre>
+                        <div class="warning-box">
+                            ⚡ Stop using <code>SELECT *</code> in production: explicit column lists enable index‑only scans and prevent slowdowns when tables add large columns.
+                        </div>
+                    </div>
+                </section>
+
+                <!-- FROM clause -->
+                <section id="from-clause">
+                    <div class="concept-card">
+                        <h2>FROM Clause</h2>
+                        <p>Defines the source tables, views, subqueries, or set‑returning functions that feed the query.</p>
+                        <pre><code>FROM orders JOIN customers ON orders.cust_id = customers.id
+FROM (SELECT * FROM active_users) AS sub</code></pre>
+                        <p><strong>Order of execution:</strong> <code>FROM</code> is evaluated first, then <code>WHERE</code>, then <code>SELECT</code>.</p>
+                    </div>
+                </section>
+
+                <!-- WHERE clause -->
+                <section id="where-clause">
+                    <div class="concept-card">
+                        <h2>WHERE Clause</h2>
+                        <p>Filters rows before aggregation or sorting. Essential for performance and data safety.</p>
+                        <pre><code>WHERE status = 'active' AND price > 100
+WHERE created_at >= '2026-01-01' -- Sargable</code></pre>
+                        <div class="info-box">
+                            <strong>Index‑friendly rule:</strong> Keep columns "naked". Prefer <code>WHERE date_col >= '2026-01-01'</code> over <code>WHERE EXTRACT(YEAR FROM date_col) = 2026</code>.
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ORDER BY -->
+                <section id="orderby-clause">
+                    <div class="concept-card">
+                        <h2>ORDER BY Clause</h2>
+                        <p>Sorts final output rows. Without it, row order is never guaranteed.</p>
+                        <pre><code>ORDER BY last_name ASC, first_name ASC
+ORDER BY created_at DESC NULLS LAST;</code></pre>
+                        <p><strong>Optimization:</strong> Create indexes on frequently sorted columns to avoid explicit sorts. Increase <code>work_mem</code> for large in‑memory sorts.</p>
+                    </div>
+                </section>
+
+                <!-- JOIN -->
+                <section id="join-clause">
+                    <div class="concept-card">
+                        <h2>JOIN Clause</h2>
+                        <p>Combines rows from multiple tables based on related columns. Prefer explicit <code>JOIN ... ON</code> syntax.</p>
+                        <pre><code>SELECT *
+FROM orders
+JOIN customers ON orders.customer_id = customers.id
+LEFT JOIN payments ON orders.id = payments.order_id;</code></pre>
+                        <div class="success-box">
+                            ✅ Always index foreign key columns – it's the #1 cause of slow joins.
+                        </div>
+                    </div>
+                </section>
+
+                <!-- USING -->
+                <section id="using-keyword">
+                    <div class="concept-card">
+                        <h2>USING Keyword</h2>
+                        <p>Shorthand for equi‑joins when column names are identical. Removes duplicate columns from output.</p>
+                        <pre><code>SELECT * FROM orders JOIN customers USING (customer_id);
+-- vs wordy: ON orders.customer_id = customers.customer_id</code></pre>
+                        <p><strong>Also used in dynamic SQL:</strong> <code>EXECUTE ... USING variable;</code> to prevent injection.</p>
+                    </div>
+                </section>
+
+                <!-- COUNT(*) -->
+                <section id="count-star">
+                    <div class="concept-card">
+                        <h2>COUNT(*)</h2>
+                        <p>Returns total number of rows matching the query (including rows with nulls).</p>
+                        <pre><code>SELECT COUNT(*) FROM orders WHERE status = 'completed';</code></pre>
+                        <div class="warning-box">
+                            On huge tables, <code>COUNT(*)</code> can be slow. For approximate numbers, query the system catalog: <code>SELECT reltuples::bigint FROM pg_class WHERE relname = 'my_table';</code>
+                        </div>
+                        <p><strong>Myth buster:</strong> <code>COUNT(1)</code> is not faster than <code>COUNT(*)</code> – they compile to the same plan.</p>
+                    </div>
+                </section>
+
+                <div class="mt-12 p-6 bg-gradient-to-r from-blue-50 to-teal-50 rounded-xl border-l-4 border-teal-500">
+                    <h3 class="text-xl font-bold mb-4">Final Thoughts</h3>
+                    <p>Mastering these PostgreSQL commands transforms you from a casual SQL user into a database expert. From session tuning with <code>SET</code> to leveraging <code>generate_series</code> for time‑series reporting, and from preventing SQL injection with prepared statements to optimizing <code>COUNT(*)</code> – each technique is a tool for building robust, high‑performance applications.</p>
+                    <p class="mt-4 font-bold">Key takeaways:</p>
+                    <ul>
+                        <li>Use <code>SET LOCAL</code> inside transactions for safe temporary changes.</li>
+                        <li>Format only at display layer – keep filtering and joins index‑friendly.</li>
+                        <li>Parameterize all user input to block SQL injection.</li>
+                        <li>GIN indexes on JSONB columns make <code>@></code> lightning fast.</li>
+                        <li>Explicit column lists in <code>SELECT</code> enable covering indexes.</li>
+                    </ul>
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <a href="blog.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold">
+                            ← Back to Blog
+                        </a>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <div class="back-to-top" id="backToTop">↑</div>
+
+    <footer class="py-8 px-6 md:px-12 bg-gray-50 border-t border-gray-200">
+        <div class="max-w-4xl mx-auto text-center">
+            <p class="text-gray-600 mb-4">© 2026 PostgreSQL Mastery Guide – All code samples licensed under PostgreSQL License.</p>
+            <div class="flex justify-center gap-6">
+                <a href="blog.html" class="text-teal-600 hover:text-teal-800 font-medium">Blog</a>
+                <a href="index.html#projects" class="text-teal-600 hover:text-teal-800 font-medium">Projects</a>
+                <a href="index.html#contact" class="text-teal-600 hover:text-teal-800 font-medium">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const scrollProgress = document.getElementById('scrollProgress');
+        window.addEventListener('scroll', () => {
+            const percent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+            scrollProgress.style.width = percent + '%';
+        });
+
+        const backBtn = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            backBtn.style.display = window.scrollY > 500 ? 'flex' : 'none';
+        });
+        backBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+        document.querySelectorAll('.table-of-contents a, .article-content a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.getElementById(this.getAttribute('href').substring(1));
+                if (target) {
+                    const offset = 80;
+                    window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - offset, behavior: 'smooth' });
+                }
+            });
+        });
+
+        document.querySelectorAll('pre').forEach(pre => {
+            pre.addEventListener('click', function() {
+                const code = this.querySelector('code');
+                if (code) {
+                    navigator.clipboard.writeText(code.textContent).then(() => {
+                        const original = this.textContent;
+                        this.style.backgroundColor = '#10b981';
+                        this.textContent = '✓ Copied!';
+                        setTimeout(() => {
+                            this.style.backgroundColor = '#1a1a1a';
+                            this.textContent = original;
+                        }, 1500);
+                    });
+                }
+            });
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => entry.isIntersecting && entry.target.classList.add('fade-in'));
+        }, { threshold: 0.1 });
+        document.querySelectorAll('section').forEach(section => observer.observe(section));
+    </script>
+     <script>
+        // Disable right-click
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        });
+
+        // Disable keyboard shortcuts (Ctrl+Shift+I, Ctrl+U, F12, etc.)
+        document.addEventListener('keydown', function (e) {
+            // Disable F12, Ctrl+Shift+I, Ctrl+U, Ctrl+Shift+C
+            if (
+                e.key === 'F12' ||
+                (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                (e.ctrlKey && e.key === 'u') ||
+                (e.ctrlKey && e.shiftKey && e.key === 'C')
+            ) {
+                e.preventDefault();
+            }
+        });
+
+        // Prevent image dragging
+        document.addEventListener('dragstart', function (e) {
+            if (e.target.tagName === 'IMG') {
+                e.preventDefault();
+            }
+        });
+
+        // Prevent image saving
+        document.addEventListener('mousedown', function (e) {
+            if (e.target.tagName === 'IMG') {
+                e.preventDefault();
+            }
+        });
+
+        // Prevent opening images in new tabs
+        document.addEventListener('auxclick', function (e) {
+            if (e.button === 1 && e.target.tagName === 'IMG') { // Middle mouse button
+                e.preventDefault();
+            }
+        });
+
+        // Prevent copying image URLs
+        document.addEventListener('copy', function (e) {
+            if (e.target.tagName === 'IMG') {
+                e.preventDefault();
+            }
+        });
+
+        // Prevent opening developer tools
+        (function () {
+            let devtools = function () {};
+            devtools.toString = function () {
+                if (window.console) {
+                    console.log('%c ', 'font-size: 1px;');
+                    console.clear();
+                }
+                return '';
+            };
+        })();
+    </script>
+    <script>
+        (function () {
+            let devtoolsOpen = false;
+        
+            const threshold = 160;
+        
+            setInterval(() => {
+                const widthDiff = window.outerWidth - window.innerWidth;
+                const heightDiff = window.outerHeight - window.innerHeight;
+        
+                if (widthDiff > threshold || heightDiff > threshold) {
+                    if (!devtoolsOpen) {
+                        devtoolsOpen = true;
+                        document.body.innerHTML = '';
+                        window.location.href = 'access-denied.html';
+                    }
+                } else {
+                    devtoolsOpen = false;
+                }
+            }, 500);
+        })();
+    </script>
+</body>
+</html>
