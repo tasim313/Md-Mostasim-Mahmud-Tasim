@@ -1,1281 +1,352 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog - Md. Mostasim Mahmud</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Technical Blog | Md. Mostasim Mahmud Tasim</title>
+<meta name="description" content="Technical blog covering PostgreSQL, backend engineering, DevOps, Linux, and enterprise software architecture.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* Custom Blog Grid and Styles */
+.blog-grid { display: grid; gap: 32px; }
+@media (min-width: 768px) { .blog-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .blog-grid { grid-template-columns: repeat(3, 1fr); } }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+.blog-card {
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden; transition: all var(--transition);
+  display: flex; flex-direction: column; height: 100%;
+}
+.blog-card:hover { border-color: var(--accent); box-shadow: 0 12px 24px rgba(0,0,0,0.06); transform: translateY(-4px); }
+.blog-image { width: 100%; height: 200px; object-fit: cover; border-bottom: 1px solid var(--border-light); }
+.blog-image.placeholder {
+  background: linear-gradient(135deg, var(--bg-alt) 0%, var(--border-light) 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3rem; color: var(--text-tertiary);
+}
+.blog-content { padding: 24px; flex-grow: 1; display: flex; flex-direction: column; }
+.blog-meta { display: flex; justify-content: space-between; font-size: 0.8125rem; color: var(--text-tertiary); margin-bottom: 12px; }
+.blog-meta .tag { font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; }
+.blog-card h3 { font-size: 1.125rem; font-weight: 700; margin-bottom: 12px; line-height: 1.4; }
+.blog-card p { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px; flex-grow: 1; }
+.blog-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-light); padding-top: 16px; margin-top: auto; }
+.blog-date { font-size: 0.8125rem; color: var(--text-tertiary); }
+.blog-link { font-size: 0.875rem; font-weight: 600; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 4px; cursor: pointer; border: none; background: none; }
+.blog-link:hover { opacity: 0.8; }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #ffffff;
-            color: #1a1a1a;
-            overflow-x: hidden;
-        }
-
-        /* Color Palette - Matching Portfolio */
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1e40af;
-            --accent: #f97316;
-            --accent-light: #fed7aa;
-            --text-primary: #1a1a1a;
-            --text-secondary: #666666;
-            --border: #e5e7eb;
-            --bg-light: #f9fafb;
-        }
-
-        /* Typography */
-        h1, h2, h3 {
-            font-family: 'Playfair Display', serif;
-            font-weight: 700;
-        }
-
-        /* Navigation */
-        nav {
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.9);
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 50;
-        }
-
-        .nav-link {
-            position: relative;
-            font-size: 0.875rem;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-            color: var(--text-primary);
-            transition: color 0.3s ease;
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -4px;
-            left: 0;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            transition: width 0.3s ease;
-        }
-
-        .nav-link:hover::after {
-            width: 100%;
-        }
-
-        /* Blog Hero */
-        .blog-hero {
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(249, 115, 22, 0.05) 100%);
-            position: relative;
-            overflow: hidden;
-            padding: 80px 0;
-        }
-
-        .blog-hero::before {
-            content: '';
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(37, 99, 235, 0.1) 0%, transparent 70%);
-            border-radius: 50%;
-            top: -100px;
-            right: -100px;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .blog-hero::after {
-            content: '';
-            position: absolute;
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, rgba(249, 115, 22, 0.1) 0%, transparent 70%);
-            border-radius: 50%;
-            bottom: -50px;
-            left: -50px;
-            animation: float 8s ease-in-out infinite reverse;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-        }
-
-        /* Blog Post Cards */
-        .blog-card {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-
-        .blog-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.3s ease;
-        }
-
-        .blog-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            border-color: var(--primary);
-        }
-
-        .blog-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        /* Blog Categories */
-        .category-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 16px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            transition: transform 0.3s ease;
-        }
-
-        .category-badge:hover {
-            transform: translateY(-2px);
-        }
-
-        /* Reading Time */
-        .reading-time {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        /* Author Info */
-        .author-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .author-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid var(--primary);
-            object-fit: cover;
-        }
-
-        /* Pagination */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 48px;
-        }
-
-        .page-btn {
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: white;
-            color: var(--text-primary);
-            font-weight: 600;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .page-btn:hover {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .page-btn.active {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        /* Newsletter Subscription */
-        .newsletter {
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(249, 115, 22, 0.05) 100%);
-            border-radius: 16px;
-            padding: 48px;
-            text-align: center;
-        }
-
-        .newsletter-input {
-            width: 100%;
-            max-width: 400px;
-            padding: 12px 20px;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-
-        .newsletter-input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        /* Sidebar */
-        .sidebar-widget {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-
-        .sidebar-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 16px;
-            color: var(--text-primary);
-            position: relative;
-            padding-bottom: 8px;
-        }
-
-        .sidebar-title::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 40px;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            border-radius: 2px;
-        }
-
-        /* Tag Cloud */
-        .tag-cloud {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .tag {
-            padding: 6px 12px;
-            background: var(--bg-light);
-            color: var(--text-secondary);
-            border-radius: 16px;
-            font-size: 0.875rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .tag:hover {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        /* Recent Posts */
-        .recent-post {
-            display: flex;
-            gap: 12px;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .recent-post:last-child {
-            border-bottom: none;
-        }
-
-        .recent-post img {
-            width: 60px;
-            height: 60px;
-            border-radius: 8px;
-            object-fit: cover;
-        }
-
-        /* Scroll Progress */
-        .scroll-progress {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            z-index: 100;
-            width: 0%;
-        }
-
-        /* Modal Styles */
-        .modal-hidden {
-            display: none !important;
-        }
-
-        .modal-visible {
-            display: flex !important;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .blog-hero h1 {
-                font-size: 2.5rem;
-            }
-            
-            .newsletter {
-                padding: 32px 20px;
-            }
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .fade-in-up {
-            animation: fadeInUp 0.8s ease forwards;
-        }
-
-        .delay-100 { animation-delay: 0.1s; }
-        .delay-200 { animation-delay: 0.2s; }
-        .delay-300 { animation-delay: 0.3s; }
-        .delay-400 { animation-delay: 0.4s; }
-    </style>
+/* Modal Styles */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+  z-index: 1000; display: none; align-items: center; justify-content: center;
+  padding: 24px; opacity: 0; transition: opacity 0.3s ease;
+}
+.modal-overlay.active { display: flex; opacity: 1; }
+.modal-content {
+  background: var(--bg); border-radius: 12px; width: 100%; max-width: 800px;
+  max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 24px 48px rgba(0,0,0,0.2);
+  transform: translateY(20px); transition: transform 0.3s ease;
+}
+.modal-overlay.active .modal-content { transform: translateY(0); }
+.modal-header {
+  padding: 24px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--bg-alt); position: sticky; top: 0; z-index: 10;
+}
+.modal-header h3 { font-size: 1.25rem; font-weight: 700; }
+.modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary); }
+.modal-body { padding: 24px; }
+.workflow-step { margin-bottom: 24px; padding-left: 20px; border-left: 2px solid var(--accent); position: relative; }
+.workflow-step::before {
+  content: ''; position: absolute; left: -6px; top: 0; width: 10px; height: 10px;
+  border-radius: 50%; background: var(--accent);
+}
+.workflow-step h4 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+.workflow-step ul { padding-left: 20px; font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; }
+</style>
 </head>
 <body>
-    <!-- Scroll Progress Bar -->
-    <div class="scroll-progress" id="scrollProgress"></div>
 
-    <!-- Navigation -->
-    <nav class="py-4 px-6 md:px-12">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <a href="index.html" class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500">
-                Md. Mostasim Mahmud Tasim
-            </a>
-            <div class="hidden md:flex gap-8">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="index.html#about" class="nav-link">About</a>
-                <a href="index.html#experience" class="nav-link">Experience</a>
-                <a href="index.html#projects" class="nav-link">Projects</a>
-                <a href="index.html#contact" class="nav-link">Contact</a>
-                <a href="blog.html" class="nav-link" style="color: #2563eb;">Blog</a>
-            </div>
-            <button class="md:hidden text-2xl" id="menuBtn">☰</button>
+<!-- Navigation -->
+<nav class="nav" role="navigation" aria-label="Main navigation">
+<div class="nav-inner">
+  <a href="index.html" class="nav-brand">Mostasim Mahmud Tasim</a>
+  <ul class="nav-links">
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="index.html#experience">Experience</a></li>
+    <li><a href="index.html#capabilities">Engineering</a></li>
+    <li><a href="index.html#projects">Projects</a></li>
+    <li><a href="index.html#infrastructure">Infrastructure</a></li>
+    <li><a href="blog.html" class="active">Blog</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="https://github.com/tasim313" class="nav-ext" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i></a>
+    <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" class="nav-ext" target="_blank" rel="noopener"><i class="fa-brands fa-linkedin"></i></a>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+      <svg id="sunIcon" style="display:none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+      <svg id="moonIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+    </button>
+    <button class="mobile-toggle" id="mobileToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</div>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html#about">About</a>
+  <a href="index.html#experience">Experience</a>
+  <a href="index.html#capabilities">Engineering</a>
+  <a href="index.html#projects">Projects</a>
+  <a href="index.html#infrastructure">Infrastructure</a>
+  <a href="blog.html">Blog</a>
+  <a href="index.html#contact">Contact</a>
+  <a href="https://github.com/tasim313" target="_blank">GitHub</a>
+  <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" target="_blank">LinkedIn</a>
+</div>
+
+<!-- Hero -->
+<section class="hero" style="padding-bottom: 40px;">
+<div class="container">
+  <div class="hero-grid" style="grid-template-columns: 1fr;">
+    <div style="max-width: 800px;">
+      <p class="section-label fade-up">Technical Blog</p>
+      <h1 class="fade-up">Engineering Insights</h1>
+      <p class="hero-desc fade-up" style="max-width: 100%; font-size: 1.0625rem;">
+        Deep dives, technical guides, and architectural documentation covering full-stack development, PostgreSQL database management, Linux infrastructure, and enterprise SaaS implementation.
+      </p>
+      <div class="tech-tags fade-up" style="margin-top: 24px;">
+        <span class="tech-tag">PostgreSQL</span>
+        <span class="tech-tag">Django</span>
+        <span class="tech-tag">Next.js</span>
+        <span class="tech-tag">Linux</span>
+        <span class="tech-tag">ERP</span>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- Blog Grid -->
+<section style="padding-top: 40px; background: var(--bg-alt);">
+<div class="container">
+  <div class="blog-grid">
+
+    <!-- Post 1 -->
+    <div class="blog-card fade-up">
+      <div class="blog-image placeholder"><i class="fa-solid fa-database"></i></div>
+      <div class="blog-content">
+        <div class="blog-meta"><span class="tag">Database Ops</span><span>8 min read</span></div>
+        <h3>PostgreSQL WAL Archiving &amp; Point-in-Time Recovery</h3>
+        <p>A production guide on implementing robust PostgreSQL backup strategies using Write-Ahead Logging (WAL), setting up primary/standby servers, and ensuring zero data loss.</p>
+        <div class="blog-footer">
+          <span class="blog-date">Dec 15, 2025</span>
+          <a href="postgresql-wal-guide.html" class="blog-link">Read Article <i class="fa-solid fa-arrow-right"></i></a>
         </div>
-    </nav>
-
-    <!-- Blog Hero -->
-    <section class="blog-hero">
-        <div class="max-w-6xl mx-auto px-6 md:px-12 text-center">
-            <h1 class="text-5xl md:text-6xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500 fade-in-up">
-                Technical Blog
-            </h1>
-            <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto fade-in-up delay-100">
-                Insights, tutorials, and deep dives into full-stack development, system administration, and modern web technologies.
-            </p>
-            <div class="flex flex-wrap justify-center gap-3 fade-in-up delay-200">
-                <span class="category-badge">Django & Python</span>
-                <span class="category-badge">React & Next.js</span>
-                <span class="category-badge">PostgreSQL</span>
-                <span class="category-badge">Linux & DevOps</span>
-                <span class="category-badge">System Administration</span>
-                <span class="category-badge">ERP Systems</span>
-            </div>
-        </div>
-    </section>
-
-    <!-- Main Content -->
-    <main class="max-w-6xl mx-auto px-6 md:px-12 py-12">
-        <div class="grid lg:grid-cols-3 gap-8">
-            <!-- Blog Posts Column -->
-            <div class="lg:col-span-2">
-                <!-- Featured Post -->
-                <div class="blog-card mb-8 fade-in-up">
-                    <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" 
-                         alt="PostgreSQL Backup Strategy" 
-                         class="w-full h-64 object-cover">
-                    <div class="p-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <span class="category-badge">Database & DevOps</span>
-                            <span class="reading-time">📖 8 min read</span>
-                        </div>
-                        <h2 class="text-2xl font-bold mb-3 text-gray-800">
-                            PostgreSQL WAL Archiving & Point-in-Time Recovery: A Production Guide
-                        </h2>
-                        <p class="text-gray-600 mb-4 leading-relaxed">
-                            Learn how to implement robust PostgreSQL backup strategies using Write-Ahead Logging (WAL) archiving. This guide covers setting up primary/standby servers, pg_basebackup, and ensuring zero data loss in production environments.
-                        </p>
-                        <div class="flex justify-between items-center">
-                            <div class="author-info">
-                                <img src="tasim.jpg" alt="Md. Mostasim Mahmud" class="author-avatar">
-                                <div>
-                                    <p class="font-semibold text-gray-800">Md. Mostasim Mahmud</p>
-                                    <p class="text-sm text-gray-500">Dec 15, 2025</p>
-                                </div>
-                            </div>
-                            <a href="postgresql-wal-guide.html" class="text-blue-600 font-semibold hover:text-blue-800 transition-colors">
-                                Read Article →
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Blog Posts Grid -->
-                <div class="grid md:grid-cols-2 gap-6">
-
-                    <!-- Post 1 - Purchase Management System -->
-                    <div class="blog-card fade-in-up delay-400">
-                        <div style="height: 48px; background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);" class="w-full flex items-center justify-center">
-                            <h4 class="text-white font-bold text-lg">ERP Purchase Management</h4>
-                        </div>
-                        <div class="p-6">
-                            <div class="flex justify-between items-center mb-3">
-                                <span class="category-badge">ERP Systems</span>
-                                <span class="reading-time">📖 12 min read</span>
-                            </div>
-                            <h3 class="text-xl font-bold mb-2 text-gray-800">
-                                Comprehensive Purchase Management System Workflow in ERP
-                            </h3>
-                            <p class="text-gray-600 mb-4 text-sm leading-relaxed">
-                                Complete end-to-end procurement workflow from PR to PO to GRN to payment. A detailed guide to implementing efficient purchase management systems in enterprise environments.
-                            </p>
-                            <div class="flex justify-between items-center">
-                                <p class="text-sm text-gray-500">Jan 10, 2025</p>
-                                <button onclick="showPurchaseWorkflow()" class="text-blue-600 text-sm font-semibold hover:text-blue-800">View Workflow →</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Post 2 -->
-                    <div class="blog-card fade-in-up">
-                        <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-                             alt="Docker Optimization" 
-                             class="w-full h-48 object-cover">
-                        <div class="p-6">
-                            <div class="flex justify-between items-center mb-3">
-                                <span class="category-badge">Docker & DevOps</span>
-                                <span class="reading-time">📖 6 min read</span>
-                            </div>
-                            <h3 class="text-xl font-bold mb-2 text-gray-800">
-                                Docker Root Directory Migration: Solving Storage Issues
-                            </h3>
-                            <p class="text-gray-600 mb-4 text-sm leading-relaxed">
-                                Step-by-step guide to migrating Docker's data directory to resolve system partition space issues while maintaining container integrity.
-                            </p>
-                            <div class="flex justify-between items-center">
-                                <p class="text-sm text-gray-500">Nov 28, 2024</p>
-                                <a href="docker-root-migration.html" class="text-blue-600 text-sm font-semibold">Read →</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Post 3 -->
-                    <div class="blog-card fade-in-up delay-100">
-                        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-                             alt="ERP Systems" 
-                             class="w-full h-48 object-cover">
-                        <div class="p-6">
-                            <div class="flex justify-between items-center mb-3">
-                                <span class="category-badge">ERP Systems</span>
-                                <span class="reading-time">📖 10 min read</span>
-                            </div>
-                            <h3 class="text-xl font-bold mb-2 text-gray-800">
-                                Dolibarr ERP Customization for Medical Laboratories
-                            </h3>
-                            <p class="text-gray-600 mb-4 text-sm leading-relaxed">
-                                How we customized Dolibarr ERP with modules for histopathology, cytopathology, and automated report generation for cancer testing labs.
-                            </p>
-                            <div class="flex justify-between items-center">
-                                <p class="text-sm text-gray-500">Nov 15, 2024</p>
-                                <a href="dolibarr_erp.html" class="text-blue-600 text-sm font-semibold">Read →</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Post 4 -->
-                    <div class="blog-card fade-in-up delay-200">
-                        <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-                             alt="Django React" 
-                             class="w-full h-48 object-cover">
-                        <div class="p-6">
-                            <div class="flex justify-between items-center mb-3">
-                                <span class="category-badge">Full-Stack</span>
-                                <span class="reading-time">📖 7 min read</span>
-                            </div>
-                            <h3 class="text-xl font-bold mb-2 text-gray-800">
-                                Building Scalable School Management Systems with Django & Next.js
-                            </h3>
-                            <p class="text-gray-600 mb-4 text-sm leading-relaxed">
-                                Architecture patterns and best practices for developing enterprise-level school management systems with real-time features.
-                            </p>
-                            <div class="flex justify-between items-center">
-                                <p class="text-sm text-gray-500">Nov 5, 2024</p>
-                                <a href="school-management-system.html" class="text-blue-600 text-sm font-semibold">Read →</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Post 5 -->
-                    <div class="blog-card fade-in-up delay-300">
-                        <img src="https://images.unsplash.com/photo-1627398242454-45a1465c2479?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-                             alt="Linux Administration" 
-                             class="w-full h-48 object-cover">
-                        <div class="p-6">
-                            <div class="flex justify-between items-center mb-3">
-                                <span class="category-badge">Linux & SysAdmin</span>
-                                <span class="reading-time">📖 9 min read</span>
-                            </div>
-                            <h3 class="text-xl font-bold mb-2 text-gray-800">
-                                Ubuntu Server Hardening: Essential Security Practices
-                            </h3>
-                            <p class="text-gray-600 mb-4 text-sm leading-relaxed">
-                                Essential security practices for hardening Ubuntu servers in production environments, covering firewalls, user management, and monitoring.
-                            </p>
-                            <div class="flex justify-between items-center">
-                                <p class="text-sm text-gray-500">Oct 22, 2024</p>
-                                <a href="#" class="text-blue-600 text-sm font-semibold">Read →</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Post 6 -->
-                    <div class="blog-card fade-in-up delay-300">
-                        <img src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
-                             alt="Naming Conventions & Coding Standards | Multi-Language Guide" 
-                             class="w-full h-48 object-cover">
-                        <div class="p-6">
-                            <div class="flex justify-between items-center mb-3">
-                                <span class="category-badge">Naming Conventions & Coding Standards | Multi-Language Guide</span>
-                                <span class="reading-time">📖 10 min read</span>
-                            </div>
-                            <h3 class="text-xl font-bold mb-2 text-gray-800">
-                                Naming Conventions & Coding Standards: A Multi-Language Guide
-                            </h3>
-                            <p class="text-gray-600 mb-4 text-sm leading-relaxed">
-                                Comprehensive guide to naming conventions and coding standards for Python (Django), PHP (Laravel & Dolibarr), and JavaScript/TypeScript (React, Next.js, Angular) following Clean Code principles.
-                            </p>
-                            <div class="flex justify-between items-center">
-                                <p class="text-sm text-gray-500">Feb 10, 2026</p>
-                                <a href="naming_conventions.html" class="text-blue-600 text-sm font-semibold">Read →</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Post 7: PostgreSQL Database Clusters & High-Traffic Django Architecture -->
-                    <div class="blog-card fade-in-up delay-300">
-                        <img src="https://images.unsplash.com/photo-1544383835-bda2bc66a55d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
-                            alt="PostgreSQL Database Clusters & High-Traffic Django Architecture" 
-                            class="w-full h-48 object-cover">
-                        <div class="p-6">
-                            <div class="flex justify-between items-center mb-3">
-                                <span class="category-badge">Database & Django Architecture</span>
-                                <span class="reading-time">📖 12 min read</span>
-                            </div>
-                            <h3 class="text-xl font-bold mb-2 text-gray-800">
-                                PostgreSQL Database Clusters & High-Traffic Django Architecture
-                            </h3>
-                            <p class="text-gray-600 mb-4 text-sm leading-relaxed">
-                                Complete guide from zero to production: PostgreSQL clusters, replication, read/write splitting, pgBouncer connection pooling, Redis caching, and Nginx + Gunicorn setup for handling millions of requests.
-                            </p>
-                            <div class="flex justify-between items-center">
-                                <p class="text-sm text-gray-500">Feb 18, 2026</p>
-                                <a href="cluster.html" class="text-blue-600 text-sm font-semibold">Read →</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Post 8: PostgreSQL: Essential SQL Commands & Best Practices -->
-                    <div class="blog-card fade-in-up delay-300">
-                        <img src="https://t3.ftcdn.net/jpg/01/38/58/62/360_F_138586261_nYWe7WbUi9ouurv6tcl2WmpLaXV1xdea.jpg" 
-                            alt="PostgreSQL: Essential SQL Commands & Best Practices" 
-                            class="w-full h-48 object-cover">
-                        <div class="p-6">
-                            <div class="flex justify-between items-center mb-3">
-                                <span class="category-badge">PostgreSQL</span>
-                                <span class="reading-time">📖 13 min read</span>
-                            </div>
-                            <h3 class="text-xl font-bold mb-2 text-gray-800">
-                                PostgreSQL: Essential SQL Commands & Best Practices
-                            </h3>
-                            <p class="text-gray-600 mb-4 text-sm leading-relaxed">
-                                PostgreSQL is one of the world's most advanced open‑source relational databases. Understanding its configuration commands, data type conversions, set‑returning functions, and JSONB operators can dramatically improve application performance and code clarity. This guide explores the essential SQL constructs and best practices that every backend developer should master.
-                            </p>
-                            <div class="flex justify-between items-center">
-                                <p class="text-sm text-gray-500">June 4, 2026</p>
-                                <a href="postgreSqlCommands.html" class="text-blue-600 text-sm font-semibold">Read →</a>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- Pagination -->
-                <div class="pagination">
-                    <button class="page-btn active">1</button>
-                    <button class="page-btn">2</button>
-                    <button class="page-btn">3</button>
-                    <button class="page-btn">4</button>
-                    <button class="page-btn">→</button>
-                </div>
-            </div>
-
-            <!-- Sidebar -->
-            <div class="lg:col-span-1">
-                <!-- About Author -->
-                <div class="sidebar-widget fade-in-up">
-                    <h3 class="sidebar-title">About Author</h3>
-                    <div class="flex flex-col items-center text-center">
-                        <img src="tasim.jpg" alt="Md. Mostasim Mahmud" 
-                             class="w-24 h-24 rounded-full border-3 border-blue-500 mb-4">
-                        <h4 class="text-lg font-bold text-gray-800">Md. Mostasim Mahmud</h4>
-                        <p class="text-gray-600 text-sm mb-3">Full-Stack Engineer & System Administrator</p>
-                        <p class="text-gray-700 text-sm leading-relaxed">
-                            I write about full-stack development, database optimization, Linux administration, and enterprise software solutions based on my experience at AI Khan Lab Ltd. and Script Park.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Categories -->
-                <div class="sidebar-widget fade-in-up delay-100">
-                    <h3 class="sidebar-title">Categories</h3>
-                    <div class="space-y-2">
-                        <a href="#" class="flex justify-between items-center p-2 hover:bg-gray-50 rounded-lg transition-colors">
-                            <span class="text-gray-700">Django & Python</span>
-                            <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">12</span>
-                        </a>
-                        <a href="#" class="flex justify-between items-center p-2 hover:bg-gray-50 rounded-lg transition-colors">
-                            <span class="text-gray-700">React & Next.js</span>
-                            <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">8</span>
-                        </a>
-                        <a href="#" class="flex justify-between items-center p-2 hover:bg-gray-50 rounded-lg transition-colors">
-                            <span class="text-gray-700">PostgreSQL</span>
-                            <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">6</span>
-                        </a>
-                        <a href="#" class="flex justify-between items-center p-2 hover:bg-gray-50 rounded-lg transition-colors">
-                            <span class="text-gray-700">Linux & DevOps</span>
-                            <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">10</span>
-                        </a>
-                        <a href="#" class="flex justify-between items-center p-2 hover:bg-gray-50 rounded-lg transition-colors">
-                            <span class="text-gray-700">ERP Systems</span>
-                            <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">6</span>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Recent Posts -->
-                <div class="sidebar-widget fade-in-up delay-200">
-                    <h3 class="sidebar-title">Recent Posts</h3>
-                    <div class="space-y-0">
-                        <div class="recent-post">
-                            <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                                <span class="text-white font-bold">PMS</span>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-gray-800 text-sm mb-1">Purchase Management System</h4>
-                                <p class="text-xs text-gray-500">Jan 10, 2025</p>
-                            </div>
-                        </div>
-                        <div class="recent-post">
-                            <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" 
-                                 alt="Docker">
-                            <div>
-                                <h4 class="font-semibold text-gray-800 text-sm mb-1">Docker Storage Optimization</h4>
-                                <p class="text-xs text-gray-500">Nov 28, 2024</p>
-                            </div>
-                        </div>
-                        <div class="recent-post">
-                            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" 
-                                 alt="ERP">
-                            <div>
-                                <h4 class="font-semibold text-gray-800 text-sm mb-1">Dolibarr Medical Lab Modules</h4>
-                                <p class="text-xs text-gray-500">Nov 15, 2024</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Newsletter -->
-                <div class="newsletter fade-in-up delay-300">
-                    <h3 class="sidebar-title mb-4">Subscribe to Newsletter</h3>
-                    <p class="text-gray-600 mb-6 text-sm">
-                        Get the latest articles on full-stack development, system administration, and database optimization directly in your inbox.
-                    </p>
-                    <form id="newsletter-form" class="flex flex-col sm:flex-row gap-3">
-                        <input type="email" 
-                               placeholder="Your email address" 
-                               class="newsletter-input" 
-                               required>
-                        <button type="submit" 
-                                class="px-6 py-3 bg-gradient-to-r from-blue-600 to-orange-500 text-white font-semibold rounded-lg hover:opacity-90 transition-opacity">
-                            Subscribe
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Purchase Workflow Modal -->
-    <div id="purchase-workflow-modal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden mx-4 my-8">
-            <div class="p-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-2xl font-bold">Purchase Management System Workflow</h3>
-                    <button onclick="closePurchaseWorkflow()" class="text-white text-2xl hover:text-gray-200">×</button>
-                </div>
-                <p class="mt-2 text-blue-100">PR → Inventory → Finance → Approval → Procurement → PO → GRN → Accounts → Closure</p>
-            </div>
-            
-            <div class="p-6 overflow-y-auto max-h-[70vh]">
-                <!-- Workflow Steps -->
-                <div class="space-y-6">
-                    <!-- Step 1 -->
-                    <div class="border-l-4 border-blue-500 pl-4">
-                        <h4 class="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
-                            <span class="bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center">1</span>
-                            Product Request (PR)
-                        </h4>
-                        <div class="bg-blue-50 p-4 rounded-lg">
-                            <ul class="space-y-2 text-gray-700">
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">✓</span>
-                                    <span>User creates a Product Request</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">✓</span>
-                                    <span>System validates the request</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-red-600 mt-1">←</span>
-                                    <span>Invalid PRs are sent back for correction</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">→</span>
-                                    <span>Valid PRs move forward to inventory check</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Step 2 -->
-                    <div class="border-l-4 border-green-500 pl-4">
-                        <h4 class="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
-                            <span class="bg-green-500 text-white w-8 h-8 rounded-full flex items-center justify-center">2</span>
-                            Inventory Check
-                        </h4>
-                        <div class="bg-green-50 p-4 rounded-lg">
-                            <ul class="space-y-2 text-gray-700">
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">✓</span>
-                                    <span>System checks stock availability</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-blue-600 mt-1">→</span>
-                                    <span><strong>If stock available:</strong> Items are issued directly to user</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-orange-600 mt-1">→</span>
-                                    <span><strong>If not available:</strong> Request moves to technical/inventory review</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Step 3 -->
-                    <div class="border-l-4 border-yellow-500 pl-4">
-                        <h4 class="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
-                            <span class="bg-yellow-500 text-white w-8 h-8 rounded-full flex items-center justify-center">3</span>
-                            Budget Verification (Finance)
-                        </h4>
-                        <div class="bg-yellow-50 p-4 rounded-lg">
-                            <ul class="space-y-2 text-gray-700">
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">✓</span>
-                                    <span>Finance department checks budget availability</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-red-600 mt-1">⏸️</span>
-                                    <span><strong>If budget unavailable:</strong> Request is put on hold</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">→</span>
-                                    <span><strong>If available:</strong> Forwarded for approval process</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Step 4 -->
-                    <div class="border-l-4 border-purple-500 pl-4">
-                        <h4 class="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
-                            <span class="bg-purple-500 text-white w-8 h-8 rounded-full flex items-center justify-center">4</span>
-                            Approval Process
-                        </h4>
-                        <div class="bg-purple-50 p-4 rounded-lg">
-                            <ul class="space-y-2 text-gray-700">
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">✓</span>
-                                    <span>Approver reviews the request</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">✅</span>
-                                    <span><strong>Approved:</strong> Moves to procurement</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-orange-600 mt-1">↩️</span>
-                                    <span><strong>Sent back:</strong> For correction/modification</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-red-600 mt-1">❌</span>
-                                    <span><strong>Rejected:</strong> Process ends</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Step 5 -->
-                    <div class="border-l-4 border-pink-500 pl-4">
-                        <h4 class="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
-                            <span class="bg-pink-500 text-white w-8 h-8 rounded-full flex items-center justify-center">5</span>
-                            Procurement Process
-                        </h4>
-                        <div class="bg-pink-50 p-4 rounded-lg">
-                            <ul class="space-y-2 text-gray-700">
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">✓</span>
-                                    <span>Procurement method selected (RFQ / RFP / Tender)</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">✓</span>
-                                    <span>Vendor submissions received</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">✓</span>
-                                    <span>Technical & financial evaluations performed</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">✓</span>
-                                    <span>Best vendor selected and sent for approval</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Step 6 -->
-                    <div class="border-l-4 border-indigo-500 pl-4">
-                        <h4 class="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
-                            <span class="bg-indigo-500 text-white w-8 h-8 rounded-full flex items-center justify-center">6</span>
-                            Purchase Order (PO)
-                        </h4>
-                        <div class="bg-indigo-50 p-4 rounded-lg">
-                            <ul class="space-y-2 text-gray-700">
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">✓</span>
-                                    <span>Purchase Order is created</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">✓</span>
-                                    <span>PO is approved by relevant authority</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">✓</span>
-                                    <span>PO is sent to the selected vendor</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Step 7 -->
-                    <div class="border-l-4 border-teal-500 pl-4">
-                        <h4 class="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
-                            <span class="bg-teal-500 text-white w-8 h-8 rounded-full flex items-center justify-center">7</span>
-                            Goods Receipt & Quality Check (GRN)
-                        </h4>
-                        <div class="bg-teal-50 p-4 rounded-lg">
-                            <ul class="space-y-2 text-gray-700">
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">✓</span>
-                                    <span>Goods/services received from vendor</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">✓</span>
-                                    <span>Inspection & quality check performed</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-red-600 mt-1">↩️</span>
-                                    <span><strong>Failed items:</strong> Returned to vendor</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">✓</span>
-                                    <span><strong>Passed items:</strong> Generate Goods Receipt Note (GRN)</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Step 8 -->
-                    <div class="border-l-4 border-red-500 pl-4">
-                        <h4 class="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
-                            <span class="bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center">8</span>
-                            Accounts & Payment
-                        </h4>
-                        <div class="bg-red-50 p-4 rounded-lg">
-                            <ul class="space-y-2 text-gray-700">
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">✓</span>
-                                    <span>Vendor invoice received</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">✓</span>
-                                    <span><strong>Three-way matching:</strong> PO + GRN + Invoice</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-orange-600 mt-1">⚠️</span>
-                                    <span>Discrepancies resolved (if any)</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">✓</span>
-                                    <span>Accounts approval completed</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">💰</span>
-                                    <span>Vendor payment processed</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Step 9 -->
-                    <div class="border-l-4 border-green-600 pl-4">
-                        <h4 class="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
-                            <span class="bg-green-600 text-white w-8 h-8 rounded-full flex items-center justify-center">9</span>
-                            Finalization & Closure
-                        </h4>
-                        <div class="bg-green-50 p-4 rounded-lg">
-                            <ul class="space-y-2 text-gray-700">
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">✓</span>
-                                    <span>Inventory stock updated with new items</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">✓</span>
-                                    <span>Goods distributed to user/department</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">✓</span>
-                                    <span>PO closed and documents archived</span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-green-600 mt-1">✅</span>
-                                    <span class="font-bold">Process completed ✔️</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-               
-                <img src="Purchase Workflow Diagram Final Version.drawio.png" alt="Purchase Workflow Diagram" 
-                class="profile-image mx-auto mb-6 fade-in-up">
-                
-                <!-- Detailed Description -->
-                <div class="mt-8 p-6 bg-gray-50 rounded-lg">
-                    <h4 class="text-lg font-bold text-gray-800 mb-4">Key Features of Purchase Management System:</h4>
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <h5 class="font-semibold text-gray-700 mb-2">📋 Procurement Workflow</h5>
-                            <ul class="text-sm text-gray-600 space-y-1">
-                                <li>• Automated PR routing based on rules</li>
-                                <li>• Supplier sourcing and RFQ management</li>
-                                <li>• Quote evaluation and vendor selection</li>
-                                <li>• Formal PO generation and approval</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h5 class="font-semibold text-gray-700 mb-2">🔍 Quality & Validation</h5>
-                            <ul class="text-sm text-gray-600 space-y-1">
-                                <li>• GRN with PO verification</li>
-                                <li>• Three-way matching (PO+GRN+Invoice)</li>
-                                <li>• Discrepancy resolution workflow</li>
-                                <li>• Quality inspection tracking</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="p-6 border-t border-gray-200 flex justify-between">
-                <button onclick="closePurchaseWorkflow()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                    Close
-                </button>
-                
-            </div>
-        </div>
+      </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="py-8 px-6 md:px-12 bg-gray-50 border-t border-gray-200 mt-12">
-        <div class="max-w-6xl mx-auto">
-            <div class="grid md:grid-cols-3 gap-8">
-                <div>
-                    <h4 class="text-lg font-bold mb-4 text-gray-800">Blog Categories</h4>
-                    <ul class="space-y-2 text-gray-600">
-                        <li><a href="#" class="hover:text-blue-600 transition-colors">Full-Stack Development</a></li>
-                        <li><a href="#" class="hover:text-blue-600 transition-colors">Database Optimization</a></li>
-                        <li><a href="#" class="hover:text-blue-600 transition-colors">Linux Administration</a></li>
-                        <li><a href="#" class="hover:text-blue-600 transition-colors">ERP Systems</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-lg font-bold mb-4 text-gray-800">Quick Links</h4>
-                    <ul class="space-y-2 text-gray-600">
-                        <li><a href="index.html" class="hover:text-blue-600 transition-colors">Portfolio</a></li>
-                        <li><a href="index.html#projects" class="hover:text-blue-600 transition-colors">Projects</a></li>
-                        <li><a href="index.html#experience" class="hover:text-blue-600 transition-colors">Experience</a></li>
-                        <li><a href="index.html#contact" class="hover:text-blue-600 transition-colors">Contact</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-lg font-bold mb-4 text-gray-800">Connect</h4>
-                    <div class="flex gap-4 mb-4">
-                        <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" 
-                           class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-blue-600 hover:text-white transition-colors">
-                            in
-                        </a>
-                        <a href="https://github.com/tasim313" 
-                           class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-800 hover:text-white transition-colors">
-                            gh
-                        </a>
-                        <a href="#" 
-                           class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-black hover:text-white transition-colors">
-                            𝕏
-                        </a>
-                    </div>
-                    <p class="text-gray-600 text-sm">tasim.swe@gmail.com</p>
-                </div>
-            </div>
-            <div class="border-t border-gray-200 mt-8 pt-8 text-center text-gray-600">
-                <p>&copy; 2025 Md. Mostasim Mahmud. All rights reserved.</p>
-            </div>
+    <!-- Post 2 -->
+    <div class="blog-card fade-up">
+      <div class="blog-image placeholder"><i class="fa-solid fa-sitemap"></i></div>
+      <div class="blog-content">
+        <div class="blog-meta"><span class="tag">Architecture</span><span>12 min read</span></div>
+        <h3>PostgreSQL Database Clusters &amp; High-Traffic Django Architecture</h3>
+        <p>Complete guide from zero to production: PostgreSQL clusters, replication, read/write splitting, pgBouncer connection pooling, Redis caching, and Nginx for millions of requests.</p>
+        <div class="blog-footer">
+          <span class="blog-date">Feb 18, 2026</span>
+          <a href="cluster.html" class="blog-link">Read Article <i class="fa-solid fa-arrow-right"></i></a>
         </div>
-    </footer>
+      </div>
+    </div>
 
-    <script>
-        // Purchase Workflow Modal Functions
-        function showPurchaseWorkflow() {
-            const modal = document.getElementById('purchase-workflow-modal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            document.body.style.overflow = 'hidden';
-        }
+    <!-- Post 3 -->
+    <div class="blog-card fade-up">
+      <div class="blog-image placeholder"><i class="fa-solid fa-code"></i></div>
+      <div class="blog-content">
+        <div class="blog-meta"><span class="tag">PostgreSQL</span><span>13 min read</span></div>
+        <h3>PostgreSQL: Essential SQL Commands &amp; Best Practices</h3>
+        <p>Understanding configuration commands, data type conversions, set-returning functions, and JSONB operators to dramatically improve application performance and backend code clarity.</p>
+        <div class="blog-footer">
+          <span class="blog-date">Jun 04, 2026</span>
+          <a href="postgreSqlCommands.html" class="blog-link">Read Article <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
 
-        function closePurchaseWorkflow() {
-            const modal = document.getElementById('purchase-workflow-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            document.body.style.overflow = 'auto';
-        }
+    <!-- Post 4 (Modal) -->
+    <div class="blog-card fade-up">
+      <div class="blog-image placeholder"><i class="fa-solid fa-boxes-stacked"></i></div>
+      <div class="blog-content">
+        <div class="blog-meta"><span class="tag">Enterprise</span><span>Workflow</span></div>
+        <h3>Comprehensive Purchase Management System Workflow</h3>
+        <p>Complete end-to-end procurement workflow from Product Request (PR) to PO to GRN to payment. A detailed guide to implementing efficient purchase management in enterprise ERPs.</p>
+        <div class="blog-footer">
+          <span class="blog-date">Jan 10, 2025</span>
+          <button class="blog-link" onclick="document.getElementById('workflowModal').classList.add('active')">View Workflow <i class="fa-solid fa-diagram-project"></i></button>
+        </div>
+      </div>
+    </div>
 
-        // Close modal when clicking outside
-        document.getElementById('purchase-workflow-modal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closePurchaseWorkflow();
-            }
-        });
+    <!-- Post 5 -->
+    <div class="blog-card fade-up">
+      <div class="blog-image placeholder"><i class="fa-brands fa-docker"></i></div>
+      <div class="blog-content">
+        <div class="blog-meta"><span class="tag">DevOps</span><span>6 min read</span></div>
+        <h3>Docker Root Directory Migration</h3>
+        <p>Step-by-step guide to migrating Docker's data directory to dedicated storage mounts, resolving system partition space issues while maintaining runtime stability.</p>
+        <div class="blog-footer">
+          <span class="blog-date">Nov 28, 2024</span>
+          <a href="docker-root-migration.html" class="blog-link">Read Article <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
 
-        // Close modal with Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closePurchaseWorkflow();
-            }
-        });
+    <!-- Post 6 -->
+    <div class="blog-card fade-up">
+      <div class="blog-image placeholder"><i class="fa-solid fa-building"></i></div>
+      <div class="blog-content">
+        <div class="blog-meta"><span class="tag">ERP</span><span>10 min read</span></div>
+        <h3>Dolibarr ERP Customization for Medical Laboratories</h3>
+        <p>Technical details on customizing Dolibarr ERP with custom modules for histopathology, cytopathology, and automated diagnostic report generation for cancer testing.</p>
+        <div class="blog-footer">
+          <span class="blog-date">Nov 15, 2024</span>
+          <a href="dolibarr_erp.html" class="blog-link">Read Article <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
 
-        // Scroll Progress Bar
-        window.addEventListener('scroll', () => {
-            const scrollProgress = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-            document.getElementById('scrollProgress').style.width = scrollProgress + '%';
-        });
+    <!-- Post 7 -->
+    <div class="blog-card fade-up">
+      <div class="blog-image placeholder"><i class="fa-solid fa-school"></i></div>
+      <div class="blog-content">
+        <div class="blog-meta"><span class="tag">Full-Stack</span><span>7 min read</span></div>
+        <h3>Building Scalable School Management Systems</h3>
+        <p>Architecture patterns and best practices for developing enterprise-level multi-tenant SaaS school management systems using Django and Next.js.</p>
+        <div class="blog-footer">
+          <span class="blog-date">Nov 05, 2024</span>
+          <a href="school-management-system.html" class="blog-link">Read Article <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
 
-        // Mobile Menu Toggle
-        const menuBtn = document.getElementById('menuBtn');
-        if (menuBtn) {
-            menuBtn.addEventListener('click', function() {
-                alert('Mobile menu - Navigation links would appear here');
-            });
-        }
+    <!-- Post 8 -->
+    <div class="blog-card fade-up">
+      <div class="blog-image placeholder"><i class="fa-brands fa-linux"></i></div>
+      <div class="blog-content">
+        <div class="blog-meta"><span class="tag">SysAdmin</span><span>9 min read</span></div>
+        <h3>Ubuntu Server Hardening: Security Practices</h3>
+        <p>Essential security practices for hardening Ubuntu servers in production environments, covering UFW firewalls, SSH configuration, user management, and monitoring.</p>
+        <div class="blog-footer">
+          <span class="blog-date">Oct 22, 2024</span>
+          <a href="#" class="blog-link">Read Article <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
 
-        // Newsletter Form Submission
-        const newsletterForm = document.getElementById('newsletter-form');
-        if (newsletterForm) {
-            newsletterForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const email = this.querySelector('input[type="email"]').value;
-                alert(`Thank you for subscribing with: ${email}`);
-                this.reset();
-            });
-        }
+    <!-- Post 9 -->
+    <div class="blog-card fade-up">
+      <div class="blog-image placeholder"><i class="fa-solid fa-spell-check"></i></div>
+      <div class="blog-content">
+        <div class="blog-meta"><span class="tag">Standards</span><span>10 min read</span></div>
+        <h3>Naming Conventions &amp; Coding Standards</h3>
+        <p>Comprehensive guide to naming conventions and clean code standards across multiple languages including Python (Django), PHP (Dolibarr), and JavaScript/TypeScript.</p>
+        <div class="blog-footer">
+          <span class="blog-date">Feb 10, 2026</span>
+          <a href="naming_conventions.html" class="blog-link">Read Article <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
 
-        // Smooth Scrolling for Navigation Links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                if (this.getAttribute('href').startsWith('#') && 
-                    document.querySelector(this.getAttribute('href'))) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {
-                        target.scrollIntoView({ behavior: 'smooth' });
-                    }
-                }
-            });
-        });
+  </div>
+</div>
+</section>
 
-        // Intersection Observer for Fade-in Animation
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
+<!-- Footer -->
+<footer class="footer">
+<div class="container">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <strong>Md. Mostasim Mahmud Tasim</strong>
+      <p>Software Engineer</p>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/tasim313" target="_blank">GitHub</a>
+      <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" target="_blank">LinkedIn</a>
+      <a href="mailto:tasim.swe@gmail.com">Email</a>
+    </div>
+  </div>
+  <p class="footer-copy">&copy; 2026 Md. Mostasim Mahmud Tasim. All rights reserved.</p>
+</div>
+</footer>
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        }, observerOptions);
+<!-- Purchase Workflow Modal -->
+<div id="workflowModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Purchase Management Workflow</h3>
+      <button class="modal-close" onclick="document.getElementById('workflowModal').classList.remove('active')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom: 24px; color: var(--text-secondary); font-size: 0.875rem;">PR → Inventory → Finance → Approval → Procurement → PO → GRN → Accounts → Closure</p>
+      
+      <div class="workflow-step">
+        <h4>1. Product Request (PR)</h4>
+        <ul>
+          <li>User creates a Product Request.</li>
+          <li>System validates the request requirements.</li>
+          <li>Invalid PRs are sent back for correction. Valid PRs move forward.</li>
+        </ul>
+      </div>
 
-        document.querySelectorAll('.fade-in-up').forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(20px)';
-            el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
-            observer.observe(el);
-        });
+      <div class="workflow-step">
+        <h4>2. Inventory Check</h4>
+        <ul>
+          <li>System checks local stock availability.</li>
+          <li>If stock is available, items are issued directly.</li>
+          <li>If out of stock, PR is forwarded to the procurement queue.</li>
+        </ul>
+      </div>
 
-        // Pagination Click Handler
-        document.querySelectorAll('.page-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                // In a real application, this would load the corresponding page
-                alert(`Loading page ${this.textContent}`);
-            });
-        });
+      <div class="workflow-step">
+        <h4>3. Finance Approval</h4>
+        <ul>
+          <li>Budget availability is verified by finance.</li>
+          <li>Management approves based on financial thresholds.</li>
+        </ul>
+      </div>
 
-        // Category Badge Click Handler
-        document.querySelectorAll('.category-badge, .tag').forEach(badge => {
-            badge.addEventListener('click', function(e) {
-                if (this.tagName === 'SPAN') {
-                    e.preventDefault();
-                    const category = this.textContent;
-                    alert(`Filtering posts by category: ${category}`);
-                }
-            });
-        });
-    </script>
+      <div class="workflow-step">
+        <h4>4. Purchase Order (PO)</h4>
+        <ul>
+          <li>Supplier is selected (via RFQ or direct selection).</li>
+          <li>Purchase Order is generated and dispatched to the supplier.</li>
+        </ul>
+      </div>
 
-    <script>
-        // Disable right-click
-        document.addEventListener('contextmenu', function (e) {
-            e.preventDefault();
-        });
+      <div class="workflow-step">
+        <h4>5. Goods Receipt Note (GRN)</h4>
+        <ul>
+          <li>Goods arrive and undergo quality control.</li>
+          <li>GRN is generated, updating inventory stock instantly.</li>
+        </ul>
+      </div>
 
-        // Disable keyboard shortcuts (Ctrl+Shift+I, Ctrl+U, F12, etc.)
-        document.addEventListener('keydown', function (e) {
-            // Disable F12, Ctrl+Shift+I, Ctrl+U, Ctrl+Shift+C
-            if (
-                e.key === 'F12' ||
-                (e.ctrlKey && e.shiftKey && e.key === 'I') ||
-                (e.ctrlKey && e.key === 'u') ||
-                (e.ctrlKey && e.shiftKey && e.key === 'C')
-            ) {
-                e.preventDefault();
-            }
-        });
+      <div class="workflow-step">
+        <h4>6. Invoicing &amp; Payment</h4>
+        <ul>
+          <li>Supplier invoice is matched against PO and GRN (3-way matching).</li>
+          <li>Accounts payable clears the payment and the cycle closes.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
 
-        // Prevent image dragging
-        document.addEventListener('dragstart', function (e) {
-            if (e.target.tagName === 'IMG') {
-                e.preventDefault();
-            }
-        });
-
-        // Prevent image saving
-        document.addEventListener('mousedown', function (e) {
-            if (e.target.tagName === 'IMG') {
-                e.preventDefault();
-            }
-        });
-
-        // Prevent opening images in new tabs
-        document.addEventListener('auxclick', function (e) {
-            if (e.button === 1 && e.target.tagName === 'IMG') { // Middle mouse button
-                e.preventDefault();
-            }
-        });
-
-        // Prevent copying image URLs
-        document.addEventListener('copy', function (e) {
-            if (e.target.tagName === 'IMG') {
-                e.preventDefault();
-            }
-        });
-
-        // Prevent opening developer tools
-        (function () {
-            let devtools = function () {};
-            devtools.toString = function () {
-                if (window.console) {
-                    console.log('%c ', 'font-size: 1px;');
-                    console.clear();
-                }
-                return '';
-            };
-        })();
-    </script>
-    <script>
-        (function () {
-            let devtoolsOpen = false;
-        
-            const threshold = 160;
-        
-            setInterval(() => {
-                const widthDiff = window.outerWidth - window.innerWidth;
-                const heightDiff = window.outerHeight - window.innerHeight;
-        
-                if (widthDiff > threshold || heightDiff > threshold) {
-                    if (!devtoolsOpen) {
-                        devtoolsOpen = true;
-                        document.body.innerHTML = '';
-                        window.location.href = 'access-denied.html';
-                    }
-                } else {
-                    devtoolsOpen = false;
-                }
-            }, 500);
-        })();
-    </script>
+<script src="js/main.js"></script>
 </body>
 </html>

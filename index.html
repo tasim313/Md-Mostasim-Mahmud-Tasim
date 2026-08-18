@@ -1,1391 +1,570 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Md. Mostasim Mahmud - Full-Stack Engineer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #ffffff;
-            color: #1a1a1a;
-            overflow-x: hidden;
-        }
-
-        /* Color Palette */
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1e40af;
-            --accent: #f97316;
-            --accent-light: #fed7aa;
-            --text-primary: #1a1a1a;
-            --text-secondary: #666666;
-            --border: #e5e7eb;
-            --bg-light: #f9fafb;
-        }
-
-        /* Typography */
-        h1, h2, h3 {
-            font-family: 'Playfair Display', serif;
-            font-weight: 700;
-        }
-
-        .hero-title {
-            font-size: 4rem;
-            letter-spacing: -0.02em;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* Navigation */
-        nav {
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.9);
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 50;
-        }
-
-        .nav-link {
-            position: relative;
-            font-size: 0.875rem;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-            color: var(--text-primary);
-            transition: color 0.3s ease;
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -4px;
-            left: 0;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            transition: width 0.3s ease;
-        }
-
-        .nav-link:hover::after {
-            width: 100%;
-        }
-
-        /* Hero Section */
-        .hero {
-            min-height: 100vh;
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(249, 115, 22, 0.05) 100%);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(37, 99, 235, 0.1) 0%, transparent 70%);
-            border-radius: 50%;
-            top: -100px;
-            right: -100px;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .hero::after {
-            content: '';
-            position: absolute;
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, rgba(249, 115, 22, 0.1) 0%, transparent 70%);
-            border-radius: 50%;
-            bottom: -50px;
-            left: -50px;
-            animation: float 8s ease-in-out infinite reverse;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .fade-in-up {
-            animation: fadeInUp 0.8s ease forwards;
-        }
-
-        .slide-in-right {
-            animation: slideInRight 0.8s ease forwards;
-        }
-
-        .delay-100 { animation-delay: 0.1s; }
-        .delay-200 { animation-delay: 0.2s; }
-        .delay-300 { animation-delay: 0.3s; }
-        .delay-400 { animation-delay: 0.4s; }
-
-        /* Profile Image */
-        .profile-image {
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
-            border: 3px solid var(--primary);
-            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.2);
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-
-        .profile-image:hover {
-            transform: scale(1.05);
-        }
-
-        /* Project Cards */
-        .project-card {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 32px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .project-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.3s ease;
-        }
-
-        .project-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            border-color: var(--primary);
-        }
-
-        .project-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        /* Color Grid */
-        .color-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 24px;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .color-grid div {
-            height: 40px;
-            border-radius: 4px;
-        }
-
-        /* Skills Section */
-        .skill-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            transition: transform 0.3s ease;
-            margin: 4px;
-        }
-
-        .skill-badge:hover {
-            transform: translateY(-2px);
-        }
-
-        /* Buttons */
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            padding: 12px 32px;
-            border-radius: 8px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
-        }
-
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-
-        .btn-secondary {
-            border: 2px solid var(--primary);
-            color: var(--primary);
-            padding: 10px 30px;
-            border-radius: 8px;
-            background: transparent;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-secondary:hover {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        /* Section Heading */
-        .section-heading {
-            font-size: 2.5rem;
-            margin-bottom: 48px;
-            color: var(--text-primary);
-            position: relative;
-            padding-bottom: 20px;
-        }
-
-        .section-heading::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 60px;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            border-radius: 2px;
-        }
-
-        /* Social Icons */
-        .social-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: var(--bg-light);
-            color: var(--primary);
-            transition: all 0.3s ease;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .social-icon:hover {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            color: white;
-            transform: translateY(-4px);
-            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
-        }
-
-        /* Footer */
-        footer {
-            background: linear-gradient(135deg, var(--bg-light) 0%, white 100%);
-            border-top: 1px solid var(--border);
-        }
-
-        /* Scroll Progress */
-        .scroll-progress {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            z-index: 100;
-            width: 0%;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2.5rem;
-            }
-
-            .section-heading {
-                font-size: 2rem;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Md. Mostasim Mahmud Tasim | Software Engineer | Backend, Full-Stack & Infrastructure</title>
+<meta name="description" content="Professional Software Engineer specializing in Django, Python, PostgreSQL, enterprise systems, healthcare technology, Linux infrastructure, APIs, and scalable web applications.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://tasim313.github.io/Md-Mostasim-Mahmud-Tasim/">
+<meta property="og:title" content="Md. Mostasim Mahmud Tasim — Software Engineer">
+<meta property="og:description" content="Software Engineer specializing in Django, PostgreSQL, enterprise systems, and healthcare technology.">
+<meta property="og:type" content="profile">
+<meta property="og:url" content="https://tasim313.github.io/Md-Mostasim-Mahmud-Tasim/">
+<meta property="og:image" content="https://tasim313.github.io/Md-Mostasim-Mahmud-Tasim/assets/images/profile.jpg">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Md. Mostasim Mahmud Tasim — Software Engineer">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"ProfilePage","mainEntity":{"@type":"Person","name":"Md. Mostasim Mahmud Tasim","jobTitle":"Software Engineer","url":"https://tasim313.github.io/Md-Mostasim-Mahmud-Tasim/","image":"https://tasim313.github.io/Md-Mostasim-Mahmud-Tasim/assets/images/profile.jpg","sameAs":["https://github.com/tasim313","https://www.linkedin.com/in/md-mostasim-mahmud-tasim"],"knowsAbout":["Django","Python","PostgreSQL","Linux","Docker","REST APIs","Enterprise Systems","Healthcare Technology"],"worksFor":{"@type":"Organization","name":"AI Khan Lab Ltd."},"alumniOf":{"@type":"CollegeOrUniversity","name":"Daffodil International University"}}}
+</script>
 </head>
 <body>
-    <!-- Scroll Progress Bar -->
-    <div class="scroll-progress" id="scrollProgress"></div>
 
-    <!-- Navigation -->
-    <nav class="py-4 px-6 md:px-12">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500">
-                Md. Mostasim Mahmud Tasim
-            </h1>
-            <div class="hidden md:flex gap-8">
-                <a href="#about" class="nav-link">About</a>
-                <a href="#experience" class="nav-link">Experience</a>
-                <a href="#projects" class="nav-link">Projects</a>
-                <a href="#contact" class="nav-link">Contact</a>
-                <a href="blog.html" class="nav-link">Blog</a>
-            </div>
-            <button class="md:hidden text-2xl" id="menuBtn">☰</button>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section class="hero flex items-center justify-center px-6 py-20 md:py-0 relative z-10">
-        <div class="text-center max-w-4xl mx-auto">
-            <img src="tasim.jpg" alt="Md. Mostasim Mahmud" 
-                 class="profile-image mx-auto mb-6 fade-in-up">
-            
-            <h1 class="hero-title mb-4 fade-in-up delay-100">
-                Md. Mostasim Mahmud
-            </h1>
-            
-            <p class="text-xl text-gray-600 mb-8 fade-in-up delay-200 max-w-2xl mx-auto">
-                Full-Stack Developer | System Administrator | AI Khan Lab Ltd.
-            </p>
-            
-            <p class="text-gray-600 mb-10 fade-in-up delay-300 max-w-2xl mx-auto leading-relaxed">
-                Crafting elegant digital solutions for complex problems. Specializing in building scalable web applications, laboratory management systems, and enterprise software.
-            </p>
-            
-            <div class="flex flex-wrap gap-4 justify-center fade-in-up delay-400">
-                <button id="view-work-btn" class="btn-primary">View My Work</button>
-                <button id="get-in-touch-btn" class="btn-secondary">Get In Touch</button>
-            </div>
-        </div>
-    </section>
-
-    <!-- About Section -->
-    <section id="about" class="py-20 px-6 md:px-12 bg-gray-50">
-        <div class="max-w-6xl mx-auto">
-            <h2 class="section-heading">About Me</h2>
-            
-            <div class="grid md:grid-cols-2 gap-12 items-center">
-                <div class="fade-in-up">
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800">Software Engineer(Web) & System Administrator</h3>
-                    <p class="text-gray-600 mb-4 leading-relaxed">
-                        I'm a passionate full-stack engineer with expertise in building robust, scalable applications. Currently working at AI Khan Lab Ltd., where I develop comprehensive laboratory management systems for medical facilities.
-                    </p>
-                    <p class="text-gray-600 mb-6 leading-relaxed">
-                        With a strong foundation in Django, React, Next.js, and PostgreSQL, I create end-to-end solutions that streamline operations and improve efficiency.
-                    </p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="skill-badge">Python (Django)</span>
-                        <span class="skill-badge">React</span>
-                        <span class="skill-badge">Next.js</span>
-                        <span class="skill-badge">PostgreSQL</span>
-                        <span class="skill-badge">REST APIs</span>
-                        <span class="skill-badge">Linux (Ubuntu Server)</span>
-                        <span class="skill-badge">Nginx (Reverse Proxy, SSL)</span>
-                        <span class="skill-badge">Apache (Virtual Hosts)</span>
-                        <span class="skill-badge">Server Administration</span>
-                        <span class="skill-badge">Dolibarr ERP</span>
-                        <span class="skill-badge">ERPNext</span>
-                        <span class="skill-badge">System Admin</span>
-                    </div>
-                </div>
-                
-                <div class="bg-gradient-to-br from-blue-500 to-orange-500 rounded-12 p-1 fade-in-up delay-200">
-                    <div class="bg-white rounded-lg p-8">
-                        <h4 class="text-xl font-bold mb-4">Key Strengths</h4>
-                        <ul class="space-y-3 text-gray-700">
-                            <li class="flex items-start gap-3">
-                                <span class="text-blue-600 font-bold text-lg">✓</span>
-                                <span>Full-Stack Development</span>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <span class="text-blue-600 font-bold text-lg">✓</span>
-                                <span>Database Design & Optimization</span>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <span class="text-blue-600 font-bold text-lg">✓</span>
-                                <span>System Architecture</span>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <span class="text-blue-600 font-bold text-lg">✓</span>
-                                <span>API Development</span>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <span class="text-blue-600 font-bold text-lg">✓</span>
-                                <span>Linux (Ubuntu) – Infrastructure, Deployment &amp; Production Operations</span>
-                            </li>                            
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Experience Section -->
-    <section id="experience" class="py-20 px-6 md:px-12">
-        <div class="max-w-6xl mx-auto">
-            <h2 class="section-heading">Experience</h2>
-            
-            <div class="space-y-6">
-                <div class="project-card fade-in-up">
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h3 class="text-2xl font-bold text-gray-800">Software Engineer | Web Developer</h3>
-                            <p class="text-orange-600 font-semibold">AI Khan Lab Ltd.</p>
-                        </div>
-                        <span class="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">
-                            Dec 2023 - Present
-                        </span>
-                    </div>
-                    <p class="text-gray-700 leading-relaxed mb-4">
-                        Developed and maintained comprehensive Laboratory Management System for histopathology and cancer testing. Implemented features for patient registration, report generation, inventory tracking, and streamlined lab operations.
-                    </p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="skill-badge">Django</span>
-                        <span class="skill-badge">Next Js</span>
-                        <span class="skill-badge">React</span>
-                        <span class="skill-badge">PostgreSQL</span>
-                        <span class="skill-badge">REST API</span>
-                        <span class="skill-badge">Linux (Ubuntu Server)</span>
-                        <span class="skill-badge">Nginx (Reverse Proxy, SSL)</span>
-                        <span class="skill-badge">Apache (Virtual Hosts)</span>
-                        <span class="skill-badge">Server Administration</span>
-                        <span class="skill-badge">Dolibarr ERP</span>
-                        <span class="skill-badge">ERPNext</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="space-y-6" style="margin-top: 30px;">
-                <div class="project-card fade-in-up">
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h3 class="text-2xl font-bold text-gray-800">Software Engineer</h3>
-                            <p class="text-orange-600 font-semibold">Script Park.</p>
-                        </div>
-                        <span class="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">
-                            Jully 2022 - Present
-                        </span>
-                    </div>
-                   
-                    <p class="text-gray-700 leading-relaxed mb-4">
-                        Architected the backend, database design, and DevOps for a comprehensive School Management System and Digital Yearbook at Script Park., leading a developer team to deploy secure solutions on Hostinger VPS.
-                    </p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="skill-badge">Django</span>
-                        <span class="skill-badge">Next Js</span>
-                        <span class="skill-badge">PostgreSQL</span>
-                        <span class="skill-badge">REST API</span>
-                        <span class="skill-badge">Linux</span>
-                        <span class="skill-badge">Hostinger VPS Server</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="space-y-6" style="margin-top: 30px;">
-                <div class="project-card fade-in-up">
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h3 class="text-2xl font-bold text-gray-800">Software Engineer</h3>
-                            <p class="text-orange-600 font-semibold">Accelx Inc.</p>
-                        </div>
-                        <span class="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">
-                            February 2022 - Jully 2022
-                        </span>
-                    </div>
-                   
-                    <p class="text-gray-700 leading-relaxed mb-4">
-                        Developed a secure service-selling marketplace at Accelx Inc., leveraging Django, Node.js, and Agora API to facilitate real-time professional video consultations.
-                    </p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="skill-badge">Django</span>
-                        <span class="skill-badge">React</span>
-                        <span class="skill-badge">PostgreSQL</span>
-                        <span class="skill-badge">REST API</span>
-                        <span class="skill-badge">Node.js</span>
-                        <span class="skill-badge">Agora API</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Projects Section -->
-    <section id="projects" class="py-20 px-6 md:px-12 bg-gray-50">
-        <div class="max-w-6xl mx-auto">
-            <h2 class="section-heading">Featured Projects</h2>
-            
-            <div class="grid md:grid-cols-2 gap-8">
-                <!-- Project 1 -->
-                <div id="full-description-school" class="project-card fade-in-up">
-                    
-                    <h3 class="text-2xl font-bold mb-3 text-gray-800">School Management System</h3>
-                    
-                    <p class="text-gray-600 mb-4 text-sm leading-relaxed">
-                        Comprehensive school management platform handling student information, academic schedules, communication, attendance, exams, fees, transportation, and website management.
-                    </p>
-                    
-                    <div class="flex flex-wrap gap-2 mb-4">
-                        <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold">Django</span>
-                        <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold">React</span>
-                        <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold">PostgreSQL</span>
-                        <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold">Next.js</span>
-                    </div>
-
-                    <div class="full-description text-sm text-gray-600 text-left hidden mt-4 max-h-64 overflow-y-auto">
-                        <strong class="block mb-2 text-gray-800">Technologies Used:</strong>
-                        <ul class="list-disc list-inside mb-4">
-                            <li>Backend: Django (Python) for robust server-side processing and API management.</li>
-                            <li>Frontend: React and Next.js for dynamic and responsive user interfaces.</li>
-                            <li>Database: PostgreSQL for secure and reliable data storage.</li>
-                        </ul>
-                
-                        <strong class="block mb-2 text-gray-800">Key Features:</strong>
-                        <ul class="list-disc list-inside mb-4">
-                            <li>Student Information Management: Seamlessly manage student records, including personal details, academic performance, and attendance.</li>
-                            <li>Scheduling and Timetabling: Automate the creation of class schedules and examination timetables.</li>
-                            <li>Communication Tools: Integrated messaging system for efficient communication between teachers, students, and parents.</li>
-                            <li>Exam Management: Streamline the creation, scheduling, and grading of exams with automated tools.</li>
-                            <li>Attendance Management: Track and manage student attendance with real-time updates and reporting.</li>
-                            <li>Invoice Management: Generate and manage invoices for school fees, events, and other expenses.</li>
-                            <li>Fees Collection: Simplify the process of collecting and tracking school fees with integrated payment systems.</li>
-                            <li>Transportation Management: Manage school transportation, including bus routes, schedules, and student assignments.</li>
-                            <li>Website Management: Customizable school websites with content management capabilities.</li>
-                            <li>Reporting and Analytics: Generate detailed reports and analytics to monitor school performance and student progress.</li>
-                        </ul>
-                    </div>
-                    
-                    <button id="full-description-school-btn" class="btn-secondary text-sm view-more-btn" data-target="full-description-school">View More</button>
-                </div>
-
-                <!-- Project 2 -->
-                <div id="full-description-laboratory" class="project-card fade-in-up delay-100">
-                    
-                    <h3 class="text-2xl font-bold mb-3 text-gray-800">Laboratory Management System</h3>
-                    
-                    <p class="text-gray-600 mb-4 text-sm leading-relaxed">
-                        Customizing Dolibarr ERP for Medical Laboratories
-                        This project focuses on the customization of Dolibarr ERP, an open-source enterprise resource planning system, tailored for medical laboratory management. Dolibarr’s modular structure allows for seamless adaptation to meet the unique requirements of healthcare environments, particularly in managing lab workflows, patient records, and report generation.
-                        Key custom modules include:
-                    </p>
-                    
-                    <div class="flex flex-wrap gap-2 mb-4">
-                        <span class="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-semibold">Dolibarr</span>
-                        <span class="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-semibold">ERP</span>
-                        <span class="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-semibold">PostgreSQL</span>
-                        <span class="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-semibold">Custom Modules</span>
-                    </div>
-
-
-                    <div class="full-description text-sm text-gray-600 text-left hidden mt-4 max-h-64 overflow-y-auto" id="full-description">
-                        <strong class="block mb-2 text-gray-800">Gross Module:</strong>
-                        <ul class="list-disc list-inside mb-4">
-                            <li>Automates the documentation of tissue sample examinations.</li>
-                            <li>Allows lab technicians to record size, shape, and other characteristics with image integration.</li>
-                            <li>Ensures data is accurately captured and linked to patient records.</li>
-                        </ul>
-                    
-                        <strong class="block mb-2 text-gray-800">Transcription Module:</strong>
-                        <ul class="list-disc list-inside mb-4">
-                            <li>Integrates voice recognition to transcribe verbal findings from lab technicians and doctors.</li>
-                            <li>Minimizes errors and speeds up documentation.</li>
-                        </ul>
-                    
-                        <strong class="block mb-2 text-gray-800">Doctor Module:</strong>
-                        <ul class="list-disc list-inside mb-4">
-                            <li>Provides doctors with streamlined access to lab results, patient records, and diagnostic tools.</li>
-                            <li>Enables efficient collaboration with lab personnel and allows requesting additional tests through the system.</li>
-                        </ul>
-                    
-                        <strong class="block mb-2 text-gray-800">Automated Report Generation Module:</strong>
-                        <ul class="list-disc list-inside mb-4">
-                            <li>Compiles data from other modules (e.g., gross examinations, transcription) into cohesive reports.</li>
-                            <li>Uses predefined templates to reduce manual reporting efforts and ensure consistency.</li>
-                        </ul>
-                    
-                        <strong class="block mb-2 text-gray-800">Histopath Lab Module:</strong>
-                        <ul class="list-disc list-inside mb-4">
-                            <li>Manages the examination of tissue samples under a microscope.</li>
-                            <li>Integrates with other modules to streamline the diagnostic process for diseases like cancer.</li>
-                            <li>Allows image attachments for more comprehensive reporting.</li>
-                        </ul>
-                    
-                        <strong class="block mb-2 text-gray-800">Cytopath Lab Module:</strong>
-                        <ul class="list-disc list-inside mb-4">
-                            <li>Focuses on cell-level analysis for diagnosing diseases such as cancers and infections.</li>
-                            <li>Integrates with patient records and allows high-resolution image storage for accurate cell analysis.</li>
-                        </ul>
-                    </div>
-                    
-                    <button id="full-description-laboratory-btn" class="btn-secondary text-sm view-more-btn" data-target="full-description-laboratory">View More</button>
-                </div>
-
-                <!-- Project 3 -->
-                <div id="full-description-ecommerce" class="project-card fade-in-up delay-200">
-                    <h3 class="text-2xl font-bold mb-3 text-gray-800">Ecommerce Platform</h3>
-                    
-                    <p class="text-gray-600 mb-4 text-sm leading-relaxed">
-                        Robust ecommerce platform with personalized recommendation system, secure payments, order management, and ML-powered product suggestions.
-                    </p>
-                    
-                    <div class="flex flex-wrap gap-2 mb-4">
-                        <span class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-semibold">Next.js</span>
-                        <span class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-semibold">Django API</span>
-                        <span class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-semibold">ML</span>
-                        <span class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-semibold">PostgreSQL</span>
-                    </div>
-
-                     <!-- Full Description with Scroll -->
-                    <div class="full-description text-sm text-gray-600 text-left hidden mt-4 max-h-64 overflow-y-auto" id="full-description-ecommerce">
-                        <strong class="block mb-2 text-gray-800">Technologies Used:</strong>
-                        <ul class="list-disc list-inside mb-4">
-                            <li>Backend: Django REST API for scalable and secure server-side operations.</li>
-                            <li>Frontend: Next.js for dynamic and responsive user interfaces.</li>
-                            <li>Database: PostgreSQL for reliable and efficient data storage.</li>
-                            <li>Recommendation System: Collaborative filtering and machine learning algorithms for personalized product recommendations.</li>
-                        </ul>
-            
-                        <strong class="block mb-2 text-gray-800">Key Features:</strong>
-                        <ul class="list-disc list-inside mb-4">
-                            <li>Product Catalog: Browse and search products with filters and categories.</li>
-                            <li>User Authentication: Secure login and registration with JWT (JSON Web Tokens).</li>
-                            <li>Shopping Cart: Add, remove, and manage items in the cart.</li>
-                            <li>Payment Integration: Secure payment gateway integration for seamless transactions.</li>
-                            <li>Order Management: Track orders, view order history, and manage returns.</li>
-                            <li>Recommendation System: Personalized product recommendations based on user behavior and preferences.</li>
-                            <li>Admin Panel: Manage products, orders, and users with an intuitive admin interface.</li>
-                            <li>Responsive Design: Fully responsive UI for seamless browsing on all devices.</li>
-                        </ul>
-            
-                        <strong class="block mb-2 text-gray-800">Recommendation System:</strong>
-                        <ul class="list-disc list-inside mb-4">
-                            <li>Uses collaborative filtering to recommend products based on user behavior and purchase history.</li>
-                            <li>Implements machine learning algorithms to improve recommendation accuracy over time.</li>
-                            <li>Provides personalized product suggestions on the homepage, product pages, and checkout.</li>
-                        </ul>
-                    </div>
-                    
-                    <button id="full-description-ecommerce-btn" class="btn-secondary text-sm view-more-btn" data-target="full-description-ecommerce">View More</button>
-                </div>
-
-                <!-- Project 4 -->
-                <div id="full-description-yearbook" class="project-card fade-in-up delay-300">
-                    <h3 class="text-2xl font-bold mb-3 text-gray-800">Digital Yearbook</h3>
-                    
-                    <p class="text-gray-600 mb-4 text-sm leading-relaxed">
-                        Digital yearbook platform for schools enabling creation, management, and sharing of student memories, photos, and achievements with advanced search capabilities.
-                    </p>
-                    
-                    <div class="flex flex-wrap gap-2 mb-4">
-                        <span class="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full font-semibold">Django</span>
-                        <span class="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full font-semibold">Next.js</span>
-                        <span class="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full font-semibold">PostgreSQL</span>
-                        <span class="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full font-semibold">Admin Panel</span>
-                    </div>
-
-                    <!-- Full Description with Scroll -->
-                    <div class="full-description text-sm text-gray-600 text-left hidden mt-4 max-h-64 overflow-y-auto" id="full-description-yearbook">
-                        <strong class="block mb-2 text-gray-800">Technologies Used:</strong>
-                        <ul class="list-disc list-inside mb-4">
-                            <li>Backend: Django REST API for robust and scalable server-side operations.</li>
-                            <li>Frontend: Next.js for a dynamic and responsive user interface.</li>
-                            <li>Database: PostgreSQL for secure and efficient data storage.</li>
-                            <li>Admin Panel: Jasmin Admin Panel for easy management of yearbook content and users.</li>
-                        </ul>
-            
-                        <strong class="block mb-2 text-gray-800">Key Features:</strong>
-                        <ul class="list-disc list-inside mb-4">
-                            <li>Yearbook Creation: Schools can create and customize digital yearbooks with ease.</li>
-                            <li>Photo Uploads: Students and teachers can upload photos and memories to the yearbook.</li>
-                            <li>User Roles: Different roles for admins, teachers, and students with appropriate permissions.</li>
-                            <li>Search and Filters: Easily search and filter yearbook content by name, year, or event.</li>
-                            <li>Responsive Design: Fully responsive UI for seamless access on all devices.</li>
-                            <li>Export Options: Export yearbooks as PDFs or share them digitally via links.</li>
-                            <li>Admin Panel: Jasmin Admin Panel for managing users, content, and yearbook settings.</li>
-                        </ul>
-            
-                        <strong class="block mb-2 text-gray-800">Project Highlights:</strong>
-                        <ul class="list-disc list-inside mb-4">
-                            <li>Collaborated with an Upwork client to deliver a tailored solution for digital yearbooks.</li>
-                            <li>Implemented a user-friendly interface for schools to manage yearbooks effortlessly.</li>
-                            <li>Integrated Jasmin Admin Panel for efficient content and user management.</li>
-                            <li>Enabled seamless photo uploads and sharing for students and teachers.</li>
-                        </ul>
-                    </div>
-                    
-                    <button id="full-description-yearbook-btn" class="btn-secondary text-sm view-more-btn"  data-target="full-description-yearbook">View More</button>
-                </div>
-
-                <!-- Project 5 -->
-                <div id="full-description-postgresql-wal" class="project-card fade-in-up delay-100">
-                    <h3 class="text-2xl font-bold mb-3 text-gray-800">
-                        PostgreSQL Backup & Standby Server Setup (WAL)
-                    </h3>
-                    
-                    <p class="text-gray-600 mb-4 text-sm leading-relaxed">
-                        Implemented a robust PostgreSQL backup and replication architecture using
-                        <strong>Write-Ahead Logging (WAL)</strong> and <strong>pg_basebackup</strong>.
-                        Ensured high availability, point-in-time recovery (PITR), and secure standby replication
-                        across production servers.
-                    </p>
-                    
-                    <div class="flex flex-wrap gap-2 mb-4">
-                        <span class="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full font-semibold">PostgreSQL 14+</span>
-                        <span class="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full font-semibold">WAL Archiving</span>
-                        <span class="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full font-semibold">pg_basebackup</span>
-                        <span class="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full font-semibold">Standby Server</span>
-                        <span class="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full font-semibold">Linux (Ubuntu)</span>
-                    </div>
-
-                    <div class="full-description text-sm text-gray-600 text-left hidden mt-4 max-h-64 overflow-y-auto" id="full-description">
-                        <strong class="block mb-2 text-gray-800">Primary Server Setup:</strong>
-                        <pre class="bg-gray-900 text-green-300 text-xs p-3 rounded mb-4 overflow-x-auto">
-                # Create archive & backup directories
-                sudo mkdir -p /mnt/server/archivedir
-                sudo mkdir -p /mnt/pg_backup
-
-                # Set permissions
-                sudo chown -R postgres:postgres /mnt/server/archivedir
-                sudo chmod -R 700 /mnt/server/archivedir
-                sudo chown -R postgres:postgres /mnt/pg_backup
-                sudo chmod -R 700 /mnt/pg_backup
-
-                # Enable WAL archiving in postgresql.conf
-                archive_mode = on
-                archive_command = 'cp %p /mnt/server/archivedir/%f'
-                wal_level = replica
-                max_wal_senders = 3
-                wal_keep_size = 64
-
-                # Reload configuration
-                sudo -u postgres pg_ctl reload -D /var/lib/postgresql/14/main
-                        </pre>
-
-                        <strong class="block mb-2 text-gray-800">Backup Process:</strong>
-                        <pre class="bg-gray-900 text-green-300 text-xs p-3 rounded mb-4 overflow-x-auto">
-                # Take base backup with WAL streaming
-                sudo -u postgres pg_basebackup -D /mnt/pg_backup -Ft -z -P -X stream
-
-                # Optional manual backup start/stop
-                SELECT pg_start_backup('backup_label', false, false);
-                -- perform backup --
-                SELECT * FROM pg_stop_backup(false, true);
-                        </pre>
-
-                        <strong class="block mb-2 text-gray-800">Restore Process:</strong>
-                        <pre class="bg-gray-900 text-green-300 text-xs p-3 rounded mb-4 overflow-x-auto">
-                # Restore WAL files
-                restore_command = 'cp /mnt/server/archivedir/%f %p'
-
-                # Create recovery signal file
-                sudo touch /var/lib/postgresql/14/main/recovery.signal
-                        </pre>
-
-                        <strong class="block mb-2 text-gray-800">Standby Server Configuration:</strong>
-                        <pre class="bg-gray-900 text-green-300 text-xs p-3 rounded mb-4 overflow-x-auto">
-                # Set permissions on standby data directory
-                sudo chown -R postgres:postgres /var/lib/postgresql/14/main
-                sudo chmod -R 700 /var/lib/postgresql/14/main
-
-                # Start standby in recovery mode
-                sudo -u postgres /usr/lib/postgresql/14/bin/pg_ctl -D /var/lib/postgresql/14/main -l /var/log/postgresql/postgresql-14-main.log start -m immediate
-                        </pre>
-
-                        <strong class="block mb-2 text-gray-800">Start & Stop PostgreSQL:</strong>
-                        <pre class="bg-gray-900 text-green-300 text-xs p-3 rounded mb-4 overflow-x-auto">
-                # Start PostgreSQL
-                sudo -u postgres /usr/lib/postgresql/14/bin/pg_ctl -D /var/lib/postgresql/14/main start
-
-                # Stop PostgreSQL
-                sudo -u postgres /usr/lib/postgresql/14/bin/pg_ctl -D /var/lib/postgresql/14/main stop
-
-                # Restart PostgreSQL using systemctl
-                sudo systemctl restart postgresql
-                        </pre>
-
-                        <strong class="block mb-2 text-gray-800">User & Role Management:</strong>
-                        <pre class="bg-gray-900 text-green-300 text-xs p-3 rounded mb-4 overflow-x-auto">
-                # Log in to PostgreSQL
-                sudo -u postgres psql
-
-                # Create superuser role
-                CREATE ROLE postgres WITH LOGIN SUPERUSER PASSWORD 'root';
-                        </pre>
-
-                        <strong class="block mb-2 text-gray-800">Key Concepts Covered:</strong>
-                        <ul class="list-disc list-inside mb-4">
-                            <li>WAL Archiving for continuous transaction log backups</li>
-                            <li>Base backup using pg_basebackup</li>
-                            <li>Point-in-time recovery (PITR) setup</li>
-                            <li>Standby server replication and recovery</li>
-                            <li>Permissions, ownership, and operational security</li>
-                        </ul>
-                    </div>
-                    
-                    <button id="full-description-postgresql-wal-btn"
-                            class="btn-secondary text-sm view-more-btn"
-                            data-target="full-description-postgresql-wal">
-                        View More
-                    </button>
-                </div>
-
-                <!-- Project 6 -->
-                <div id="full-description-docker-root" class="project-card fade-in-up delay-100">
-                    <h3 class="text-2xl font-bold mb-3 text-gray-800">
-                        Docker Root Directory Migration & Storage Optimization
-                    </h3>
-                    
-                    <p class="text-gray-600 mb-4 text-sm leading-relaxed">
-                        Executed controlled migration of Docker’s data directory from <strong>/var/lib/docker</strong>
-                        to a dedicated storage mount (<strong>/mnt/docker-data</strong>) to resolve system
-                        partition space issues while maintaining container integrity and runtime stability.
-                    </p>
-                    
-                    <div class="flex flex-wrap gap-2 mb-4">
-                        <span class="text-xs bg-sky-100 text-sky-700 px-3 py-1 rounded-full font-semibold">Docker</span>
-                        <span class="text-xs bg-sky-100 text-sky-700 px-3 py-1 rounded-full font-semibold">Linux (Ubuntu)</span>
-                        <span class="text-xs bg-sky-100 text-sky-700 px-3 py-1 rounded-full font-semibold">Storage Management</span>
-                        <span class="text-xs bg-sky-100 text-sky-700 px-3 py-1 rounded-full font-semibold">System Optimization</span>
-                    </div>
-
-                    <div class="full-description text-sm text-gray-600 text-left hidden mt-4 max-h-64 overflow-y-auto" id="full-description">
-                        <strong class="block mb-2 text-gray-800">Step 1: Verify Current Docker Root Directory</strong>
-                        <pre class="bg-gray-900 text-green-300 text-xs p-3 rounded mb-4 overflow-x-auto">
-                docker info | grep 'Docker Root Dir'
-                        </pre>
-
-                        <strong class="block mb-2 text-gray-800">Step 2: Stop Docker Service</strong>
-                        <pre class="bg-gray-900 text-green-300 text-xs p-3 rounded mb-4 overflow-x-auto">
-                sudo systemctl stop docker
-                        </pre>
-
-                        <strong class="block mb-2 text-gray-800">Step 3: Create New Docker Directory</strong>
-                        <pre class="bg-gray-900 text-green-300 text-xs p-3 rounded mb-4 overflow-x-auto">
-                sudo mkdir -p /mnt/docker-data
-                sudo chown -R root:root /mnt/docker-data
-                sudo chmod -R 755 /mnt/docker-data
-                        </pre>
-
-                        <strong class="block mb-2 text-gray-800">Step 4: Move Docker Data</strong>
-                        <pre class="bg-gray-900 text-green-300 text-xs p-3 rounded mb-4 overflow-x-auto">
-                sudo rsync -aP /var/lib/docker/ /mnt/docker-data/
-                sudo mv /var/lib/docker /var/lib/docker.old
-                        </pre>
-
-                        <strong class="block mb-2 text-gray-800">Step 5: Update Docker Configuration</strong>
-                        <pre class="bg-gray-900 text-green-300 text-xs p-3 rounded mb-4 overflow-x-auto">
-                sudo nano /etc/docker/daemon.json
-
-                # Add or update the following:
-                {
-                "data-root": "/mnt/docker-data"
-                }
-                        </pre>
-
-                        <strong class="block mb-2 text-gray-800">Step 6: Restart Docker & Verify</strong>
-                        <pre class="bg-gray-900 text-green-300 text-xs p-3 rounded mb-4 overflow-x-auto">
-                sudo systemctl start docker
-                docker info | grep 'Docker Root Dir'
-                docker ps
-                        </pre>
-
-                        <strong class="block mb-2 text-gray-800">Step 7: Optional Disk Check</strong>
-                        <pre class="bg-gray-900 text-green-300 text-xs p-3 rounded mb-4 overflow-x-auto">
-                df -h /mnt/docker-data
-                        </pre>
-
-                        <strong class="block mb-2 text-gray-800">Reference:</strong>
-                        <p class="text-xs text-blue-700 underline">
-                            <a href="https://linuxconfig.org/how-to-move-docker-s-default-var-lib-docker-to-another-directory-on-ubuntu-debian-linux" target="_blank">
-                                linuxconfig.org - Move Docker Root Directory
-                            </a>
-                        </p>
-                    </div>
-                    
-                    <button id="full-description-docker-root-btn"
-                            class="btn-secondary text-sm view-more-btn"
-                            data-target="full-description-docker-root">
-                        View More
-                    </button>
-                </div>
-
-                <!-- Project 7 -->
-                <div id="full-description-postgresql-dump-restore" class="project-card fade-in-up delay-100">
-                    
-                    <h3 class="text-2xl font-bold mb-3 text-gray-800">
-                        PostgreSQL Data Dump & Restore Operations
-                    </h3>
-                    
-                    <p class="text-gray-600 mb-4 text-sm leading-relaxed">
-                        Executed structured PostgreSQL database dumping and restoration using
-                        <strong>pg_dump</strong> and <strong>pg_restore</strong> commands, followed by
-                        validation in <strong>pgAdmin</strong>. Ensured backup integrity, seamless
-                        data migration, and proper role & ownership management in Linux environments.
-                    </p>
-                    
-                    <div class="flex flex-wrap gap-2 mb-4">
-                        <span class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-semibold">PostgreSQL</span>
-                        <span class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-semibold">pg_dump</span>
-                        <span class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-semibold">pg_restore</span>
-                        <span class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-semibold">pgAdmin</span>
-                        <span class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-semibold">Linux (Ubuntu)</span>
-                    </div>
-
-                    <div class="full-description text-sm text-gray-600 text-left hidden mt-4 max-h-64 overflow-y-auto" id="full-description">
-                        <strong class="block mb-2 text-gray-800">Step 1: Dump PostgreSQL Data</strong>
-                        <pre class="bg-gray-900 text-green-300 text-xs p-3 rounded mb-4 overflow-x-auto">
-                # Create a dump file using custom format
-                pg_dump -U postgres -h localhost -p 5432 -d mydatabase -F c -b -v -f mydatabase.dump
-                        </pre>
-
-                        <strong class="block mb-2 text-gray-800">Step 2: Restore PostgreSQL Data</strong>
-                        <pre class="bg-gray-900 text-green-300 text-xs p-3 rounded mb-4 overflow-x-auto">
-                # Create target database if it doesn't exist
-                psql -U postgres -h localhost -p 5432 -c "CREATE DATABASE restored_database;"
-
-                # Restore data from dump
-                pg_restore -U postgres -h localhost -p 5432 -d restored_database -v mydatabase.dump
-
-                # Optional: Drop existing objects before restore to avoid conflicts
-                pg_restore --clean -U postgres -h localhost -p 5432 -d restored_database -v mydatabase.dump
-                        </pre>
-
-                        <strong class="block mb-2 text-gray-800">Step 3: Verify in pgAdmin</strong>
-                        <ul class="list-disc list-inside mb-4">
-                            <li>Connect to PostgreSQL server using pgAdmin.</li>
-                            <li>Locate restored database and expand tables.</li>
-                            <li>Right-click a table → View/Edit Data → All Rows to confirm restoration.</li>
-                        </ul>
-
-                        <strong class="block mb-2 text-gray-800">Important Notes:</strong>
-                        <ul class="list-disc list-inside mb-4">
-                            <li>Dump options: Use <code>-F c</code> for custom format (recommended).</li>
-                            <li>Ensure user restoring the data has proper privileges.</li>
-                            <li>Adjust ownership if required:
-                                <pre class="bg-gray-900 text-green-300 text-xs p-2 rounded my-1">
-                ALTER DATABASE restored_database OWNER TO new_owner;
-                                </pre>
-                            </li>
-                        </ul>
-                    </div>
-                    
-                    <button id="full-description-postgresql-dump-restore-btn"
-                            class="btn-secondary text-sm view-more-btn"
-                            data-target="full-description-postgresql-dump-restore">
-                        View More
-                    </button>
-                </div>
-
-                <!-- Project 8 -->
-                <div id="full-description-dolibarr-upgrade" class="project-card fade-in-up delay-100">
-                    <h3 class="text-2xl font-bold mb-3 text-gray-800">
-                        Dolibarr ERP & PostgreSQL Major Version Upgrade
-                    </h3>
-                    
-                    <p class="text-gray-600 mb-4 text-sm leading-relaxed">
-                        Led a full-stack upgrade of a production Dolibarr ERP environment, covering
-                        <strong>database, backend runtime, and application layers</strong>.
-                        The upgrade migrated from legacy versions to modern, secure, and supported
-                        releases while resolving PostgreSQL schema conflicts, SQL incompatibilities,
-                        and PHP runtime issues in a Linux (Ubuntu) and Docker-based deployment.
-                    </p>
-                    
-                    <div class="flex flex-wrap gap-2 mb-4">
-                        <span class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-semibold">Dolibarr ERP</span>
-                        <span class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-semibold">PostgreSQL 14 → 17</span>
-                        <span class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-semibold">PHP 7/8 → 8.2</span>
-                        <span class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-semibold">Ubuntu 22.04+</span>
-                        <span class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-semibold">Docker & Apache2</span>
-                    </div>
-
-                    <div class="full-description text-sm text-gray-600 text-left hidden mt-4 max-h-64 overflow-y-auto" id="full-description">
-                        <strong class="block mb-2 text-gray-800">Environment Overview:</strong>
-                        <ul class="list-disc list-inside mb-4">
-                            <li><strong>From:</strong> Dolibarr 15.0.3, PostgreSQL 14.5, PHP 7.x / 8.0</li>
-                            <li><strong>To:</strong> Dolibarr 21.0.0, PostgreSQL 17, PHP 8.2</li>
-                            <li><strong>Stack:</strong> Ubuntu 22.04+, Docker, Apache2, pgAdmin</li>
-                        </ul>
-
-                        <strong class="block mb-2 text-gray-800">Step 1: Database Backup (Docker):</strong>
-                        <pre class="bg-gray-900 text-green-300 text-xs p-3 rounded mb-4 overflow-x-auto">
-                docker exec -t dolibarr-psql_postgres_1 pg_dump -U root dolibarr \
-                > dolibarr_backup_$(date +%Y-%m-%d).sql
-
-                docker exec dolibarr-postgres pg_dumpall -U root \
-                > dolibarr_full_backup_$(date +%Y-%m-%d).sql
-                        </pre>
-
-                        <strong class="block mb-2 text-gray-800">Step 2: PostgreSQL Upgrade (14 → 17):</strong>
-                        <pre class="bg-gray-900 text-green-300 text-xs p-3 rounded mb-4 overflow-x-auto">
-                sudo apt update
-                sudo apt install postgresql-17
-
-                sudo systemctl stop postgresql@14-main
-                sudo -u postgres pg_dumpall > all_pg14_backup.sql
-
-                sudo systemctl start postgresql@17-main
-                psql -U postgres -d dolibarr < all_pg14_backup.sql
-                        </pre>
-
-                        <strong class="block mb-2 text-gray-800">Step 3: PHP 8.2 Installation:</strong>
-                        <pre class="bg-gray-900 text-green-300 text-xs p-3 rounded mb-4 overflow-x-auto">
-                sudo add-apt-repository ppa:ondrej/php -y
-                sudo apt update
-                sudo apt install php8.2 libapache2-mod-php8.2 php8.2-pgsql \
-                php8.2-curl php8.2-xml php8.2-mbstring php8.2-zip \
-                php8.2-gd php8.2-soap php8.2-intl php8.2-imap -y
-
-                sudo a2enmod php8.2
-                sudo systemctl restart apache2
-                        </pre>
-
-                        <strong class="block mb-2 text-gray-800">Step 4: Dolibarr Upgrade:</strong>
-                        <ul class="list-disc list-inside mb-4">
-                            <li>Replaced Dolibarr source with version 21 (kept documents & conf.php).</li>
-                            <li>Executed web-based upgrade via <code>/install/</code> in upgrade mode.</li>
-                        </ul>
-
-                        <strong class="block mb-2 text-gray-800">Common PostgreSQL Fixes Applied:</strong>
-                        <pre class="bg-gray-900 text-green-300 text-xs p-3 rounded mb-4 overflow-x-auto">
-                DROP VIEW IF EXISTS llx_view_invoicefields;
-                DROP VIEW IF EXISTS llx_view_payments;
-
-                UPDATE llx_category_bankline AS bl
-                SET fk_categ = c.rowid
-                FROM llx_category_bank AS b
-                JOIN llx_categorie AS c
-                ON b.label = c.label
-                WHERE bl.fk_categ = b.rowid;
-                        </pre>
-
-                        <strong class="block mb-2 text-gray-800">Step 5: Permissions & Finalization:</strong>
-                        <pre class="bg-gray-900 text-green-300 text-xs p-3 rounded mb-4 overflow-x-auto">
-                sudo chown -R www-data:www-data /var/www/html/dolibarr
-                chmod -R 755 /var/www/html/dolibarr/documents
-                touch /var/www/html/dolibarr/documents/install.lock
-                        </pre>
-                    </div>
-                    
-                    <button id="full-description-dolibarr-upgrade-btn"
-                            class="btn-secondary text-sm view-more-btn"
-                            data-target="full-description-dolibarr-upgrade">
-                        View More
-                    </button>
-                </div>
-
-
-            </div>
-        </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section id="contact" class="py-20 px-6 md:px-12">
-        <div class="max-w-4xl mx-auto text-center">
-            <h2 class="section-heading mb-6">Let's Connect</h2>
-            
-            <p class="text-xl text-gray-600 mb-10 leading-relaxed">
-                I'm always interested in hearing about new projects and opportunities. Whether you have a question or just want to say hi, feel free to get in touch!
-            </p>
-            
-            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-                <button id="email-btn" class="btn-primary">Send Me an Email</button>
-                <button id="call-btn" class="btn-secondary">Schedule a Call</button>
-            </div>
-            
-            <div class="flex justify-center gap-4 mb-8">
-                <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" class="social-icon" title="LinkedIn">in</a>
-                <a href="https://github.com/tasim313" class="social-icon" title="GitHub">gh</a>
-                <a href="#" class="social-icon" title="Twitter">𝕏</a>
-                <a href="#" id="email-btn" class="social-icon" title="Email">✉</a>
-            </div>
-        </div>
-    </section>
-
-    <div id="email-popup" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 z-50">
-        Email: <span class="font-semibold">tasim.swe@gmail.com</span>
+<!-- Navigation -->
+<nav class="nav" role="navigation" aria-label="Main navigation">
+<div class="nav-inner">
+  <a href="#" class="nav-brand">Mostasim Mahmud Tasim</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#capabilities">Engineering</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#infrastructure">Infrastructure</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="https://github.com/tasim313" class="nav-ext" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i></a>
+    <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" class="nav-ext" target="_blank" rel="noopener"><i class="fa-brands fa-linkedin"></i></a>
+    <a href="assets/resume/Mostasim_Mahmud_Tasim_Resume.pdf" class="nav-ext" download>Resume</a>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+      <svg id="sunIcon" style="display:none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+      <svg id="moonIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+    </button>
+    <button class="mobile-toggle" id="mobileToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</div>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#about">About</a>
+  <a href="#experience">Experience</a>
+  <a href="#capabilities">Engineering</a>
+  <a href="#projects">Projects</a>
+  <a href="#infrastructure">Infrastructure</a>
+  <a href="blog.html">Blog</a>
+  <a href="#contact">Contact</a>
+  <a href="https://github.com/tasim313" target="_blank">GitHub</a>
+  <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" target="_blank">LinkedIn</a>
+</div>
+
+<!-- Hero -->
+<section class="hero" id="hero">
+<div class="container">
+  <div class="hero-grid">
+    <div>
+      <div class="hero-meta"><span class="hero-status"></span> Available for opportunities</div>
+      <h1>Md. Mostasim Mahmud Tasim</h1>
+      <p class="hero-role">Software Engineer</p>
+      <p class="hero-spec">Full-Stack Systems · Backend Engineering · Infrastructure</p>
+      <p class="hero-desc">Builds scalable software systems, enterprise applications, healthcare technology platforms, and production infrastructure. Currently engineering laboratory information and enterprise systems while designing reliable backend architectures, APIs, databases, and Linux-based production environments.</p>
+      <div class="hero-cta">
+        <a href="#projects" class="btn btn-primary">View Engineering Work</a>
+        <a href="assets/resume/Mostasim_Mahmud_Tasim_Resume.pdf" class="btn btn-secondary" download><i class="fa-solid fa-download"></i> Download Resume</a>
+      </div>
+      <div class="hero-links">
+        <a href="https://github.com/tasim313" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a>
+        <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" target="_blank"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
+        <a href="mailto:tasim.swe@gmail.com"><i class="fa-solid fa-envelope"></i> Email</a>
+      </div>
     </div>
-    <div id="call-popup" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 z-50">
-        Call Or Whatsapp: <span class="font-semibold">01865632882</span>
+    <div>
+      <img src="assets/images/profile.jpg" alt="Md. Mostasim Mahmud Tasim — Software Engineer" class="hero-photo" width="200" height="200" loading="eager">
+    </div>
+  </div>
+  <div class="hero-focus fade-up">
+    <div class="focus-item">Backend Systems</div>
+    <div class="focus-item">Enterprise Apps</div>
+    <div class="focus-item">Database Engineering</div>
+    <div class="focus-item">Linux Infrastructure</div>
+    <div class="focus-item">API Architecture</div>
+    <div class="focus-item">Healthcare Tech</div>
+    <div class="focus-item">Automation</div>
+    <div class="focus-item">AI Systems</div>
+  </div>
+</div>
+</section>
+
+<!-- Engineering Profile -->
+<section id="about" style="background:var(--bg-alt)">
+<div class="container">
+  <p class="section-label fade-up">Engineering Profile</p>
+  <h2 class="section-title fade-up">Building Reliable Software Systems</h2>
+  <p class="section-subtitle fade-up" style="margin-bottom:40px">Software Engineer with professional experience across application development, backend engineering, database engineering, infrastructure, DevOps, ERP systems, healthcare technology, and automation. Currently at AI Khan Lab Ltd., designing and building laboratory management software and enterprise platforms that serve medical professionals and streamline diagnostic operations.</p>
+  <div class="cap-grid">
+    <div class="cap-card fade-up"><div class="cap-icon"><i class="fa-solid fa-server"></i></div><h3>Backend Engineering</h3><ul class="cap-list"><li>Python &amp; Django</li><li>Django REST Framework</li><li>Node.js &amp; Express.js</li><li>NestJS</li><li>PHP</li></ul></div>
+    <div class="cap-card fade-up"><div class="cap-icon"><i class="fa-solid fa-display"></i></div><h3>Frontend Engineering</h3><ul class="cap-list"><li>React</li><li>Next.js</li><li>HTML &amp; CSS</li><li>Tailwind CSS</li><li>JavaScript</li></ul></div>
+    <div class="cap-card fade-up"><div class="cap-icon"><i class="fa-solid fa-database"></i></div><h3>Database Engineering</h3><ul class="cap-list"><li>PostgreSQL</li><li>Database Design</li><li>Query Optimization</li><li>Backup &amp; Recovery</li><li>Replication &amp; HA</li></ul></div>
+    <div class="cap-card fade-up"><div class="cap-icon"><i class="fa-brands fa-linux"></i></div><h3>Infrastructure</h3><ul class="cap-list"><li>Linux &amp; Ubuntu Server</li><li>Docker</li><li>Nginx &amp; Apache</li><li>SSL &amp; Reverse Proxy</li><li>Server Administration</li></ul></div>
+    <div class="cap-card fade-up"><div class="cap-icon"><i class="fa-solid fa-building"></i></div><h3>Enterprise Systems</h3><ul class="cap-list"><li>ERP (Dolibarr, ERPNext)</li><li>Laboratory Management</li><li>Business Process Automation</li><li>RBAC &amp; Auth</li></ul></div>
+    <div class="cap-card fade-up"><div class="cap-icon"><i class="fa-solid fa-diagram-project"></i></div><h3>Architecture</h3><ul class="cap-list"><li>REST API Design</li><li>Service Architecture</li><li>Caching Strategies</li><li>Background Processing</li><li>Scalable DB Design</li></ul></div>
+  </div>
+</div>
+</section>
+
+<!-- Experience -->
+<section id="experience">
+<div class="container">
+  <p class="section-label fade-up">Professional Experience</p>
+  <h2 class="section-title fade-up">Where I've Worked</h2>
+  <div class="timeline" style="margin-top:40px">
+    <div class="timeline-item fade-up">
+      <div class="timeline-date">Dec 2023 — Present</div>
+      <div class="timeline-content">
+        <h3>Assistant Manager – IT</h3>
+        <p class="timeline-company">Al Khan Lab Ltd.</p>
+        <p class="timeline-desc">Lead ERP implementation and customization across laboratory operations, accounts, HR, and management functions. Apply software engineering project management practices to translate operational needs into ERP configuration, custom modules, and workflow automation. Implement integrations using PHP, PostgreSQL, Python, and REST APIs. Administer PostgreSQL databases, Linux servers, Docker environments, Apache/Nginx services, backups, and production infrastructure.</p>
+        <div class="tech-tags"><span class="tech-tag">PHP</span><span class="tech-tag">Python</span><span class="tech-tag">PostgreSQL</span><span class="tech-tag">REST API</span><span class="tech-tag">Linux</span><span class="tech-tag">Nginx/Apache</span><span class="tech-tag">Docker</span><span class="tech-tag">ERP</span></div>
+      </div>
+    </div>
+    <div class="timeline-item fade-up">
+      <div class="timeline-date">Jan 2023 — Nov 2023</div>
+      <div class="timeline-content">
+        <h3>Software Engineer</h3>
+        <p class="timeline-company">Webens Technology</p>
+        <p class="timeline-desc">Developed and customized ERP solutions supporting procurement, inventory, sales, accounting, and CRM workflows for enterprise business process automation. Implemented procurement lifecycle features and built RESTful APIs and third-party integrations to improve system connectivity. Optimized PostgreSQL schemas, indexes, and queries.</p>
+        <div class="tech-tags"><span class="tech-tag">ERP</span><span class="tech-tag">REST API</span><span class="tech-tag">PostgreSQL</span><span class="tech-tag">Third-Party Integrations</span></div>
+      </div>
+    </div>
+    <div class="timeline-item fade-up">
+      <div class="timeline-date">Sep 2021 — Oct 2022</div>
+      <div class="timeline-content">
+        <h3>Jr. Software Engineer</h3>
+        <p class="timeline-company">Accelx Inc.</p>
+        <p class="timeline-desc">Developed full-stack enterprise and SaaS applications using Django, React, and PostgreSQL to support business-facing digital products. Built and maintained REST APIs for application integration, secure data exchange, and reusable backend services.</p>
+        <div class="tech-tags"><span class="tech-tag">Django</span><span class="tech-tag">React</span><span class="tech-tag">PostgreSQL</span><span class="tech-tag">REST API</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- Selected Engineering Work -->
+<section id="projects" style="background:var(--bg-alt)">
+<div class="container">
+  <p class="section-label fade-up">Selected Engineering Work</p>
+  <h2 class="section-title fade-up">Systems I've Built</h2>
+
+  <!-- Featured: Lab Management -->
+  <div class="featured-project fade-up">
+    <p class="project-category"><i class="fa-solid fa-star"></i> Primary Project</p>
+    <h3 style="font-size:1.25rem;font-weight:700;margin-bottom:12px">Laboratory Management &amp; Diagnostic ERP</h3>
+    <p style="font-size:0.875rem;color:var(--text-secondary);line-height:1.7;margin-bottom:20px">Enterprise software architecture for pathology and diagnostic laboratory operations. Designed end-to-end system covering patient lifecycle, specimen tracking, diagnostic workflows, report generation, billing, and inventory — integrated with Dolibarr ERP on PostgreSQL with Linux production infrastructure.</p>
+    <div class="tech-tags" style="margin-bottom:20px"><span class="tech-tag">Django</span><span class="tech-tag">Dolibarr ERP</span><span class="tech-tag">PostgreSQL</span><span class="tech-tag">REST API</span><span class="tech-tag">Linux</span><span class="tech-tag">Nginx</span><span class="tech-tag">Docker</span></div>
+
+    <!-- Architecture Diagram -->
+    <div class="arch-diagram">
+      <div class="arch-node">Users (Doctors · Lab Staff · Admin)</div>
+      <div class="arch-arrow"></div>
+      <div class="arch-node">Web Application (Django · Next.js)</div>
+      <div class="arch-arrow"></div>
+      <div class="arch-node accent">API / Business Logic Layer</div>
+      <div class="arch-arrow"></div>
+      <div class="arch-node">ERP &amp; Laboratory Modules</div>
+      <div class="arch-arrow"></div>
+      <div class="arch-node">PostgreSQL Database</div>
+      <div class="arch-arrow"></div>
+      <div class="arch-node">Backup · WAL · Replication</div>
+      <div class="arch-arrow"></div>
+      <div class="arch-node">Production Infrastructure (Linux · Nginx)</div>
     </div>
 
-    <!-- Footer -->
-    <footer class="py-8 px-6 md:px-12">
-        <div class="max-w-6xl mx-auto text-center text-gray-600">
-            <p>&copy; 2025 Md. Mostasim Mahmud</p>
+    <div class="project-details">
+      <h4>System Modules</h4>
+      <ul>
+        <li>Patient Registration &amp; Record Management</li>
+        <li>Sample Collection &amp; Specimen Tracking</li>
+        <li>Histopathology &amp; Cytopathology Workflow</li>
+        <li>Gross Examination Documentation with Image Integration</li>
+        <li>Doctor Module — Streamlined Lab Results Access</li>
+        <li>Automated Report Generation with Predefined Templates</li>
+        <li>Transcription Module with Voice Recognition</li>
+        <li>Inventory &amp; Billing Management</li>
+        <li>User Roles, RBAC &amp; Audit Trails</li>
+      </ul>
+      <h4>Engineering Highlights</h4>
+      <ul>
+        <li>Designed modular architecture enabling independent module deployment</li>
+        <li>Built PostgreSQL backup strategy with WAL archiving and PITR</li>
+        <li>Implemented secure role-based access across multiple user types</li>
+        <li>Deployed on Linux with Nginx reverse proxy and SSL termination</li>
+      </ul>
+    </div>
+    <button class="project-toggle">Technical Details →</button>
+  <!-- Featured: ERP Architecture -->
+  <div class="featured-project fade-up" style="margin-top: 40px; margin-bottom: 40px;">
+    <p class="project-category"><i class="fa-solid fa-network-wired"></i> Enterprise Architecture / AI Khan Lab</p>
+    <h3 style="font-size:1.25rem;font-weight:700;margin-bottom:12px">Full-Scale Enterprise ERP Workflow Integration</h3>
+    <p style="font-size:0.875rem;color:var(--text-secondary);line-height:1.7;margin-bottom:20px">As <strong>Assistant Manager – IT</strong>, I developed and managed a comprehensive enterprise ERP system interconnecting core business operations. This system automates cross-departmental workflows, ensuring real-time data synchronization between human resources, finance, inventory, and production.</p>
+    <div class="tech-tags" style="margin-bottom:32px"><span class="tech-tag">Systems Architecture</span><span class="tech-tag">ERP Implementation</span><span class="tech-tag">Workflow Automation</span><span class="tech-tag">Business Logic</span></div>
+
+    <!-- ERP Flowchart -->
+    <div class="erp-flowchart" style="background: var(--bg-alt); padding: 24px; border-radius: 12px; border: 1px solid var(--border); font-size: 0.875rem; margin-bottom: 24px;">
+        <!-- Top Row -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div class="flow-node" style="flex:1; background: var(--bg); padding: 12px; border-radius: 8px; border-left: 4px solid #8b5cf6; text-align:center; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                <strong style="color:var(--text-primary);">HRM &amp; Payroll</strong><br>
+                <span style="font-size:0.75rem; color:var(--text-tertiary);">Attendance → Salary → Tax</span>
+            </div>
+            <div style="padding: 0 16px; color: var(--accent); font-weight: bold;">↔</div>
+            <div class="flow-node" style="flex:1.2; background: var(--bg); padding: 12px; border-radius: 8px; border-left: 4px solid var(--accent); text-align:center; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transform: scale(1.05);">
+                <strong style="color:var(--text-primary);">Finance &amp; Accounts</strong><br>
+                <span style="font-size:0.75rem; color:var(--text-tertiary);">Central Ledger / AP &amp; AR</span>
+            </div>
+            <div style="padding: 0 16px; color: var(--accent); font-weight: bold;">↔</div>
+            <div class="flow-node" style="flex:1; background: var(--bg); padding: 12px; border-radius: 8px; border-left: 4px solid #10b981; text-align:center; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                <strong style="color:var(--text-primary);">Asset Management</strong><br>
+                <span style="font-size:0.75rem; color:var(--text-tertiary);">Depreciation → Maintenance</span>
+            </div>
         </div>
-    </footer>
+        <!-- Vertical Arrows -->
+        <div style="display: flex; justify-content: space-around; color: var(--border); margin-bottom: 12px; padding: 0 10%;">
+            <div>↕</div><div>↕</div><div>↕</div>
+        </div>
+        <!-- Bottom Row -->
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="flow-node" style="flex:1; background: var(--bg); padding: 12px; border-radius: 8px; border-left: 4px solid #f59e0b; text-align:center; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                <strong style="color:var(--text-primary);">Procurement &amp; Supply</strong><br>
+                <span style="font-size:0.75rem; color:var(--text-tertiary);">PR → PO → Vendor</span>
+            </div>
+            <div style="padding: 0 8px; color: var(--border);">→</div>
+            <div class="flow-node" style="flex:1; background: var(--bg); padding: 12px; border-radius: 8px; border-left: 4px solid #06b6d4; text-align:center; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                <strong style="color:var(--text-primary);">Inventory Control</strong><br>
+                <span style="font-size:0.75rem; color:var(--text-tertiary);">GRN → Stock Sync</span>
+            </div>
+            <div style="padding: 0 8px; color: var(--border);">→</div>
+            <div class="flow-node" style="flex:1; background: var(--bg); padding: 12px; border-radius: 8px; border-left: 4px solid #ec4899; text-align:center; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                <strong style="color:var(--text-primary);">Production &amp; PMS</strong><br>
+                <span style="font-size:0.75rem; color:var(--text-tertiary);">BOM → QA → Output</span>
+            </div>
+            <div style="padding: 0 8px; color: var(--border);">→</div>
+            <div class="flow-node" style="flex:1; background: var(--bg); padding: 12px; border-radius: 8px; border-left: 4px solid #3b82f6; text-align:center; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                <strong style="color:var(--text-primary);">Sales &amp; CRM</strong><br>
+                <span style="font-size:0.75rem; color:var(--text-tertiary);">Invoice → Dispatch</span>
+            </div>
+        </div>
+    </div>
 
-    <script>
-        // Scroll Progress Bar
-        window.addEventListener('scroll', () => {
-            const scrollProgress = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-            document.getElementById('scrollProgress').style.width = scrollProgress + '%';
-        });
+    <div class="project-details" style="display: block;">
+      <h4>Core Departmental Workflows</h4>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;">
+          <div>
+            <ul style="margin-bottom:0;">
+              <li><strong>HR &amp; Payroll:</strong> Tracks employee attendance, automatically calculates taxes, integrates with PMS for performance, and posts salary vouchers directly to Finance.</li>
+              <li><strong>Procurement:</strong> Departments generate Purchase Requisitions (PR). Once approved, Procurement converts them to POs. Supply Chain handles vendor delivery.</li>
+              <li><strong>Inventory:</strong> Goods Receipt Notes (GRN) automatically increase stock and trigger Accounts Payable for vendor invoicing.</li>
+            </ul>
+          </div>
+          <div>
+            <ul style="margin-bottom:0;">
+              <li><strong>Production &amp; PMS:</strong> Consumes raw inventory based on Bill of Materials (BOM), logs QA checks, and transfers finished goods to sales inventory.</li>
+              <li><strong>Asset Management:</strong> Tracks IT and lab equipment lifecycle, calculates monthly depreciation, and posts journal entries to Finance.</li>
+              <li><strong>Finance &amp; Accounts:</strong> The central nervous system. Automatically aggregates all AP/AR, payroll, and sales data into a unified General Ledger for real-time P&amp;L reporting.</li>
+            </ul>
+          </div>
+      </div>
+    </div>
+  </div>
 
-        // Smooth Scrolling for Navigation Links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth' });
-                }
-            });
-        });
+  <div class="project-grid">
+    <!-- RetailOS -->
+    <div class="project-card fade-up">
+      <p class="project-category">Project Management &amp; Enterprise SaaS</p>
+      <h3>RetailOS / Multi-Industry POS SaaS</h3>
+      <p>Directed the end-to-end project management lifecycle for a multi-industry POS SaaS. Led requirement gathering, defined Agile workflows, managed cross-functional engineering teams, and delivered a 7-sprint MVP tailored for retail and service businesses.</p>
+      <div class="tech-tags" style="margin-bottom:16px"><span class="tech-tag">Agile / Scrum</span><span class="tech-tag">Jira</span><span class="tech-tag">Figma</span><span class="tech-tag">Confluence</span><span class="tech-tag">Next.js / Node.js</span></div>
+      <div class="project-details">
+        <h4>Requirement Gathering &amp; Planning</h4>
+        <ul>
+          <li>Conducted stakeholder interviews to map industry-specific needs (Pharmacy, Restaurant, Retail).</li>
+          <li>Authored Product Requirement Documents (PRDs) defining workflows, edge cases, and role-based permissions.</li>
+          <li>Translated business needs into modular technical architecture and dynamic feature-flag configurations.</li>
+        </ul>
+        <h4>Tools &amp; Agile Workflow</h4>
+        <ul>
+          <li><strong>Tools Used:</strong> Jira/Trello for sprint planning, Confluence/Notion for documentation, Figma for UI/UX handoffs, and GitHub for CI/CD pipelines.</li>
+          <li><strong>Workflow:</strong> Implemented Agile Scrum methodology, breaking the MVP into 7 distinct sprints (Auth → Setup Wizard → Dashboard → POS → Inventory → Reports → AI Assistant).</li>
+          <li><strong>Team Management:</strong> Orchestrated daily stand-ups, backlog grooming, and sprint retrospectives aligning product, design, and engineering teams.</li>
+          <li><strong>Risk Mitigation:</strong> Identified risks early and enforced a scalable, modular architecture to ensure stable core POS functionality before introducing complex features.</li>
+        </ul>
+      </div>
+      <button class="project-toggle">Project Management Details →</button>
+    </div>
 
-        // Mobile Menu Toggle
-        const menuBtn = document.getElementById('menuBtn');
-        if (menuBtn) {
-            menuBtn.addEventListener('click', function() {
-                alert('Mobile menu - Add your menu items here');
-            });
-        }
+    <!-- School Management -->
+    <div class="project-card fade-up">
+      <p class="project-category">Enterprise SaaS</p>
+      <h3>School Management System</h3>
+      <p>Comprehensive school management platform handling student information, academic schedules, attendance, exams, fees, transportation, communication, and website management as a multi-tenant SaaS.</p>
+      <div class="tech-tags" style="margin-bottom:16px"><span class="tech-tag">Django</span><span class="tech-tag">Next.js</span><span class="tech-tag">React</span><span class="tech-tag">PostgreSQL</span></div>
+      <div class="project-details">
+        <h4>Engineering Approach</h4>
+        <ul>
+          <li>Architected multi-tenant backend with Django REST Framework</li>
+          <li>Built responsive frontend with React and Next.js</li>
+          <li>Designed PostgreSQL schema for multi-school isolation</li>
+          <li>Deployed on Hostinger VPS with automated CI/CD</li>
+        </ul>
+        <h4>Key Capabilities</h4>
+        <ul>
+          <li>Student records, attendance, and academic performance tracking</li>
+          <li>Automated scheduling, timetabling, and exam management</li>
+          <li>Fee collection with integrated payment systems</li>
+          <li>Transportation management and route optimization</li>
+          <li>Reporting and analytics dashboards</li>
+        </ul>
+      </div>
+      <button class="project-toggle">Technical Details →</button>
+    </div>
 
-        // View More Button Animation
-        document.querySelectorAll('.view-more-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                this.textContent = this.textContent === 'View More' ? 'Show Less' : 'View More';
-                this.classList.toggle('btn-primary');
-                this.classList.toggle('btn-secondary');
-            });
-        });
 
-        // Button Click Effects
-        document.querySelectorAll('button').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                const ripple = document.createElement('span');
-                ripple.classList.add('ripple');
-                
-                const rect = this.getBoundingClientRect();
-                const size = Math.max(rect.width, rect.height);
-                const x = e.clientX - rect.left - size / 2;
-                const y = e.clientY - rect.top - size / 2;
-                
-                ripple.style.width = ripple.style.height = size + 'px';
-                ripple.style.left = x + 'px';
-                ripple.style.top = y + 'px';
-            });
-        });
+    <!-- E-Commerce -->
+    <div class="project-card fade-up">
+      <p class="project-category">Full-Stack Platform</p>
+      <h3>E-Commerce Platform</h3>
+      <p>Robust e-commerce platform with ML-powered personalized recommendation system, secure payments, order management, and collaborative filtering algorithms.</p>
+      <div class="tech-tags" style="margin-bottom:16px"><span class="tech-tag">Next.js</span><span class="tech-tag">Django REST</span><span class="tech-tag">PostgreSQL</span><span class="tech-tag">ML</span></div>
+      <div class="project-details">
+        <h4>Engineering Highlights</h4>
+        <ul>
+          <li>Collaborative filtering for personalized product recommendations</li>
+          <li>Secure JWT authentication and payment gateway integration</li>
+          <li>Full order lifecycle management with admin panel</li>
+          <li>Responsive design across all device types</li>
+        </ul>
+      </div>
+      <button class="project-toggle">Technical Details →</button>
+    </div>
 
-        // Intersection Observer for Fade-in Animation
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
+    <!-- PostgreSQL HA -->
+    <div class="project-card fade-up">
+      <p class="project-category">Infrastructure</p>
+      <h3>PostgreSQL High Availability Architecture</h3>
+      <p>Designed and implemented PostgreSQL backup and replication infrastructure using WAL archiving, pg_basebackup, and point-in-time recovery strategies for production databases.</p>
+      <div class="tech-tags" style="margin-bottom:16px"><span class="tech-tag">PostgreSQL 14+</span><span class="tech-tag">WAL</span><span class="tech-tag">pg_basebackup</span><span class="tech-tag">Linux</span></div>
+      <div class="project-details">
+        <h4>Architecture</h4>
+        <ul>
+          <li>Configured WAL archiving for continuous transaction log backups</li>
+          <li>Implemented base backup using pg_basebackup with streaming</li>
+          <li>Built point-in-time recovery (PITR) capability</li>
+          <li>Configured standby server replication with automated failover</li>
+          <li>Managed permissions, ownership, and operational security</li>
+        </ul>
+      </div>
+      <button class="project-toggle">Technical Details →</button>
+    </div>
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, observerOptions);
+    <!-- Docker Migration -->
+    <div class="project-card fade-up">
+      <p class="project-category">DevOps</p>
+      <h3>Docker Infrastructure Storage Migration</h3>
+      <p>Executed controlled migration of Docker's data directory to dedicated storage mount, resolving system partition space constraints while maintaining container integrity and runtime stability.</p>
+      <div class="tech-tags" style="margin-bottom:16px"><span class="tech-tag">Docker</span><span class="tech-tag">Linux</span><span class="tech-tag">Storage</span></div>
+      <div class="project-details">
+        <h4>Process</h4>
+        <ul><li>Migrated /var/lib/docker to /mnt/docker-data with rsync</li><li>Updated daemon.json configuration for new data root</li><li>Verified container integrity post-migration</li><li>Zero downtime during controlled migration window</li></ul>
+      </div>
+      <button class="project-toggle">Technical Details →</button>
+    </div>
 
-        document.querySelectorAll('.fade-in-up, .slide-in-right').forEach(el => {
-            observer.observe(el);
-        });
-    </script>
+    <!-- Dolibarr Upgrade -->
+    <div class="project-card fade-up">
+      <p class="project-category">Enterprise Migration</p>
+      <h3>Dolibarr ERP &amp; PostgreSQL Major Version Upgrade</h3>
+      <p>Led full-stack upgrade of production Dolibarr ERP environment: PostgreSQL 14→17, PHP 7→8.2, Dolibarr 15→21, resolving schema conflicts, SQL incompatibilities, and runtime issues.</p>
+      <div class="tech-tags" style="margin-bottom:16px"><span class="tech-tag">Dolibarr</span><span class="tech-tag">PostgreSQL</span><span class="tech-tag">PHP 8.2</span><span class="tech-tag">Ubuntu</span><span class="tech-tag">Docker</span></div>
+      <div class="project-details">
+        <h4>Migration Scope</h4>
+        <ul><li>Database backup and PostgreSQL major version upgrade (14→17)</li><li>PHP runtime upgrade with extension reconfiguration</li><li>Dolibarr application upgrade with schema migration</li><li>Resolution of view dependencies and SQL incompatibilities</li><li>Permissions and security hardening post-upgrade</li></ul>
+      </div>
+      <button class="project-toggle">Technical Details →</button>
+    </div>
+  </div>
+</div>
+</section>
 
-    <script>
-        // Disable right-click
-        document.addEventListener('contextmenu', function (e) {
-            e.preventDefault();
-        });
+<!-- Infrastructure -->
+<section id="infrastructure">
+<div class="container">
+  <p class="section-label fade-up">Production &amp; Infrastructure</p>
+  <h2 class="section-title fade-up">Infrastructure Engineering</h2>
+  <p class="section-subtitle fade-up" style="margin-bottom:40px">Practical experience administering production Linux servers, container orchestration, web server configuration, and database infrastructure.</p>
 
-        // Disable keyboard shortcuts (Ctrl+Shift+I, Ctrl+U, F12, etc.)
-        document.addEventListener('keydown', function (e) {
-            // Disable F12, Ctrl+Shift+I, Ctrl+U, Ctrl+Shift+C
-            if (
-                e.key === 'F12' ||
-                (e.ctrlKey && e.shiftKey && e.key === 'I') ||
-                (e.ctrlKey && e.key === 'u') ||
-                (e.ctrlKey && e.shiftKey && e.key === 'C')
-            ) {
-                e.preventDefault();
-            }
-        });
+  <div class="arch-diagram fade-up" style="margin-bottom:40px">
+    <div class="arch-node">Internet</div>
+    <div class="arch-arrow"></div>
+    <div class="arch-node accent">Nginx / Reverse Proxy / SSL</div>
+    <div class="arch-arrow"></div>
+    <div class="arch-node">Application Server (Django · PHP · Node.js)</div>
+    <div class="arch-arrow"></div>
+    <div class="arch-node">PostgreSQL Database</div>
+    <div class="arch-arrow"></div>
+    <div class="arch-node">Backup · WAL · Standby Replication</div>
+  </div>
 
-        // Prevent image dragging
-        document.addEventListener('dragstart', function (e) {
-            if (e.target.tagName === 'IMG') {
-                e.preventDefault();
-            }
-        });
+  <div class="infra-grid">
+    <div class="infra-item fade-up"><div class="infra-icon"><i class="fa-brands fa-linux"></i></div><div><h4>Linux Server Administration</h4><p>Ubuntu Server setup, user management, firewall configuration, service management, and security hardening.</p></div></div>
+    <div class="infra-item fade-up"><div class="infra-icon"><i class="fa-brands fa-docker"></i></div><div><h4>Docker &amp; Containerization</h4><p>Container orchestration, Docker Compose, storage management, and production container deployments.</p></div></div>
+    <div class="infra-item fade-up"><div class="infra-icon"><i class="fa-solid fa-shield-halved"></i></div><div><h4>Web Servers &amp; SSL</h4><p>Nginx reverse proxy, Apache virtual hosts, SSL/TLS termination, and domain configuration.</p></div></div>
+    <div class="infra-item fade-up"><div class="infra-icon"><i class="fa-solid fa-database"></i></div><div><h4>Database Operations</h4><p>PostgreSQL administration, WAL archiving, pg_basebackup, PITR, standby replication, and migration.</p></div></div>
+    <div class="infra-item fade-up"><div class="infra-icon"><i class="fa-solid fa-rocket"></i></div><div><h4>Production Deployment</h4><p>Zero-downtime deployments, Gunicorn/uWSGI process management, and environment configuration.</p></div></div>
+    <div class="infra-item fade-up"><div class="infra-icon"><i class="fa-solid fa-lock"></i></div><div><h4>Server Security</h4><p>SSH hardening, UFW firewall rules, fail2ban, user privilege management, and audit logging.</p></div></div>
+  </div>
+</div>
+</section>
 
-        // Prevent image saving
-        document.addEventListener('mousedown', function (e) {
-            if (e.target.tagName === 'IMG') {
-                e.preventDefault();
-            }
-        });
+<!-- Database Engineering -->
+<section id="database" style="background:var(--bg-alt)">
+<div class="container">
+  <p class="section-label fade-up">Specialization</p>
+  <h2 class="section-title fade-up">Database Engineering</h2>
+  <p class="section-subtitle fade-up" style="margin-bottom:32px">PostgreSQL as a core engineering specialization — from schema design to production operations.</p>
+  <div class="db-capabilities">
+    <div class="db-cap fade-up">Relational Database Design</div>
+    <div class="db-cap fade-up">Schema Design</div>
+    <div class="db-cap fade-up">Indexing Strategies</div>
+    <div class="db-cap fade-up">Query Optimization</div>
+    <div class="db-cap fade-up">PostgreSQL Administration</div>
+    <div class="db-cap fade-up">Backup &amp; Restore</div>
+    <div class="db-cap fade-up">WAL Archiving</div>
+    <div class="db-cap fade-up">Replication &amp; PITR</div>
+    <div class="db-cap fade-up">Major Version Migration</div>
+    <div class="db-cap fade-up">Production Troubleshooting</div>
+    <div class="db-cap fade-up">Data Integrity</div>
+    <div class="db-cap fade-up">Transaction Management</div>
+  </div>
+</div>
+</section>
 
-        // Prevent opening images in new tabs
-        document.addEventListener('auxclick', function (e) {
-            if (e.button === 1 && e.target.tagName === 'IMG') { // Middle mouse button
-                e.preventDefault();
-            }
-        });
+<!-- Engineering Philosophy -->
+<section id="philosophy">
+<div class="container">
+  <p class="section-label fade-up">Approach</p>
+  <h2 class="section-title fade-up">How I Engineer Systems</h2>
+  <div class="philosophy-grid" style="margin-top:32px">
+    <div class="phil-item fade-up"><span class="phil-num">01</span><p>Understand the business problem before writing code</p></div>
+    <div class="phil-item fade-up"><span class="phil-num">02</span><p>Design the system before implementation</p></div>
+    <div class="phil-item fade-up"><span class="phil-num">03</span><p>Keep architecture simple and maintainable</p></div>
+    <div class="phil-item fade-up"><span class="phil-num">04</span><p>Protect data integrity at every layer</p></div>
+    <div class="phil-item fade-up"><span class="phil-num">05</span><p>Automate repetitive operations</p></div>
+    <div class="phil-item fade-up"><span class="phil-num">06</span><p>Design for failure and recovery</p></div>
+    <div class="phil-item fade-up"><span class="phil-num">07</span><p>Monitor production systems proactively</p></div>
+    <div class="phil-item fade-up"><span class="phil-num">08</span><p>Document important architectural decisions</p></div>
+    <div class="phil-item fade-up"><span class="phil-num">09</span><p>Optimize only where measurement justifies it</p></div>
+    <div class="phil-item fade-up"><span class="phil-num">10</span><p>Build for long-term maintainability</p></div>
+  </div>
+</div>
+</section>
 
-        // Prevent copying image URLs
-        document.addEventListener('copy', function (e) {
-            if (e.target.tagName === 'IMG') {
-                e.preventDefault();
-            }
-        });
+<!-- Technology Stack -->
+<section id="capabilities" style="background:var(--bg-alt)">
+<div class="container">
+  <p class="section-label fade-up">Technology</p>
+  <h2 class="section-title fade-up">Technology Ecosystem</h2>
+  <div style="margin-top:32px">
+    <div class="stack-section fade-up"><p class="stack-label">Languages</p><div class="stack-items"><span class="stack-item">Python</span><span class="stack-item">JavaScript</span><span class="stack-item">PHP</span><span class="stack-item">SQL</span></div></div>
+    <div class="stack-section fade-up"><p class="stack-label">Backend</p><div class="stack-items"><span class="stack-item">Django</span><span class="stack-item">Django REST Framework</span><span class="stack-item">Node.js</span><span class="stack-item">Express.js</span><span class="stack-item">NestJS</span></div></div>
+    <div class="stack-section fade-up"><p class="stack-label">Frontend</p><div class="stack-items"><span class="stack-item">React</span><span class="stack-item">Next.js</span><span class="stack-item">Tailwind CSS</span></div></div>
+    <div class="stack-section fade-up"><p class="stack-label">Database</p><div class="stack-items"><span class="stack-item">PostgreSQL</span></div></div>
+    <div class="stack-section fade-up"><p class="stack-label">Infrastructure</p><div class="stack-items"><span class="stack-item">Linux</span><span class="stack-item">Docker</span><span class="stack-item">Nginx</span><span class="stack-item">Apache</span></div></div>
+    <div class="stack-section fade-up"><p class="stack-label">Enterprise</p><div class="stack-items"><span class="stack-item">Dolibarr</span><span class="stack-item">ERPNext</span></div></div>
+    <div class="stack-section fade-up"><p class="stack-label">Tools</p><div class="stack-items"><span class="stack-item">Git</span><span class="stack-item">GitHub</span><span class="stack-item">Docker Compose</span><span class="stack-item">pgAdmin</span></div></div>
+  </div>
+</div>
+</section>
 
-        // Prevent opening developer tools
-        (function () {
-            let devtools = function () {};
-            devtools.toString = function () {
-                if (window.console) {
-                    console.log('%c ', 'font-size: 1px;');
-                    console.clear();
-                }
-                return '';
-            };
-        })();
-    </script>
+<!-- GitHub -->
+<section id="github">
+<div class="container">
+  <p class="section-label fade-up">Open Source</p>
+  <h2 class="section-title fade-up">Engineering on GitHub</h2>
+  <div class="github-card fade-up" style="margin-top:32px">
+    <img src="assets/icons/github.png" alt="GitHub" width="48" height="48">
+    <div class="github-info">
+      <h3>tasim313</h3>
+      <p>Explore my repositories, contributions, and open source work.</p>
+    </div>
+    <a href="https://github.com/tasim313" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="margin-left:auto">View Profile →</a>
+  </div>
+</div>
+</section>
 
-    <script>
-        (function () {
-            let devtoolsOpen = false;
-        
-            const threshold = 160;
-        
-            setInterval(() => {
-                const widthDiff = window.outerWidth - window.innerWidth;
-                const heightDiff = window.outerHeight - window.innerHeight;
-        
-                if (widthDiff > threshold || heightDiff > threshold) {
-                    if (!devtoolsOpen) {
-                        devtoolsOpen = true;
-                        document.body.innerHTML = '';
-                        window.location.href = 'access-denied.html';
-                    }
-                } else {
-                    devtoolsOpen = false;
-                }
-            }, 500);
-        })();
-    </script>
+<!-- Education -->
+<section id="education" style="background:var(--bg-alt)">
+<div class="container">
+  <p class="section-label fade-up">Education</p>
+  <h2 class="section-title fade-up">Academic Background</h2>
+  <div class="edu-card fade-up" style="margin-top:32px">
+    <div class="edu-icon">🎓</div>
+    <div>
+      <h3>Bachelor's in Software Engineering</h3>
+      <p>Daffodil International University — 2021</p>
+    </div>
+  </div>
+</div>
+</section>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const viewBtns = document.querySelectorAll('.view-more-btn');
-            
-            viewBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    // Get the card that contains this button
-                    const card = this.closest('.project-card');
-                    // Get the description div inside this card
-                    const desc = card.querySelector('.full-description');
-                    
-                    // Toggle the hidden class
-                    desc.classList.toggle('hidden');
-                    
-                    // Change button text
-                    this.textContent = desc.classList.contains('hidden') 
-                        ? 'View More' 
-                        : 'View Less';
-                });
-            });
-        });
-    </script>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const emailBtn = document.getElementById('email-btn');
-            const emailPopup = document.getElementById('email-popup');
-    
-            emailBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-    
-                // Show popup
-                emailPopup.classList.remove('opacity-0', 'pointer-events-none');
-    
-                // Hide popup after 3 seconds
-                setTimeout(() => {
-                    emailPopup.classList.add('opacity-0', 'pointer-events-none');
-                }, 3000);
-            });
-        });
-    </script>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const callBtn = document.getElementById('call-btn');
-            const callPopup = document.getElementById('call-popup');
-    
-            callBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-    
-                // Show popup
-                callPopup.classList.remove('opacity-0', 'pointer-events-none');
-    
-                // Hide popup after 3 seconds
-                setTimeout(() => {
-                    callPopup.classList.add('opacity-0', 'pointer-events-none');
-                }, 3000);
-            });
-        });
-    </script>
+<!-- Contact -->
+<section id="contact">
+<div class="container">
+  <div class="contact-section fade-up">
+    <h2>Let's Build Reliable Systems</h2>
+    <p>I'm open to engineering opportunities, software architecture projects, enterprise application development, automation initiatives, and technically challenging collaborations.</p>
+    <div class="contact-btns">
+      <a href="mailto:tasim.swe@gmail.com" class="btn btn-primary"><i class="fa-solid fa-envelope"></i> Email Me</a>
+      <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" target="_blank" class="btn btn-secondary"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
+      <a href="https://github.com/tasim313" target="_blank" class="btn btn-secondary"><i class="fa-brands fa-github"></i> GitHub</a>
+      <a href="assets/resume/Mostasim_Mahmud_Tasim_Resume.pdf" class="btn btn-secondary" download><i class="fa-solid fa-download"></i> Resume</a>
+      <button class="btn btn-secondary" id="copyEmail"><i class="fa-solid fa-copy"></i> Copy Email</button>
+    </div>
+  </div>
+</div>
+</section>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const viewWorkBtn = document.getElementById('view-work-btn');
-            const getInTouchBtn = document.getElementById('get-in-touch-btn');
-        
-            viewWorkBtn.addEventListener('click', () => {
-                const projectsSection = document.querySelector('#projects');
-                if (projectsSection) {
-                    projectsSection.scrollIntoView({ behavior: 'smooth' });
-                }
-            });
-        
-            getInTouchBtn.addEventListener('click', () => {
-                const contactSection = document.querySelector('#contact');
-                if (contactSection) {
-                    contactSection.scrollIntoView({ behavior: 'smooth' });
-                }
-            });
-        });
-    </script>
-    
-    
-    
-        
+<!-- Footer -->
+<footer class="footer">
+<div class="container">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <strong>Md. Mostasim Mahmud Tasim</strong>
+      <p>Software Engineer</p>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/tasim313" target="_blank">GitHub</a>
+      <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" target="_blank">LinkedIn</a>
+      <a href="mailto:tasim.swe@gmail.com">Email</a>
+      <a href="assets/resume/Mostasim_Mahmud_Tasim_Resume.pdf" download>Resume</a>
+    </div>
+  </div>
+  <p class="footer-copy">&copy; 2026 Md. Mostasim Mahmud Tasim. All rights reserved.</p>
+</div>
+</footer>
+
+<!-- Back to top -->
+<button class="back-to-top" id="backToTop" aria-label="Back to top">
+  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+</button>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="js/main.js"></script>
 </body>
 </html>
