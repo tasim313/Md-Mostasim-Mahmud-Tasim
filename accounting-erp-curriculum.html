@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accounting to ERP: The Complete Learning Roadmap | Md. Mostasim Mahmud Tasim</title>
+<meta name="description" content="A 15-level, 35-phase curriculum blueprint that takes a reader from absolute-beginner bookkeeping to SAP/Odoo-style ERP accounting architecture — the content plan behind this blog's accounting series.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* Article Specific Styles */
+.article-container { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+.article-content { font-size: 1.0625rem; line-height: 1.8; color: var(--text-secondary); }
+.article-content h2 { font-size: 2rem; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); color: var(--text-primary); font-weight: 700; }
+.article-content h3 { font-size: 1.375rem; margin-top: 2.5rem; margin-bottom: 1rem; color: var(--text-primary); font-weight: 700; }
+.article-content h4 { font-size: 1.125rem; margin-top: 2rem; margin-bottom: 1rem; color: var(--text-primary); font-weight: 600; }
+.article-content p { margin-bottom: 1.5rem; }
+.article-content ul, .article-content ol { margin: 1.5rem 0; padding-left: 2rem; }
+.article-content li { margin-bottom: 0.5rem; }
+.article-content pre { background: #1a1a1a; color: #f8f8f2; padding: 1.5rem; border-radius: 8px; overflow-x: auto; margin: 1.5rem 0; font-family: 'Courier New', monospace; font-size: 0.875rem; line-height: 1.5; cursor: pointer; }
+.article-content code { background: var(--bg-alt); color: var(--text-primary); padding: 0.2rem 0.4rem; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.875rem; }
+.article-content pre code { background: transparent; color: inherit; padding: 0; }
+.article-content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.875rem; }
+.article-content th, .article-content td { border: 1px solid var(--border); padding: 9px 12px; text-align: left; vertical-align: top; }
+.article-content th { background: var(--bg-alt); color: var(--text-primary); font-weight: 700; }
+.table-wrap { overflow-x: auto; }
+.info-box { background: var(--accent-subtle); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.warning-box { background: #fff7ed; border-left: 4px solid #f97316; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.success-box { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.table-of-contents { background: var(--bg-alt); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 12px 12px 0; }
+.table-of-contents ul { list-style: none; padding-left: 0; columns: 2; column-gap: 24px; }
+.table-of-contents li { margin-bottom: 0.6rem; padding-left: 1.5rem; position: relative; break-inside: avoid; }
+.table-of-contents li:before { content: "→"; position: absolute; left: 0; color: var(--accent); }
+.table-of-contents a { color: var(--accent); text-decoration: none; font-weight: 500; font-size: 0.9375rem; }
+.table-of-contents a:hover { text-decoration: underline; }
+@media (max-width: 640px) { .table-of-contents ul { columns: 1; } }
+header h1 { font-size: 2.375rem; font-weight: 800; color: var(--text-primary); line-height: 1.2; margin-bottom: 1.5rem; margin-top: 2rem; }
+header .category-badge { display: inline-block; background: var(--accent-subtle); color: var(--accent); padding: 6px 16px; border-radius: 20px; font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.reading-time { font-size: 0.875rem; color: var(--text-tertiary); font-weight: 500; }
+header p.text-center { text-align: center; margin-bottom: 1rem; color: var(--text-secondary); }
+
+/* Flow diagram */
+.diagram-scroll { overflow-x: auto; margin: 2rem 0; padding-bottom: 4px; }
+.flow-diagram { display: flex; align-items: stretch; gap: 0; min-width: min-content; }
+.flow-step { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 0.75rem; font-weight: 700; color: var(--text-primary); text-align: center; min-width: 108px; display: flex; flex-direction: column; justify-content: center; text-decoration: none; }
+.flow-step small { display: block; font-weight: 400; color: var(--text-tertiary); font-size: 0.625rem; margin-top: 6px; line-height: 1.4; }
+.flow-arrow { display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 1.1rem; flex: 0 0 auto; padding: 0 8px; }
+
+/* Level cards */
+.level-head { display: flex; align-items: center; gap: 12px; margin: 2.5rem 0 0.75rem; flex-wrap: wrap; }
+.level-num { background: var(--accent); color: #fff; font-weight: 800; font-size: 0.8125rem; padding: 5px 14px; border-radius: 20px; white-space: nowrap; }
+.level-head h3 { margin: 0; }
+.level-objective { font-size: 0.9375rem; color: var(--text-secondary); margin-bottom: 1rem; }
+.meta-line { font-size: 0.875rem; margin: 0.5rem 0; }
+.meta-line strong { color: var(--text-primary); }
+.connects-to { font-size: 0.8125rem; color: var(--text-tertiary); border-top: 1px dashed var(--border); padding-top: 10px; margin-top: 1rem; }
+
+/* Six-perspective flow */
+.perspective-flow { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 2rem 0; }
+.perspective-item { background: var(--bg-elevated); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 8px; padding: 14px 22px; text-align: center; max-width: 460px; width: 100%; }
+.perspective-item .persp-label { font-size: 0.6875rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); display: block; margin-bottom: 4px; }
+.perspective-item .persp-question { font-size: 0.9375rem; color: var(--text-primary); font-weight: 600; }
+.perspective-arrow { color: var(--accent); font-size: 1.1rem; padding: 4px 0; }
+
+/* Knowledge tree (category cards) */
+.tree-list { margin: 2rem 0; }
+.tree-category { background: var(--bg-elevated); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 8px; padding: 14px 18px; margin-bottom: 10px; }
+.tree-category .cat-num { display: inline-block; background: var(--accent); color: #fff; font-size: 0.6875rem; font-weight: 800; padding: 2px 9px; border-radius: 10px; margin-right: 8px; }
+.tree-category .cat-title { font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); }
+.tree-children { margin-top: 10px; padding-left: 4px; display: flex; flex-wrap: wrap; gap: 6px; }
+.tree-child { font-size: 0.75rem; background: var(--bg-alt); border: 1px solid var(--border); color: var(--text-secondary); padding: 4px 10px; border-radius: 12px; }
+.tree-category .maps-to { display: block; margin-top: 10px; font-size: 0.6875rem; color: var(--text-tertiary); }
+.tree-category .maps-to a { color: var(--accent); font-weight: 600; text-decoration: none; }
+.tree-category .maps-to a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="nav" role="navigation">
+<div class="nav-inner">
+  <a href="index.html" class="nav-brand">Mostasim Mahmud Tasim</a>
+  <ul class="nav-links">
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="index.html#experience">Experience</a></li>
+    <li><a href="index.html#capabilities">Engineering</a></li>
+    <li><a href="index.html#projects">Projects</a></li>
+    <li><a href="index.html#infrastructure">Infrastructure</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="https://github.com/tasim313" class="nav-ext" target="_blank"><i class="fa-brands fa-github"></i></a>
+    <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" class="nav-ext" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+    <button class="theme-toggle" id="themeToggle"><svg id="sunIcon" style="display:none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg><svg id="moonIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg></button>
+    <button class="mobile-toggle" id="mobileToggle"><span></span><span></span><span></span></button>
+  </div>
+</div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html#about">About</a>
+  <a href="index.html#experience">Experience</a>
+  <a href="index.html#capabilities">Engineering</a>
+  <a href="index.html#projects">Projects</a>
+  <a href="index.html#infrastructure">Infrastructure</a>
+  <a href="blog.html">Blog</a>
+  <a href="index.html#contact">Contact</a>
+</div>
+
+    <!-- Article Header -->
+    <header class="pt-12 pb-8">
+        <div class="article-container">
+            <div class="text-center mb-8">
+                <span class="category-badge">Accounting Curriculum Blueprint</span>
+                <span class="reading-time ml-4">📚 15 Levels · 35 Phases</span>
+            </div>
+
+            <h1>Accounting to ERP: The Complete Learning Roadmap</h1>
+
+            <div class="text-center text-gray-600 mb-8">
+                <p class="text-sm">Published: <span class="font-semibold">Aug 27, 2026</span></p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Article Content -->
+    <main class="pb-16">
+        <div class="article-container">
+            <!-- Table of Contents -->
+            <div class="table-of-contents fade-in">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">📋 Table of Contents</h3>
+                <ul class="space-y-2">
+                    <li><a href="#how-to-use">How to Use This Roadmap</a></li>
+                    <li><a href="#six-perspectives">The Six Perspectives Every Article Must Answer</a></li>
+                    <li><a href="#case-study">The Running Case Study: ABC Trading Ltd.</a></li>
+                    <li><a href="#knowledge-tree">The Knowledge Tree: 15 Subject-Matter Categories</a></li>
+                    <li><a href="#roadmap-glance">The 15-Level Roadmap at a Glance</a></li>
+                    <li><a href="#level-1">Level 1 — Absolute Beginner</a></li>
+                    <li><a href="#level-2">Level 2 — Basic Bookkeeping</a></li>
+                    <li><a href="#level-3">Level 3 — Double-Entry Accounting</a></li>
+                    <li><a href="#level-4">Level 4 — Practical Business Accounting</a></li>
+                    <li><a href="#level-5">Level 5 — Accounts Receivable &amp; Payable</a></li>
+                    <li><a href="#level-6">Level 6 — Sales &amp; Purchase Accounting</a></li>
+                    <li><a href="#level-7">Level 7 — Tax &amp; Inventory Accounting</a></li>
+                    <li><a href="#level-8">Level 8 — Financial Statements</a></li>
+                    <li><a href="#level-9">Level 9 — Advanced Accounting</a></li>
+                    <li><a href="#level-10">Level 10 — ERP Accounting</a></li>
+                    <li><a href="#level-11">Level 11 — ERP Architecture</a></li>
+                    <li><a href="#level-12">Level 12 — SAP/Odoo Concepts</a></li>
+                    <li><a href="#level-13">Level 13 — Enterprise Accounting</a></li>
+                    <li><a href="#level-14">Level 14 — Accounting System Architecture</a></li>
+                    <li><a href="#level-15">Level 15 — Advanced ERP Accounting</a></li>
+                    <li><a href="#content-template">The Article Content Template</a></li>
+                    <li><a href="#sap-odoo">SAP vs Odoo: Concept vs Vocabulary</a></li>
+                    <li><a href="#editorial-rules">Editorial Guidelines for This Series</a></li>
+                </ul>
+            </div>
+
+            <!-- Article Content -->
+            <article class="article-content fade-in">
+
+                <section id="how-to-use">
+                    <h2>📖 How to Use This Roadmap</h2>
+                    <p>This page is not an accounting article — it's the <strong>content blueprint</strong> behind one. Every topic below will eventually become its own full article on this blog, written to the same standard as the already-published <a href="erp-invoice-payment-architecture.html">Invoice vs Payment: The Complete ERP Accounting Architecture</a> — which is itself the fully-expanded version of <a href="#level-10">Level 10</a> below.</p>
+                    <p>The curriculum teaches accounting as <strong>two layers of the same thing</strong>: the traditional discipline (debits, credits, ledgers, statements) and the modern ERP system that automates it (documents, journal engines, subledgers, reconciliation). Every topic, at every level, is meant to be traceable through one chain:</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Business Event</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Business Document</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Accounting Event</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Journal Entry</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Subledger</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">General Ledger</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Trial Balance</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Financial Statements</div>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <strong>💡 The rule every level follows:</strong> never introduce an ERP or architecture concept until the plain accounting concept underneath it has been taught first, and never teach a plain accounting concept without eventually showing where it lives in an ERP. Levels 1–9 build the accounting foundation; Levels 10–15 rebuild the same knowledge as a system.
+                    </div>
+                </section>
+
+                <section id="six-perspectives">
+                    <h2>🔭 The Six Perspectives Every Article Must Answer</h2>
+                    <p>Because the ultimate goal of this series is to understand accounting well enough to <em>design</em> an ERP accounting module — not just use one — every single article, at every level, must answer the same transaction from six different vantage points. Skipping any one of them is what turns a topic into "just theory" or "just a how-to click guide" instead of a complete picture.</p>
+
+                    <div class="perspective-flow">
+                        <div class="perspective-item"><span class="persp-label">Accountant Perspective</span><span class="persp-question">What happened financially?</span></div>
+                        <div class="perspective-arrow">↓</div>
+                        <div class="perspective-item"><span class="persp-label">ERP User Perspective</span><span class="persp-question">What document did I create?</span></div>
+                        <div class="perspective-arrow">↓</div>
+                        <div class="perspective-item"><span class="persp-label">ERP Functional Perspective</span><span class="persp-question">What business rule was triggered?</span></div>
+                        <div class="perspective-arrow">↓</div>
+                        <div class="perspective-item"><span class="persp-label">Accounting Perspective</span><span class="persp-question">What debit/credit was generated?</span></div>
+                        <div class="perspective-arrow">↓</div>
+                        <div class="perspective-item"><span class="persp-label">System Architecture Perspective</span><span class="persp-question">What records/relationships were created?</span></div>
+                        <div class="perspective-arrow">↓</div>
+                        <div class="perspective-item"><span class="persp-label">Audit Perspective</span><span class="persp-question">Can we prove what happened?</span></div>
+                    </div>
+
+                    <p>Grounded in one concrete transaction — ABC Trading Ltd. posts a ৳55,000 credit sale — the six perspectives look like this:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Perspective</th><th>Answers</th><th>Template field it fills</th><th>For this transaction</th></tr></thead>
+                        <tbody>
+                            <tr><td>Accountant</td><td>What happened financially?</td><td>Business Scenario</td><td>Sold goods worth ৳55,000 to a customer on credit</td></tr>
+                            <tr><td>ERP User</td><td>What document did I create?</td><td>Documents Involved</td><td>A Sales Invoice, e.g. <code>INV-2026-000123</code>, posted in the system</td></tr>
+                            <tr><td>ERP Functional</td><td>What business rule was triggered?</td><td>Accounting Flow / ERP Workflow</td><td>The "Invoice → AR" posting rule fires automatically on confirm</td></tr>
+                            <tr><td>Accounting</td><td>What debit/credit was generated?</td><td>Debit/Credit Concepts</td><td><code>DR Accounts Receivable 55,000 / CR Sales Revenue 50,000 / CR VAT Payable 5,000</code></td></tr>
+                            <tr><td>System Architecture</td><td>What records/relationships were created?</td><td>Database Relationship</td><td>1 <code>Invoice</code> row, N <code>InvoiceLine</code> rows, 1 <code>JournalEntry</code> + its <code>JournalEntryLine</code> rows, all FK'd to the Customer</td></tr>
+                            <tr><td>Audit</td><td>Can we prove what happened?</td><td>Real-World ERP Scenario</td><td>An <code>AuditLog</code> row: who posted it, when, the reference document, old/new values</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <div class="info-box">
+                        <strong>💡 Why all six, every time:</strong> a reader who only gets the Accountant and Accounting perspectives learns bookkeeping but not ERP design. A reader who only gets the ERP User and Functional perspectives learns to click buttons but not why the numbers are trustworthy. All six together is what separates "accounting knowledge" from "the knowledge needed to design an ERP accounting module" — the explicit long-term goal of this series.
+                    </div>
+                </section>
+
+                <section id="case-study">
+                    <h2>🏢 The Running Case Study: ABC Trading Ltd.</h2>
+                    <p>One fictional company is reused across every level so a reader can watch a single, coherent set of books grow in complexity from page one to the capstone. It opens with a balanced accounting equation on day one:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Account</th><th>Opening balance</th><th>Type</th></tr></thead>
+                        <tbody>
+                            <tr><td>Cash</td><td>৳100,000</td><td>Asset</td></tr>
+                            <tr><td>Bank</td><td>৳500,000</td><td>Asset</td></tr>
+                            <tr><td>Inventory</td><td>৳300,000</td><td>Asset</td></tr>
+                            <tr><td><strong>Total Assets</strong></td><td><strong>৳900,000</strong></td><td></td></tr>
+                            <tr><td>Capital</td><td>৳900,000</td><td>Equity</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>From here, each level introduces the next layer the company needs — its first customer and supplier at Level 5–6, its first VAT return at Level 7, its first depreciating asset at Level 9, its first branch and foreign-currency invoice at Level 13 — so that by <a href="#level-15">Level 15</a> the reader has effectively watched one company's books mature from a single trial balance into a full multi-branch, multi-currency, audited ERP ledger.</p>
+                </section>
+
+                <section id="knowledge-tree">
+                    <h2>🌳 The Knowledge Tree: 15 Subject-Matter Categories</h2>
+                    <p>The 15 Levels below organize the series by <strong>difficulty</strong> — what a reader needs to already know. This tree organizes the same content by <strong>subject</strong> — what a reader is trying to look up. They're two lenses on one knowledge base, not two competing structures: every branch below links to the level(s) that actually teach it, so the blog reads as a connected tree rather than a hundred unrelated posts.</p>
+
+                    <div class="tree-list">
+                        <div class="tree-category">
+                            <span class="cat-num">01</span><span class="cat-title">Fundamentals</span>
+                            <div class="tree-children"><span class="tree-child">What is Accounting?</span><span class="tree-child">Assets</span><span class="tree-child">Liabilities</span><span class="tree-child">Equity</span><span class="tree-child">Revenue</span><span class="tree-child">Expenses</span></div>
+                            <span class="maps-to">Maps to <a href="#level-1">Level 1 — Absolute Beginner</a></span>
+                        </div>
+                        <div class="tree-category">
+                            <span class="cat-num">02</span><span class="cat-title">Double Entry</span>
+                            <div class="tree-children"><span class="tree-child">Debit</span><span class="tree-child">Credit</span><span class="tree-child">Journal</span><span class="tree-child">Ledger</span><span class="tree-child">Trial Balance</span></div>
+                            <span class="maps-to">Maps to <a href="#level-3">Level 3 — Double-Entry Accounting</a></span>
+                        </div>
+                        <div class="tree-category">
+                            <span class="cat-num">03</span><span class="cat-title">Chart of Accounts</span>
+                            <div class="tree-children"><span class="tree-child">Account numbering</span><span class="tree-child">Account groups</span><span class="tree-child">Control accounts</span></div>
+                            <span class="maps-to">Maps to <a href="#level-2">Level 2 — Basic Bookkeeping</a> (Phase 3)</span>
+                        </div>
+                        <div class="tree-category">
+                            <span class="cat-num">04</span><span class="cat-title">General Ledger</span>
+                            <div class="tree-children"><span class="tree-child">Posting</span><span class="tree-child">Account balance</span><span class="tree-child">GL reconciliation</span></div>
+                            <span class="maps-to">Maps to <a href="#level-2">Level 2 — Basic Bookkeeping</a> (Phase 4)</span>
+                        </div>
+                        <div class="tree-category">
+                            <span class="cat-num">05</span><span class="cat-title">Sales Accounting</span>
+                            <div class="tree-children"><span class="tree-child">Sales Order</span><span class="tree-child">Delivery</span><span class="tree-child">Invoice</span><span class="tree-child">AR</span><span class="tree-child">Payment</span></div>
+                            <span class="maps-to">Maps to <a href="#level-6">Level 6 — Sales &amp; Purchase Accounting</a> (Phase 5)</span>
+                        </div>
+                        <div class="tree-category">
+                            <span class="cat-num">06</span><span class="cat-title">Purchase Accounting</span>
+                            <div class="tree-children"><span class="tree-child">Purchase Order</span><span class="tree-child">Receipt</span><span class="tree-child">Supplier Bill</span><span class="tree-child">AP</span><span class="tree-child">Payment</span></div>
+                            <span class="maps-to">Maps to <a href="#level-6">Level 6 — Sales &amp; Purchase Accounting</a> (Phase 6)</span>
+                        </div>
+                        <div class="tree-category">
+                            <span class="cat-num">07</span><span class="cat-title">Invoice &amp; Payment</span>
+                            <div class="tree-children"><span class="tree-child">Full Payment</span><span class="tree-child">Partial Payment</span><span class="tree-child">Multiple Payments</span><span class="tree-child">Overpayment</span><span class="tree-child">Advance</span><span class="tree-child">Unallocated</span><span class="tree-child">Refund</span><span class="tree-child">Reversal</span></div>
+                            <span class="maps-to">Maps to <a href="#level-5">Level 5 — AR &amp; AP</a> and <a href="#level-10">Level 10 — ERP Accounting</a> · fully published: <a href="erp-invoice-payment-architecture.html">Invoice vs Payment</a></span>
+                        </div>
+                        <div class="tree-category">
+                            <span class="cat-num">08</span><span class="cat-title">Reconciliation</span>
+                            <div class="tree-children"><span class="tree-child">AR</span><span class="tree-child">AP</span><span class="tree-child">Bank</span><span class="tree-child">GL</span></div>
+                            <span class="maps-to">Maps to <a href="#level-4">Level 4 — Practical Business Accounting</a> (bank) and <a href="#level-14">Level 14 — System Architecture</a> (Phase 30, full reconciliation)</span>
+                        </div>
+                        <div class="tree-category">
+                            <span class="cat-num">09</span><span class="cat-title">Inventory Accounting</span>
+                            <div class="tree-children"><span class="tree-child">Valuation</span><span class="tree-child">COGS</span><span class="tree-child">Stock adjustment</span></div>
+                            <span class="maps-to">Maps to <a href="#level-7">Level 7 — Tax &amp; Inventory Accounting</a> (Phase 16)</span>
+                        </div>
+                        <div class="tree-category">
+                            <span class="cat-num">10</span><span class="cat-title">Tax Accounting</span>
+                            <div class="tree-children"><span class="tree-child">Input tax</span><span class="tree-child">Output tax</span><span class="tree-child">Tax reporting</span></div>
+                            <span class="maps-to">Maps to <a href="#level-7">Level 7 — Tax &amp; Inventory Accounting</a> (Phase 15)</span>
+                        </div>
+                        <div class="tree-category">
+                            <span class="cat-num">11</span><span class="cat-title">Fixed Assets</span>
+                            <div class="tree-children"><span class="tree-child">Capitalization</span><span class="tree-child">Depreciation</span><span class="tree-child">Disposal</span></div>
+                            <span class="maps-to">Maps to <a href="#level-9">Level 9 — Advanced Accounting</a> (Phase 17)</span>
+                        </div>
+                        <div class="tree-category">
+                            <span class="cat-num">12</span><span class="cat-title">Accrual &amp; Deferral</span>
+                            <div class="tree-children"><span class="tree-child">Accrued expense/revenue</span><span class="tree-child">Prepaid expense</span><span class="tree-child">Deferred revenue</span></div>
+                            <span class="maps-to">Maps to <a href="#level-8">Level 8 — Financial Statements</a> (Phase 18)</span>
+                        </div>
+                        <div class="tree-category">
+                            <span class="cat-num">13</span><span class="cat-title">Financial Statements</span>
+                            <div class="tree-children"><span class="tree-child">Balance Sheet</span><span class="tree-child">Income Statement</span><span class="tree-child">Cash Flow</span></div>
+                            <span class="maps-to">Maps to <a href="#level-8">Level 8 — Financial Statements</a> (Phase 20)</span>
+                        </div>
+                        <div class="tree-category">
+                            <span class="cat-num">14</span><span class="cat-title">Advanced Accounting</span>
+                            <div class="tree-children"><span class="tree-child">Cost accounting</span><span class="tree-child">Management accounting</span><span class="tree-child">Multi-branch</span><span class="tree-child">Multi-company</span><span class="tree-child">Multi-currency</span></div>
+                            <span class="maps-to">Maps to <a href="#level-9">Level 9 — Advanced Accounting</a> and <a href="#level-13">Level 13 — Enterprise Accounting</a></span>
+                        </div>
+                        <div class="tree-category">
+                            <span class="cat-num">15</span><span class="cat-title">ERP Accounting</span>
+                            <div class="tree-children"><span class="tree-child">ERP Document Lifecycle</span><span class="tree-child">Accounting Engine</span><span class="tree-child">Subledger</span><span class="tree-child">GL</span><span class="tree-child">Audit Trail</span><span class="tree-child">SAP Concepts</span><span class="tree-child">Odoo Concepts</span><span class="tree-child">Accounting System Architecture</span></div>
+                            <span class="maps-to">Maps to <a href="#level-10">Level 10</a>, <a href="#level-11">Level 11</a>, <a href="#level-12">Level 12</a>, and <a href="#level-14">Level 14</a></span>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="roadmap-glance">
+                    <h2>🗺️ The 15-Level Roadmap at a Glance</h2>
+                    <p>Click any level to jump to its phase breakdown.</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <a href="#level-1" class="flow-step">L1<small>Absolute Beginner</small></a><div class="flow-arrow">→</div>
+                            <a href="#level-2" class="flow-step">L2<small>Basic Bookkeeping</small></a><div class="flow-arrow">→</div>
+                            <a href="#level-3" class="flow-step">L3<small>Double-Entry</small></a><div class="flow-arrow">→</div>
+                            <a href="#level-4" class="flow-step">L4<small>Practical Accounting</small></a><div class="flow-arrow">→</div>
+                            <a href="#level-5" class="flow-step">L5<small>AR / AP</small></a><div class="flow-arrow">→</div>
+                            <a href="#level-6" class="flow-step">L6<small>Sales / Purchase</small></a><div class="flow-arrow">→</div>
+                            <a href="#level-7" class="flow-step">L7<small>Tax / Inventory</small></a><div class="flow-arrow">→</div>
+                            <a href="#level-8" class="flow-step">L8<small>Financial Statements</small></a><div class="flow-arrow">→</div>
+                            <a href="#level-9" class="flow-step">L9<small>Advanced Accounting</small></a><div class="flow-arrow">→</div>
+                            <a href="#level-10" class="flow-step">L10<small>ERP Accounting</small></a><div class="flow-arrow">→</div>
+                            <a href="#level-11" class="flow-step">L11<small>ERP Architecture</small></a><div class="flow-arrow">→</div>
+                            <a href="#level-12" class="flow-step">L12<small>SAP / Odoo Concepts</small></a><div class="flow-arrow">→</div>
+                            <a href="#level-13" class="flow-step">L13<small>Enterprise Accounting</small></a><div class="flow-arrow">→</div>
+                            <a href="#level-14" class="flow-step">L14<small>System Architecture</small></a><div class="flow-arrow">→</div>
+                            <a href="#level-15" class="flow-step">L15<small>Advanced ERP (Capstone)</small></a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- LEVEL 1 -->
+                <section id="level-1">
+                    <div class="level-head"><span class="level-num">LEVEL 1</span><h3>Absolute Beginner</h3></div>
+                    <p class="level-objective">Understand what accounting is and internalize the five account types and the accounting equation before a single journal entry is introduced.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Phase</th><th>Prerequisites</th><th>Topics covered</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Phase 1</strong><br>Accounting Fundamentals</td><td>None — curriculum entry point</td><td>What is Accounting; Accounting vs Bookkeeping; Assets, Liabilities, Equity, Revenue, Expenses, Profit, Loss; Accounting Equation; Debit, Credit, Account; Chart of Accounts; Account Types; Normal Balance; Journal, Ledger, General Ledger, Trial Balance; Financial Statements; Fiscal Year, Accounting Period; Opening/Closing Balance</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p class="meta-line"><strong>Business scenario:</strong> ABC Trading Ltd.'s day-one balance sheet — Cash 100,000 + Bank 500,000 + Inventory 300,000 = Capital 900,000 — read purely as <code>Assets = Equity</code>, the accounting equation in its simplest form, before any transaction happens.</p>
+                    <p class="meta-line"><strong>Diagram to build:</strong> a balance-scale visual for <code>Assets = Liabilities + Equity</code>, plus a five-box "account type" reference card with each type's normal balance side marked.</p>
+                    <div class="warning-box"><strong>⚠️ Common mistake:</strong> treating "debit" and "credit" as synonyms for "increase" and "decrease" before the account-type-dependent rule is taught in Level 3 — this is the single most common misconception to defuse early.</div>
+                    <p class="connects-to"><strong>Connects to:</strong> nothing precedes it. Feeds directly into Level 2 once the five account types are internalized.</p>
+                </section>
+
+                <!-- LEVEL 2 -->
+                <section id="level-2">
+                    <div class="level-head"><span class="level-num">LEVEL 2</span><h3>Basic Bookkeeping</h3></div>
+                    <p class="level-objective">Learn to structure a Chart of Accounts and post transactions into a ledger before tackling formal double-entry theory.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Phase</th><th>Prerequisites</th><th>Topics covered</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Phase 3</strong><br>Chart of Accounts</td><td>Level 1</td><td>What/why COA; account numbering &amp; hierarchy; account groups; control accounts; cash/bank accounts; AR/AP control accounts; revenue, COGS, expense, tax, fixed asset, accumulated depreciation, liability, equity, suspense, clearing accounts; retained earnings</td></tr>
+                            <tr><td><strong>Phase 4</strong><br>General Ledger</td><td>Phase 3</td><td>What is GL; GL vs subledger; posting; journal &amp; journal line; account balance; debit/credit balance; period, opening, closing balance; GL reporting; control accounts; GL reconciliation; trial balance</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p class="meta-line"><strong>Business scenario:</strong> ABC Trading Ltd.'s numbered COA — 1000 Cash, 1100 Bank, 1200 Accounts Receivable, 1300 Inventory, 2000 Accounts Payable, 3000 Capital, 4000 Sales Revenue, 5000 COGS — with the Level 1 opening balances posted as the very first GL entry.</p>
+                    <p class="meta-line"><strong>Diagram to build:</strong> a Chart-of-Accounts tree (Assets/Liabilities/Equity/Revenue/Expenses as root nodes), and a <code>Subledger → Control Account → General Ledger</code> flow diagram.</p>
+                    <div class="warning-box"><strong>⚠️ Common mistake:</strong> numbering accounts ad hoc instead of in ranges (1000s = Assets, 2000s = Liabilities…), which makes control-account mapping and reporting brittle the moment the COA grows.</div>
+                    <p class="connects-to"><strong>Connects to:</strong> Level 1 before it; Level 3 supplies the posting mechanics for everything recorded here.</p>
+                </section>
+
+                <!-- LEVEL 3 -->
+                <section id="level-3">
+                    <div class="level-head"><span class="level-num">LEVEL 3</span><h3>Double-Entry Accounting</h3></div>
+                    <p class="level-objective">Master the debit/credit rule for every account type and post a full sequence of transactions to a balanced trial balance.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Phase</th><th>Prerequisites</th><th>Topics covered</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Phase 2</strong><br>Double-Entry Accounting</td><td>Level 1, Level 2</td><td>Meaning of double-entry; why every transaction has two sides; traditional debit/credit rules; modern accounting-equation approach; asset/liability/equity/revenue/expense account behavior; journal entries; posting to ledger; trial balance; detecting errors; balanced journal entries</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p class="meta-line"><strong>Business scenario — ABC Trading Ltd.'s first month, ten transactions:</strong></p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Event</th><th>Debit</th><th>Credit</th></tr></thead>
+                        <tbody>
+                            <tr><td>Owner invests 100,000</td><td>Cash 100,000</td><td>Capital 100,000</td></tr>
+                            <tr><td>Buy inventory for cash 20,000</td><td>Inventory 20,000</td><td>Cash 20,000</td></tr>
+                            <tr><td>Buy inventory on credit 30,000</td><td>Inventory 30,000</td><td>Accounts Payable 30,000</td></tr>
+                            <tr><td>Sell goods for cash 15,000</td><td>Cash 15,000</td><td>Sales Revenue 15,000</td></tr>
+                            <tr><td>Sell goods on credit 25,000</td><td>Accounts Receivable 25,000</td><td>Sales Revenue 25,000</td></tr>
+                            <tr><td>Pay supplier 10,000</td><td>Accounts Payable 10,000</td><td>Cash 10,000</td></tr>
+                            <tr><td>Receive customer payment 12,000</td><td>Cash 12,000</td><td>Accounts Receivable 12,000</td></tr>
+                            <tr><td>Pay salary 20,000</td><td>Salary Expense 20,000</td><td>Cash 20,000</td></tr>
+                            <tr><td>Pay rent 10,000</td><td>Rent Expense 10,000</td><td>Cash 10,000</td></tr>
+                            <tr><td>Receive bank loan 500,000</td><td>Bank 500,000</td><td>Loan Payable 500,000</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p class="meta-line"><strong>Diagram to build:</strong> a T-account for each account type touched above, and a debit/credit decision table (increase/decrease by account type) — the same pattern already used in the <a href="erp-invoice-payment-architecture.html#double-entry">published double-entry section</a>.</p>
+                    <div class="warning-box"><strong>⚠️ Common mistake:</strong> posting an entry where debits ≠ credits and not catching it until the trial balance quietly fails to balance weeks later.</div>
+                    <p class="connects-to"><strong>Connects to:</strong> Level 2 (accounts to post into) before it; Level 5 and Level 6 after it are simply double-entry applied to specific business processes.</p>
+                </section>
+
+                <!-- LEVEL 4 -->
+                <section id="level-4">
+                    <div class="level-head"><span class="level-num">LEVEL 4</span><h3>Practical Business Accounting</h3></div>
+                    <p class="level-objective">Apply double-entry to real cash and bank movements — the first genuinely operational accounting a business performs daily.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Phase</th><th>Prerequisites</th><th>Topics covered</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Phase 13</strong><br>Bank &amp; Cash Accounting</td><td>Level 3</td><td>Cash receipt/payment; bank receipt/payment; bank/cash transfer; bank charges; payment gateway &amp; clearing; cash shortage/overage; unidentified bank transaction; duplicate payment; payment reversal</td></tr>
+                            <tr><td><strong>Phase 14</strong><br>Bank Reconciliation</td><td>Phase 13</td><td>What/why reconciliation; bank statement vs ERP bank ledger; matched/unmatched transaction; outstanding cheque; bank charge; interest income; unknown deposit; duplicate transaction; timing difference; reconciliation adjustment &amp; status</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p class="meta-line"><strong>Business scenario:</strong> ABC Trading Ltd.'s bank statement shows a ৳500 bank charge and a ৳2,000 deposit not yet in the ERP — walk through matching, then posting both adjustments until the bank ledger and statement agree.</p>
+                    <p class="meta-line"><strong>Diagram to build:</strong> a reconciliation diagram — two parallel ledgers (bank statement vs ERP bank account) converging into a matched/unmatched split, then an adjustment loop.</p>
+                    <div class="warning-box"><strong>⚠️ Common mistake:</strong> "fixing" a reconciliation by editing the original bank transaction instead of posting a separate reconciling adjustment entry that preserves both records.</div>
+                    <p class="connects-to"><strong>Connects to:</strong> Level 3 before it; Level 5 after it reuses this exact reconciliation logic for customers and suppliers.</p>
+                </section>
+
+                <!-- LEVEL 5 -->
+                <section id="level-5">
+                    <div class="level-head"><span class="level-num">LEVEL 5</span><h3>Accounts Receivable &amp; Accounts Payable</h3></div>
+                    <p class="level-objective">Track what customers owe and what the business owes suppliers as running subledger balances, never as a single mutable field on the invoice.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Phase</th><th>Prerequisites</th><th>Topics covered</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Phase 7</strong><br>Accounts Receivable</td><td>Level 4</td><td>What is AR; customer balance; invoice; due date; payment terms; outstanding amount; partial/full/overpayment; advance payment; unallocated payment; payment allocation; credit note; refund; write-off; bad debt; AR aging; customer statement; collection process; reconciliation</td></tr>
+                            <tr><td><strong>Phase 8</strong><br>Accounts Payable</td><td>Phase 7 (mirror)</td><td>Outstanding AP; partial/full settlement; overpayment; supplier advance; credit balance; refund; payment reversal; write-off — every AR concept mirrored to the supplier side</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p class="meta-line"><strong>Business scenario:</strong> a ৳1,000 customer invoice run through Payment = 0 / 1 / 100 / 250 / 500 / 700 / 900 / 999 / 1,000 / 1,100 / 1,500, each mapped to UNPAID → PARTIALLY_PAID → PAID → PAID + credit — then the identical table re-run for a ৳1,000 supplier bill.</p>
+                    <p class="meta-line"><strong>Diagram to build:</strong> a running-balance customer/supplier statement, and an AR/AP aging bucket chart (Current / 30 / 60 / 90+ days).</p>
+                    <div class="warning-box"><strong>⚠️ Common mistake:</strong> storing a single <code>paid_amount</code> field on the invoice instead of a subledger of allocations — it breaks the moment one payment must settle two invoices.</div>
+                    <p class="connects-to"><strong>Connects to:</strong> Level 4 before it; Level 6 after it is where AR and AP balances actually get created. Fully expanded in <a href="erp-invoice-payment-architecture.html">Invoice vs Payment: The Complete ERP Accounting Architecture</a>.</p>
+                </section>
+
+                <!-- LEVEL 6 -->
+                <section id="level-6">
+                    <div class="level-head"><span class="level-num">LEVEL 6</span><h3>Sales &amp; Purchase Accounting</h3></div>
+                    <p class="level-objective">Walk the full document chain that creates the AR and AP balances Level 5 assumed already existed.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Phase</th><th>Prerequisites</th><th>Topics covered</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Phase 5</strong><br>Sales Accounting</td><td>Level 5</td><td>Customer; quotation; sales order; delivery; sales invoice; credit note; debit note; customer payment; payment allocation; customer statement; AR aging; bad debt; write-off; refund</td></tr>
+                            <tr><td><strong>Phase 6</strong><br>Purchase Accounting</td><td>Phase 5 (mirror)</td><td>Supplier master; purchase order; goods receipt; supplier invoice; accounts payable; supplier payment; supplier advance; supplier credit; debit note; purchase return; payment allocation; supplier reconciliation; AP aging</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p class="meta-line"><strong>Business scenario:</strong> ABC Trading Ltd. quotes a customer ৳50,000, converts it to a sales order, delivers (inventory −20 units, COGS ৳35,000), and invoices ৳55,000 including VAT — mirrored by buying that same inventory from a supplier for ৳100,000 + VAT.</p>
+                    <p class="meta-line"><strong>Diagram to build:</strong> the Quotation → Sales Order → Delivery → Invoice flow (reuse the diagram already built for the published <a href="erp-invoice-payment-architecture.html#sales-flow">Sales Flow section</a>) and its Purchase-side mirror.</p>
+                    <div class="warning-box"><strong>⚠️ Common mistake:</strong> treating the Sales Order as if it already creates a receivable — it doesn't; only the posted Invoice does.</div>
+                    <p class="connects-to"><strong>Connects to:</strong> Level 5 before it; Level 7 after it covers the Tax and Inventory accounts every line of these documents ultimately touches.</p>
+                </section>
+
+                <!-- LEVEL 7 -->
+                <section id="level-7">
+                    <div class="level-head"><span class="level-num">LEVEL 7</span><h3>Tax &amp; Inventory Accounting</h3></div>
+                    <p class="level-objective">Go deeper into the two accounts every sales/purchase line touches — tax and inventory — beyond what Level 6 needed for the basic flow. (Bank mechanics were already covered at Level 4.)</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Phase</th><th>Prerequisites</th><th>Topics covered</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Phase 15</strong><br>Tax Accounting</td><td>Level 6</td><td>Sales tax, VAT; purchase VAT; input/output tax; tax payable/receivable; tax-inclusive/exclusive pricing; tax invoice; tax credit note; tax adjustment; tax reporting</td></tr>
+                            <tr><td><strong>Phase 16</strong><br>Inventory Accounting</td><td>Level 6</td><td>Inventory asset; goods receipt; valuation (FIFO, weighted average, standard cost); COGS; stock issue; purchase/sales return; inventory adjustment/write-off; perpetual vs periodic inventory</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p class="meta-line"><strong>Business scenario:</strong> ABC Trading Ltd. sells goods for ৳1,000 + 15% VAT = ৳1,150; under perpetual inventory the same sale also posts <code>DR COGS / CR Inventory</code> at the ৳600 cost of the units sold — two journal entries generated from one invoice.</p>
+                    <p class="meta-line"><strong>Diagram to build:</strong> a "one invoice, two journal entries" side-by-side diagram (revenue-recognition entry + COGS/inventory entry), and a FIFO-vs-weighted-average worked comparison table.</p>
+                    <div class="warning-box"><strong>⚠️ Common mistake:</strong> posting VAT into the Sales Revenue account instead of a separate VAT Payable liability, overstating both revenue and tax exposure.</div>
+                    <p class="connects-to"><strong>Connects to:</strong> Level 6 before it; Level 8 after it, once every account has a full period's activity to close.</p>
+                </section>
+
+                <!-- LEVEL 8 -->
+                <section id="level-8">
+                    <div class="level-head"><span class="level-num">LEVEL 8</span><h3>Financial Statements</h3></div>
+                    <p class="level-objective">Turn a fully populated trial balance into accruals-adjusted, closed-period financial statements.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Phase</th><th>Prerequisites</th><th>Topics covered</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Phase 18</strong><br>Accruals &amp; Deferrals</td><td>Level 7</td><td>Accrued expense/revenue; prepaid expense; deferred revenue; month-end adjustment; reversing entry; recurring journal</td></tr>
+                            <tr><td><strong>Phase 19</strong><br>Period-End &amp; Closing</td><td>Phase 18</td><td>Full month-end workflow (AR → AP → bank → inventory reconciliation → depreciation → accruals → prepayments → tax → adjustments → trial balance → financial statements → closing); open/closed/locked periods; backdated transactions; reopening</td></tr>
+                            <tr><td><strong>Phase 20</strong><br>Financial Statements</td><td>Phase 19</td><td>Balance Sheet; Income Statement; Cash Flow Statement; Statement of Changes in Equity; Trial Balance; General Ledger; AR/AP aging — and exactly how journal entries flow into each</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p class="meta-line"><strong>Business scenario:</strong> ABC Trading Ltd. accrues an unpaid ৳5,000 electricity bill at month-end (<code>DR Utilities Expense / CR Accrued Liabilities</code>) so the Income Statement reflects the cost in the month it was incurred, not the month it's paid.</p>
+                    <p class="meta-line"><strong>Diagram to build:</strong> the month-end closing workflow as a linear flowchart (same visual language as the <a href="erp-invoice-payment-architecture.html#decision-flowchart">settlement decision flowchart</a>), and a journal-entry-to-financial-statement-line tracing diagram.</p>
+                    <div class="warning-box"><strong>⚠️ Common mistake:</strong> closing a period before bank and AR/AP reconciliations are complete, then having to reopen it — reopening should require explicit authorization, never a casual undo.</div>
+                    <p class="connects-to"><strong>Connects to:</strong> Level 7 before it; Level 9 after it operates only on top of a correctly closed period.</p>
+                </section>
+
+                <!-- LEVEL 9 -->
+                <section id="level-9">
+                    <div class="level-head"><span class="level-num">LEVEL 9</span><h3>Advanced Accounting</h3></div>
+                    <p class="level-objective">Extend the closed-period foundation into fixed assets, cost accounting, and management accounting.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Phase</th><th>Prerequisites</th><th>Topics covered</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Phase 17</strong><br>Fixed Asset Accounting</td><td>Level 8</td><td>Asset purchase; capitalization; asset register; depreciation; accumulated depreciation; useful life; residual value; disposal; sale; impairment; transfer; revaluation</td></tr>
+                            <tr><td><strong>Phase 21</strong><br>Cost Accounting</td><td>Level 8</td><td>Cost center; profit center; department; project; cost allocation; direct/indirect cost; fixed/variable cost; COGS; manufacturing cost; overhead; budget vs actual; variance analysis</td></tr>
+                            <tr><td><strong>Phase 22</strong><br>Management Accounting</td><td>Phase 21</td><td>Budgeting; forecasting; cost analysis; profitability; margin; contribution margin; break-even; department/product/customer/branch profitability</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p class="meta-line"><strong>Business scenario:</strong> ABC Trading Ltd. capitalizes a ৳240,000 delivery van with a 5-year useful life and ৳0 residual value; straight-line depreciation posts <code>DR Depreciation Expense 4,000 / CR Accumulated Depreciation 4,000</code> every month.</p>
+                    <p class="meta-line"><strong>Diagram to build:</strong> an asset lifecycle flowchart — Purchase → Capitalize → Depreciate Monthly → Dispose/Sell — in the same style as the invoice lifecycle diagram.</p>
+                    <div class="warning-box"><strong>⚠️ Common mistake:</strong> expensing a capital purchase directly instead of capitalizing and depreciating it, distorting both the Balance Sheet and one month's Income Statement.</div>
+                    <p class="connects-to"><strong>Connects to:</strong> Level 8 before it; Level 10 after it turns all of this from manual monthly journals into ERP-automated rules.</p>
+                </section>
+
+                <!-- LEVEL 10 -->
+                <section id="level-10">
+                    <div class="level-head"><span class="level-num">LEVEL 10</span><h3>ERP Accounting</h3></div>
+                    <p class="level-objective">Rebuild everything learned so far as the engine an ERP runs automatically — this level is where "accounting user" knowledge becomes "accounting system" knowledge.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Phase</th><th>Prerequisites</th><th>Topics covered</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Phase 9</strong><br>Invoice &amp; Payment Relationship</td><td>Level 9</td><td>Payment received vs payment allocated; 1↔1, 1↔many, many↔1 allocation; payment without invoice; overpayment; advance; unallocated payment; wrong allocation; reversal; refund; credit note; write-off</td></tr>
+                            <tr><td><strong>Phase 10</strong><br>Document Lifecycle</td><td>Phase 9</td><td>DRAFT → SUBMITTED → APPROVED → POSTED → PARTIALLY SETTLED → SETTLED → REVERSED → CANCELLED for every document type; document status vs accounting status</td></tr>
+                            <tr><td><strong>Phase 11</strong><br>Accounting Journal Engine</td><td>Phase 10</td><td><code>Business Event → Accounting Rule → Journal Entry → Journal Lines → Debit/Credit → Posting → GL</code>, applied to every transaction type covered so far</td></tr>
+                            <tr><td><strong>Phase 12</strong><br>Subledger Accounting</td><td>Phase 11</td><td>AR/AP/Inventory/Fixed Asset/Bank/Cash subledgers; subledger balance vs GL control account; reconciliation between the two</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <div class="success-box">
+                        <strong>✅ Already fully published:</strong> this entire level is expanded in <a href="erp-invoice-payment-architecture.html">Invoice vs Payment: The Complete ERP Accounting Architecture</a> — its relationship map, invoice/payment lifecycle state machine, activity swimlane, settlement flowchart, and the ৳1,000-invoice scenario playbook are the reference implementation every later level's diagrams should match in style.
+                    </div>
+                    <div class="warning-box"><strong>⚠️ Common mistake:</strong> modeling <code>invoice.payment_id</code> as a single foreign key instead of a many-to-many allocation table.</div>
+                    <p class="connects-to"><strong>Connects to:</strong> Level 9 before it; Level 11 after it zooms out from one module to the whole ERP system.</p>
+                </section>
+
+                <!-- LEVEL 11 -->
+                <section id="level-11">
+                    <div class="level-head"><span class="level-num">LEVEL 11</span><h3>ERP Architecture</h3></div>
+                    <p class="level-objective">Zoom out from the invoice/payment module to how every ERP entity interacts across the whole system.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Phase</th><th>Prerequisites</th><th>Topics covered</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Phase 26</strong><br>ERP Accounting Architecture</td><td>Level 10</td><td>How Customer, Supplier, Product, Warehouse, Sales/Purchase Order, Delivery, Goods Receipt, Invoice, Payment, Payment Allocation, Journal Entry, Journal Line, Account, Chart of Accounts, Fiscal Period, Tax, Currency, Bank, Cash, Cost Center, and Company interact</td></tr>
+                            <tr><td><strong>Phase 27</strong><br>ERP Database Concept</td><td>Phase 26</td><td>Conceptual entities and cardinalities (1:1, 1:N, N:M): <code>Customer → Invoice → Invoice Lines ↔ Payment Allocation ↔ Payment → Journal Entry → Journal Lines → GL Account</code>, and the Supplier-side mirror</td></tr>
+                            <tr><td><strong>Phase 28</strong><br>Accounting Event vs Business Document</td><td>Phase 27</td><td>Sales Order ≠ accounting entry; Delivery ≠ necessarily revenue recognition; Invoice = financial event; Payment = settlement event; Payment Allocation = settlement relationship; why ERP architecture deliberately separates these</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p class="meta-line"><strong>Business scenario:</strong> trace one ABC Trading Ltd. sales order through every entity it touches end to end, marking exactly where — and only where — a journal entry gets generated.</p>
+                    <p class="meta-line"><strong>Diagram to build:</strong> a full entity-relationship diagram covering all ~19 entities from Phase 26, extending the smaller relationship map already built at Level 10.</p>
+                    <div class="warning-box"><strong>⚠️ Common mistake:</strong> giving the <code>invoice</code> table responsibility for AR balance, payment status, and GL posting all at once instead of letting each concern live in its own entity.</div>
+                    <p class="connects-to"><strong>Connects to:</strong> Level 10 before it; Level 12 after it grounds this architecture in real ERP products.</p>
+                </section>
+
+                <!-- LEVEL 12 -->
+                <section id="level-12">
+                    <div class="level-head"><span class="level-num">LEVEL 12</span><h3>SAP/Odoo Concepts</h3></div>
+                    <p class="level-objective">Map every universal concept taught so far onto the vocabulary of two real ERP products, without assuming they implement anything identically.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Phase</th><th>Prerequisites</th><th>Topics covered</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Phase 33</strong><br>SAP/Odoo Conceptual Mapping</td><td>Level 11</td><td>Customer/Vendor; Chart of Accounts; Journal &amp; Journal Entry; AR/AP; Invoice/Payment; Reconciliation; Fiscal Position; Tax; Bank/Cash Journal; Accounting Period; Cost Center; Analytic Accounting; Asset Accounting — universal concept vs SAP-style term vs Odoo-style term</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p class="meta-line"><strong>Business scenario:</strong> "Payment Allocation" (universal) is conceptually similar to SAP's clearing of open items against a payment document, and to Odoo's reconciling a payment move against an invoice move — same underlying concept, different product vocabulary.</p>
+                    <p class="meta-line"><strong>Diagram to build:</strong> a three-column comparison table (Universal Concept | SAP-style term | Odoo-style term) — see the <a href="#sap-odoo">reference table</a> later on this page.</p>
+                    <div class="warning-box"><strong>⚠️ Common mistake:</strong> presenting SAP or Odoo terminology as if it were the universal accounting concept itself, which confuses readers when they later work with a third ERP.</div>
+                    <p class="connects-to"><strong>Connects to:</strong> Level 11 before it; Level 13 after it needs this shared vocabulary to discuss concrete multi-company/multi-currency setups.</p>
+                </section>
+
+                <!-- LEVEL 13 -->
+                <section id="level-13">
+                    <div class="level-head"><span class="level-num">LEVEL 13</span><h3>Enterprise Accounting</h3></div>
+                    <p class="level-objective">Scale a single-company, single-currency ledger up to multi-branch, multi-company, and multi-currency operations.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Phase</th><th>Prerequisites</th><th>Topics covered</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Phase 23</strong><br>Multi-Branch Accounting</td><td>Level 12</td><td>Company, branch, warehouse, department, cost center; branch revenue/expense/inventory/cash/bank; inter-branch transfer and accounting</td></tr>
+                            <tr><td><strong>Phase 24</strong><br>Multi-Company Accounting</td><td>Phase 23</td><td>Parent company; subsidiary; intercompany transaction/invoice/payment/receivable/payable; elimination; consolidation</td></tr>
+                            <tr><td><strong>Phase 25</strong><br>Multi-Currency Accounting</td><td>Phase 24</td><td>Transaction vs base/company currency; exchange rate; foreign currency invoice/payment; realized/unrealized gain-loss; currency revaluation</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p class="meta-line"><strong>Business scenario:</strong> ABC Trading Ltd. opens a Chittagong branch and later a Singapore subsidiary; an inter-branch stock transfer and a USD invoice to the Singapore entity both need accounting treatment beyond a single-company, single-currency ledger.</p>
+                    <p class="meta-line"><strong>Diagram to build:</strong> a multi-entity structure diagram (Parent → Subsidiary → Branch → Cost Center) with intercompany transaction arrows and an elimination step at consolidation.</p>
+                    <div class="warning-box"><strong>⚠️ Common mistake:</strong> recording an intercompany invoice as if the counterparty were an ordinary external customer, so it never gets eliminated at consolidation and inflates group revenue.</div>
+                    <p class="connects-to"><strong>Connects to:</strong> Level 12 before it; Level 14 after it, where audit and reconciliation controls have to scale across every one of these entities.</p>
+                </section>
+
+                <!-- LEVEL 14 -->
+                <section id="level-14">
+                    <div class="level-head"><span class="level-num">LEVEL 14</span><h3>Accounting System Architecture</h3></div>
+                    <p class="level-objective">Formalize the audit trail, reconciliation discipline, and error-correction rules that keep a multi-entity ERP's books trustworthy.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Phase</th><th>Prerequisites</th><th>Topics covered</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Phase 29</strong><br>Audit Trail</td><td>Level 13</td><td>Who created/approved/posted/modified/cancelled/reversed a record; timestamp; old/new value; reason; reference document; approval history; why posted records are reversed, never deleted</td></tr>
+                            <tr><td><strong>Phase 30</strong><br>Reconciliation</td><td>Phase 29</td><td>AR, AP, bank, cash, inventory, subledger-vs-GL, tax, and intercompany reconciliation, each with source A, source B, expected vs actual, difference, investigation, adjustment, approval, resolution</td></tr>
+                            <tr><td><strong>Phase 31</strong><br>Error &amp; Correction Accounting</td><td>Phase 30</td><td>Wrong amount/account/customer/supplier/invoice/allocation; duplicate invoice/payment; missing transaction; incorrect tax/exchange rate/date; backdating — corrected via adjustment, reversal, credit note, debit note, or write-off, never a silent edit</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p class="meta-line"><strong>Business scenario:</strong> a posted ABC Trading Ltd. invoice is discovered to reference the wrong customer a week after posting — walked through as a reversal plus correct re-issue, with the audit log showing both the original entry and the fix.</p>
+                    <p class="meta-line"><strong>Diagram to build:</strong> a generic reconciliation diagram (Source A vs Source B → matched/unmatched → investigate → adjust → approve → resolved), reusable across all seven reconciliation types in Phase 30.</p>
+                    <div class="warning-box"><strong>⚠️ Common mistake:</strong> "fixing" a posted error by editing the historical journal entry in place, breaking every report and audit trail that already referenced it.</div>
+                    <p class="connects-to"><strong>Connects to:</strong> Level 13 before it; Level 15 after it stress-tests this architecture against real, messy scenarios.</p>
+                </section>
+
+                <!-- LEVEL 15 -->
+                <section id="level-15">
+                    <div class="level-head"><span class="level-num">LEVEL 15</span><h3>Advanced ERP Accounting (Capstone)</h3></div>
+                    <p class="level-objective">Bring every prior level together against the full catalogue of real-world scenarios and close out the running ABC Trading Ltd. case study.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Phase</th><th>Prerequisites</th><th>Topics covered</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Phase 32</strong><br>Advanced Real-World Scenarios</td><td>Level 14</td><td>Partial/multiple/over/under-payment, advance, unallocated payment, reversal, refund, credit/debit note, discount, write-off, bad debt, payment gateway &amp; fee, bank fee, cash short/over, foreign currency, many-to-many allocation, intercompany payment, tax and period-end adjustment — each with business situation, documents, sequence, DR/CR, AR/AP impact, GL impact, settlement impact, and audit impact</td></tr>
+                            <tr><td><strong>Phase 34</strong><br>Workflow &amp; Diagram Guidance</td><td>Phase 32</td><td>Which diagram type (flowchart, activity, sequence, ERD, accounting-flow, lifecycle, posting, allocation, reconciliation) fits which topic, and what actors/documents/decision points/entities each must show</td></tr>
+                            <tr><td><strong>Phase 35</strong><br>Complete Business Case</td><td>Phase 34</td><td>ABC Trading Ltd., followed end-to-end from its opening balance through every phase above — the single running thread tying the entire curriculum together</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p class="meta-line"><strong>Business scenario:</strong> this level introduces no new numbers — it is where every prior level's ABC Trading Ltd. entries are assembled into one continuous general ledger and closed into one final set of financial statements.</p>
+                    <p class="meta-line"><strong>Diagram to build:</strong> none new — the deliverable is the assembled diagram library from every prior level, indexed against the one company.</p>
+                    <div class="warning-box"><strong>⚠️ Common mistake:</strong> treating "advanced scenarios" as edge cases to bolt on later instead of designing the Level 10 data model — many-to-many allocation, derived balances, typed adjustments — so that every one of these scenarios already falls out of it for free. That is exactly the conclusion reached in the <a href="erp-invoice-payment-architecture.html#scenario-playbook">scenario playbook</a> of the published Invoice vs Payment article.</div>
+                    <p class="connects-to"><strong>Connects to:</strong> Level 14 before it; nothing after it — this is the capstone the entire 15-level roadmap builds toward.</p>
+                </section>
+
+                <section id="content-template">
+                    <h2>📝 The Article Content Template</h2>
+                    <p>Every individual topic in the roadmap above expands into its own article using the same 28-field template, so the series reads as one consistent body of work no matter which topic or level a reader lands on first. The fields aren't arbitrary — most of them exist specifically to force the <a href="#six-perspectives">six perspectives</a> onto the page.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Field</th><th>Purpose</th></tr></thead>
+                        <tbody>
+                            <tr><td>Topic Number / Name</td><td>Position in the roadmap and a precise, searchable title</td></tr>
+                            <tr><td>Difficulty / Category</td><td>Which of the 15 levels it belongs to, and its phase grouping</td></tr>
+                            <tr><td>Prerequisites</td><td>Exact topics a reader must already know — never assumed silently</td></tr>
+                            <tr><td>Learning Objective</td><td>The one capability the reader should have by the end</td></tr>
+                            <tr><td>Why This Topic Matters</td><td>The real-world cost of getting it wrong</td></tr>
+                            <tr><td>Core / Accounting / ERP Concepts</td><td>Vocabulary introduced, split by traditional-accounting vs ERP-system framing</td></tr>
+                            <tr><td>Business Scenario / Numerical Example</td><td>Grounded in the ABC Trading Ltd. case study wherever possible</td></tr>
+                            <tr><td>Debit/Credit Concepts</td><td>The journal entry(ies) the scenario produces</td></tr>
+                            <tr><td>Documents Involved</td><td>Which business documents the topic touches (invoice, PO, GRN, etc.)</td></tr>
+                            <tr><td>Accounting Flow / ERP Workflow</td><td>Business Event → Document → Accounting Event → Journal Entry → GL, and who performs each step</td></tr>
+                            <tr><td>AR/AP Relationship / GL Relationship</td><td>How the topic affects subledger balances and the control accounts above them</td></tr>
+                            <tr><td>Financial Statement Impact</td><td>Which statement line moves, and in which direction</td></tr>
+                            <tr><td>Database Relationship</td><td>Conceptual entities and cardinalities — never production code</td></tr>
+                            <tr><td>Required Diagram</td><td>Which diagram type this topic needs (see <a href="#level-15">Level 15</a>, Phase 34)</td></tr>
+                            <tr><td>Common Mistakes</td><td>The specific, concrete failure mode — not generic advice</td></tr>
+                            <tr><td>Real-World ERP Scenario</td><td>How the concept shows up in a live system, not just in theory</td></tr>
+                            <tr><td>SAP / Odoo Conceptual Reference</td><td>Mapped per the <a href="#sap-odoo">comparison table</a> below — never fabricated</td></tr>
+                            <tr><td>Advanced Extension</td><td>Where the topic goes if the reader wants to go deeper immediately</td></tr>
+                            <tr><td>Related / Next Recommended Topic</td><td>Explicit links forward and sideways in the roadmap</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="sap-odoo">
+                    <h2>⚖️ SAP vs Odoo: Concept vs Vocabulary</h2>
+                    <p>These mappings are <strong>conceptual</strong> starting points for a writer, not a claim that SAP and Odoo implement the underlying process identically — they don't. Before any article asserts specific menu paths, transaction codes, or module names, verify them against current official SAP and Odoo documentation; product UIs and terminology change across versions.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Universal accounting concept</th><th>SAP-style framing</th><th>Odoo-style framing</th></tr></thead>
+                        <tbody>
+                            <tr><td>Customer / Supplier</td><td>Business Partner roles (Customer / Vendor)</td><td>A single <em>Contact</em> record flagged as Customer and/or Vendor</td></tr>
+                            <tr><td>Chart of Accounts</td><td>Operating Chart of Accounts assigned to a company code</td><td>Chart of Accounts assigned per company</td></tr>
+                            <tr><td>Journal Entry</td><td>Accounting Document / FI posting</td><td>Journal Entry (<em>move</em>) made of journal items</td></tr>
+                            <tr><td>Payment Allocation</td><td>Clearing open items against a payment document</td><td>Reconciling a payment move against an invoice move</td></tr>
+                            <tr><td>Reconciliation</td><td>Account clearing / open-item management</td><td>Bank/account reconciliation on a journal</td></tr>
+                            <tr><td>Tax handling</td><td>Tax procedure / condition-based tax determination</td><td>Fiscal Position mapping taxes and accounts</td></tr>
+                            <tr><td>Bank/Cash recording</td><td>Bank accounting sub-module (house banks)</td><td>Bank and Cash Journals</td></tr>
+                            <tr><td>Accounting Period</td><td>Posting period, opened/closed per company code</td><td>Fiscal Year with lock dates</td></tr>
+                            <tr><td>Cost Center / Analytic Accounting</td><td>Controlling (CO) cost centers &amp; profit centers</td><td>Analytic Accounts &amp; Analytic Tags</td></tr>
+                            <tr><td>Asset Accounting</td><td>Asset Accounting (FI-AA) sub-ledger</td><td>Assets module with depreciation boards</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <div class="warning-box">
+                        <strong>⚠️ Verification instruction for the writing agent:</strong> whenever a future article states a specific SAP or Odoo feature, screen, or field name, cross-check it against the current official documentation before publishing. Do not fabricate transaction codes, menu paths, or version-specific behavior — where uncertain, describe the concept generically and flag the product-specific detail as "verify against current docs."
+                    </div>
+                </section>
+
+                <section id="editorial-rules">
+                    <h2>✅ Editorial Guidelines for This Series</h2>
+                    <div class="success-box">
+                        <ul style="margin-bottom:0;">
+                            <li>Every article must explicitly answer all <a href="#six-perspectives">six perspectives</a> — Accountant, ERP User, ERP Functional, Accounting, System Architecture, Audit — not just the debit/credit one.</li>
+                            <li>Explain the business event before the journal entry it produces — never the reverse.</li>
+                            <li>Always show both the debit and the credit; never state one side alone.</li>
+                            <li>Distinguish <strong>document status</strong> from <strong>accounting status</strong> in every lifecycle discussion.</li>
+                            <li>Distinguish <strong>payment received</strong> from <strong>payment allocated</strong> — the single most common modeling error in the whole curriculum.</li>
+                            <li>Distinguish <strong>subledger</strong> balances from the <strong>General Ledger</strong> control account they roll up into.</li>
+                            <li>Cover both AR and AP, both Sales and Purchase — never document one side and assume the mirror is obvious.</li>
+                            <li>Explain every concept from both the accounting user's perspective and the ERP system's perspective.</li>
+                            <li>Never recommend deleting a posted transaction — teach reversal and correction instead.</li>
+                            <li>Never present SAP or Odoo terminology as if it were the universal accounting concept itself.</li>
+                            <li>Increase technical depth gradually — an advanced topic without its prerequisites linked is an incomplete article.</li>
+                        </ul>
+                    </div>
+                    <p>Together with the <a href="#content-template">content template</a> above, these rules are what keep a 35-phase, hundreds-of-topics series readable as one coherent body of work rather than a pile of disconnected posts — the same standard the <a href="erp-invoice-payment-architecture.html">Invoice vs Payment</a> article was written to.</p>
+
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <a href="blog.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold">
+                            ← Back to Blog
+                        </a>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        ↑
+    </div>
+
+    <!-- Footer -->
+<footer class="footer" style="margin-top: 60px;">
+<div class="container">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <strong>Md. Mostasim Mahmud Tasim</strong>
+      <p>Software Engineer</p>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/tasim313" target="_blank">GitHub</a>
+      <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" target="_blank">LinkedIn</a>
+      <a href="mailto:tasim.swe@gmail.com">Email</a>
+    </div>
+  </div>
+  <p class="footer-copy">&copy; 2026 Md. Mostasim Mahmud Tasim. All rights reserved.</p>
+</div>
+</footer>
+<script src="js/main.js"></script>
+<script>
+    document.querySelectorAll('pre').forEach(pre => {
+        pre.addEventListener('click', function() {
+            const code = this.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalBg = this.style.backgroundColor;
+                this.style.backgroundColor = '#059669';
+                setTimeout(() => { this.style.backgroundColor = originalBg; }, 500);
+            });
+        });
+    });
+</script>
+</body>
+</html>
