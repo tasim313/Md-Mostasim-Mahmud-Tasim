@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoice vs Payment: The Complete ERP Accounting Architecture | Md. Mostasim Mahmud Tasim</title>
+<meta name="description" content="Why invoices and payments are never the same transaction in SAP, Odoo, and Dynamics-style ERPs: double-entry accounting, AR/AP, allocation, reconciliation, and a production-ready database schema.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* Article Specific Styles */
+.article-container { max-width: 800px; margin: 0 auto; padding: 0 24px; }
+.article-content { font-size: 1.0625rem; line-height: 1.8; color: var(--text-secondary); }
+.article-content h2 { font-size: 2rem; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); color: var(--text-primary); font-weight: 700; }
+.article-content h3 { font-size: 1.5rem; margin-top: 2.5rem; margin-bottom: 1rem; color: var(--text-primary); font-weight: 700; }
+.article-content h4 { font-size: 1.25rem; margin-top: 2rem; margin-bottom: 1rem; color: var(--text-primary); font-weight: 600; }
+.article-content p { margin-bottom: 1.5rem; }
+.article-content ul, .article-content ol { margin: 1.5rem 0; padding-left: 2rem; }
+.article-content li { margin-bottom: 0.5rem; }
+.article-content pre { background: #1a1a1a; color: #f8f8f2; padding: 1.5rem; border-radius: 8px; overflow-x: auto; margin: 1.5rem 0; font-family: 'Courier New', monospace; font-size: 0.875rem; line-height: 1.5; cursor: pointer; }
+.article-content code { background: var(--bg-alt); color: var(--text-primary); padding: 0.2rem 0.4rem; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.875rem; }
+.article-content pre code { background: transparent; color: inherit; padding: 0; }
+.article-content blockquote { border-left: 4px solid var(--accent); padding-left: 1.5rem; margin: 2rem 0; font-style: italic; color: var(--text-secondary); background: var(--bg-alt); padding: 1.5rem; border-radius: 0 8px 8px 0; }
+.article-content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9375rem; }
+.article-content th, .article-content td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; }
+.article-content th { background: var(--bg-alt); color: var(--text-primary); font-weight: 700; }
+.article-content table caption, .article-content .table-wrap { overflow-x: auto; }
+.info-box { background: var(--accent-subtle); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.warning-box { background: #fff7ed; border-left: 4px solid #f97316; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.success-box { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.table-of-contents { background: var(--bg-alt); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 12px 12px 0; }
+.table-of-contents ul { list-style: none; padding-left: 0; }
+.table-of-contents li { margin-bottom: 0.75rem; padding-left: 1.5rem; position: relative; }
+.table-of-contents li:before { content: "→"; position: absolute; left: 0; color: var(--accent); }
+.table-of-contents a { color: var(--accent); text-decoration: none; font-weight: 500; }
+.table-of-contents a:hover { text-decoration: underline; }
+header h1 { font-size: 2.5rem; font-weight: 800; color: var(--text-primary); line-height: 1.2; margin-bottom: 1.5rem; margin-top: 2rem; }
+header .category-badge { display: inline-block; background: var(--accent-subtle); color: var(--accent); padding: 6px 16px; border-radius: 20px; font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.reading-time { font-size: 0.875rem; color: var(--text-tertiary); font-weight: 500; }
+header p.text-center { text-align: center; margin-bottom: 1rem; color: var(--text-secondary); }
+
+/* Flow diagram (horizontal steps) */
+.diagram-scroll { overflow-x: auto; margin: 2rem 0; padding-bottom: 4px; }
+.flow-diagram { display: flex; align-items: stretch; gap: 0; min-width: min-content; }
+.flow-step { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); text-align: center; min-width: 128px; display: flex; flex-direction: column; justify-content: center; }
+.flow-step small { display: block; font-weight: 400; color: var(--text-tertiary); font-size: 0.6875rem; margin-top: 6px; line-height: 1.4; }
+.flow-arrow { display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 1.25rem; flex: 0 0 auto; padding: 0 10px; }
+
+/* Relationship / ER diagram */
+.rel-diagram { margin: 2rem 0; }
+.rel-layer { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+.rel-connector { display: flex; justify-content: center; align-items: center; gap: 48px; padding: 10px 0; color: var(--accent); font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; text-align: center; }
+.rel-connector .arrow { font-size: 1.1rem; display: block; }
+.rel-entity { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 10px; min-width: 190px; max-width: 240px; overflow: hidden; flex: 1 1 200px; }
+.rel-entity h4 { margin: 0; padding: 10px 14px; background: var(--accent-subtle); color: var(--accent); font-size: 0.8125rem; font-weight: 700; border-bottom: 1px solid var(--border); }
+.rel-entity .rel-fields { list-style: none; margin: 0; padding: 10px 14px 4px; font-size: 0.6875rem; font-family: 'Courier New', monospace; color: var(--text-tertiary); }
+.rel-entity .rel-fields li { margin-bottom: 3px; }
+.rel-links { padding: 8px 14px 14px; display: flex; flex-wrap: wrap; gap: 6px; }
+.rel-link-tag { font-size: 0.625rem; font-weight: 600; background: var(--bg-alt); color: var(--text-secondary); border: 1px solid var(--border); padding: 3px 8px; border-radius: 12px; white-space: nowrap; }
+
+/* Activity / swimlane diagram */
+.activity-grid { display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 10px 14px; min-width: 680px; }
+.activity-grid .lane-head { background: var(--bg-alt); border: 1px solid var(--border); border-radius: 8px; padding: 8px; text-align: center; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--accent); }
+.step-card { background: var(--bg-elevated); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 8px; padding: 10px 12px; font-size: 0.75rem; line-height: 1.5; color: var(--text-primary); }
+.step-card .step-num { display: inline-flex; align-items: center; justify-content: center; background: var(--accent); color: #fff; font-size: 0.625rem; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; margin-right: 6px; flex-shrink: 0; }
+.step-card .handoff-tag { display: block; margin-top: 6px; font-size: 0.625rem; font-weight: 600; color: var(--accent); }
+
+/* Decision flowchart */
+.decision-flow { display: flex; flex-direction: column; align-items: center; margin: 2rem 0; }
+.decision-node { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); text-align: center; max-width: 340px; }
+.decision-flow .flow-arrow-down { color: var(--accent); font-size: 1.25rem; padding: 4px 0; }
+.decision-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.decision-diamond { width: 132px; height: 132px; background: var(--accent-subtle); border: 2px solid var(--accent); transform: rotate(45deg); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.decision-diamond span { transform: rotate(-45deg); font-size: 0.75rem; font-weight: 700; text-align: center; color: var(--text-primary); padding: 10px; line-height: 1.3; }
+.decision-branch-note { background: var(--bg-alt); border: 1px dashed var(--border); border-radius: 8px; padding: 10px 14px; font-size: 0.75rem; color: var(--text-secondary); max-width: 260px; }
+.decision-branch-note strong { color: var(--accent); }
+.decision-end { background: var(--accent); color: #fff; border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 700; text-align: center; max-width: 340px; }
+</style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="nav" role="navigation">
+<div class="nav-inner">
+  <a href="index.html" class="nav-brand">Mostasim Mahmud Tasim</a>
+  <ul class="nav-links">
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="index.html#experience">Experience</a></li>
+    <li><a href="index.html#capabilities">Engineering</a></li>
+    <li><a href="index.html#projects">Projects</a></li>
+    <li><a href="index.html#infrastructure">Infrastructure</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="https://github.com/tasim313" class="nav-ext" target="_blank"><i class="fa-brands fa-github"></i></a>
+    <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" class="nav-ext" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+    <button class="theme-toggle" id="themeToggle"><svg id="sunIcon" style="display:none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg><svg id="moonIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg></button>
+    <button class="mobile-toggle" id="mobileToggle"><span></span><span></span><span></span></button>
+  </div>
+</div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html#about">About</a>
+  <a href="index.html#experience">Experience</a>
+  <a href="index.html#capabilities">Engineering</a>
+  <a href="index.html#projects">Projects</a>
+  <a href="index.html#infrastructure">Infrastructure</a>
+  <a href="blog.html">Blog</a>
+  <a href="index.html#contact">Contact</a>
+</div>
+
+    <!-- Article Header -->
+    <header class="pt-12 pb-8">
+        <div class="article-container">
+            <div class="text-center mb-8">
+                <span class="category-badge">ERP Accounting Architecture</span>
+                <span class="reading-time ml-4">📖 28 min read</span>
+            </div>
+
+            <h1>Invoice vs Payment: The Complete ERP Accounting Architecture</h1>
+
+            <div class="text-center text-gray-600 mb-8">
+                <p class="text-sm">Published: <span class="font-semibold">Aug 27, 2026</span></p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Article Content -->
+    <main class="pb-16">
+        <div class="article-container">
+            <!-- Table of Contents -->
+            <div class="table-of-contents fade-in">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">📋 Table of Contents</h3>
+                <ul class="space-y-2">
+                    <li><a href="#core-concept">The Core Concept: Invoice = Obligation, Payment = Settlement</a></li>
+                    <li><a href="#relationship-diagram">How It Works: The Entity Relationship Map</a></li>
+                    <li><a href="#sales-flow">Sales Flow: Order → Delivery → Invoice → Payment</a></li>
+                    <li><a href="#purchase-flow">Purchase Flow: PO → Receipt → Vendor Bill → Payment</a></li>
+                    <li><a href="#activity-diagram">Activity Diagram: The Invoice-to-Cash Swimlane</a></li>
+                    <li><a href="#ar-ap">Accounts Receivable &amp; Accounts Payable</a></li>
+                    <li><a href="#double-entry">Double-Entry Accounting Fundamentals</a></li>
+                    <li><a href="#journal-entries">Journal Entries &amp; the General Ledger</a></li>
+                    <li><a href="#allocation">Payment Allocation: Many-to-Many by Design</a></li>
+                    <li><a href="#reconciliation">Reconciliation</a></li>
+                    <li><a href="#lifecycle">Invoice &amp; Payment Lifecycle</a></li>
+                    <li><a href="#status-matrix">The Multi-Dimensional Status Model</a></li>
+                    <li><a href="#decision-flowchart">Flowchart: The Settlement Decision Logic</a></li>
+                    <li><a href="#edge-cases">Credit Notes, Refunds, Overpayments &amp; Advances</a></li>
+                    <li><a href="#scenario-playbook">Scenario Playbook: A ৳1,000 Invoice Under 40+ Conditions</a></li>
+                    <li><a href="#three-way-matching">Three-Way Matching</a></li>
+                    <li><a href="#audit-trail">Audit Trail: Why You Never Delete Posted Documents</a></li>
+                    <li><a href="#schema">Recommended Database Schema (Django/PostgreSQL)</a></li>
+                    <li><a href="#chart-of-accounts">Chart of Accounts &amp; Control Accounts</a></li>
+                    <li><a href="#best-practices">Best Practices Checklist</a></li>
+                </ul>
+            </div>
+
+            <!-- Article Content -->
+            <article class="article-content fade-in">
+
+                <section id="core-concept">
+                    <h2>📌 The Core Concept: Invoice = Obligation, Payment = Settlement</h2>
+                    <p>In ERP systems such as SAP, Odoo, Microsoft Dynamics, and any serious custom-built ERP, <strong>Invoice and Payment are related but they are never the same transaction</strong>. An invoice creates a <strong>financial obligation</strong>. A payment <strong>settles that obligation</strong>. Conflating the two is one of the most common design mistakes when building an ERP or POS from scratch.</p>
+                    <p>A simple business transaction unfolds like this:</p>
+                    <pre><code>Customer buys goods → Sale happens → Invoice is created
+→ Customer owes money → Customer pays → Payment is recorded
+→ Invoice becomes paid
+
+Sale/Order → Invoice → Receivable → Payment → Reconciliation → Invoice Paid</code></pre>
+                    <p>For a supplier, the mirror image applies: <code>Purchase/Order → Vendor Bill → Payable → Payment → Reconciliation → Bill Paid</code>.</p>
+
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Concept</th><th>Invoice</th><th>Payment</th></tr></thead>
+                        <tbody>
+                            <tr><td>Meaning</td><td>Money that is owed</td><td>Money that has actually moved</td></tr>
+                            <tr><td>Creates obligation?</td><td>Yes</td><td>No</td></tr>
+                            <tr><td>Customer side</td><td>Accounts Receivable</td><td>Receives money</td></tr>
+                            <tr><td>Supplier side</td><td>Accounts Payable</td><td>Pays money</td></tr>
+                            <tr><td>Can exist without the other?</td><td>Yes</td><td>Yes</td></tr>
+                            <tr><td>Changes outstanding balance?</td><td>Creates balance</td><td>Reduces balance</td></tr>
+                            <tr><td>Status values</td><td>Draft, Posted, Partially Paid, Paid, Cancelled</td><td>Pending, Posted, Reconciled, Cancelled</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>💡 The one-line rule:</strong> An ERP should never think <code>Invoice → Payment</code> directly. It should think <code>Business Transaction → Document → Accounting Document → Receivable/Payable → Payment → Reconciliation</code>.
+                    </div>
+                </section>
+
+                <section id="relationship-diagram">
+                    <h2>🗺️ How It Works: The Entity Relationship Map</h2>
+                    <p>Before any workflow or flowchart makes sense, the underlying <strong>relationships</strong> have to be right. The single biggest mistake is wiring <code>Invoice</code> and <code>Payment</code> together with a direct foreign key. In a real ERP, nothing connects to a payment directly — everything passes through an <strong>allocation</strong> record, and every posted document mirrors itself into a <strong>journal entry</strong>. The map below shows the actual shape of the data for the customer/sales side (the supplier/purchase side is the exact mirror image, with <code>Supplier</code>, <code>VendorBill</code> and <code>Accounts Payable</code> in place of <code>Customer</code>, <code>Invoice</code> and <code>Accounts Receivable</code>).</p>
+
+                    <div class="rel-diagram">
+                        <div class="rel-layer">
+                            <div class="rel-entity">
+                                <h4>Customer</h4>
+                                <ul class="rel-fields">
+                                    <li>id</li><li>name</li><li>credit_terms</li><li>credit_limit</li>
+                                </ul>
+                                <div class="rel-links">
+                                    <span class="rel-link-tag">1 → N Invoice</span>
+                                    <span class="rel-link-tag">1 → N Payment</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rel-connector"><span class="arrow">↓ ↓</span>creates (1 : N)</div>
+                        <div class="rel-layer">
+                            <div class="rel-entity">
+                                <h4>Invoice</h4>
+                                <ul class="rel-fields">
+                                    <li>id, number, total</li><li>status, due_date</li>
+                                </ul>
+                                <div class="rel-links">
+                                    <span class="rel-link-tag">N → 1 Customer</span>
+                                    <span class="rel-link-tag">1 → N InvoiceLine</span>
+                                    <span class="rel-link-tag">1 → 1 JournalEntry</span>
+                                </div>
+                            </div>
+                            <div class="rel-entity">
+                                <h4>Payment</h4>
+                                <ul class="rel-fields">
+                                    <li>id, amount, method</li><li>status, reference</li>
+                                </ul>
+                                <div class="rel-links">
+                                    <span class="rel-link-tag">N → 1 Customer</span>
+                                    <span class="rel-link-tag">1 → 1 JournalEntry</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rel-connector"><span class="arrow">↓ ↓</span>N : M — resolved through</div>
+                        <div class="rel-layer">
+                            <div class="rel-entity">
+                                <h4>PaymentAllocation</h4>
+                                <ul class="rel-fields">
+                                    <li>invoice_id (FK)</li><li>payment_id (FK)</li><li>allocated_amount</li>
+                                </ul>
+                                <div class="rel-links">
+                                    <span class="rel-link-tag">N → 1 Invoice</span>
+                                    <span class="rel-link-tag">N → 1 Payment</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rel-connector"><span class="arrow">↓</span>settles → derives</div>
+                        <div class="rel-layer">
+                            <div class="rel-entity">
+                                <h4>Reconciliation</h4>
+                                <ul class="rel-fields">
+                                    <li>ar_debit_je_id</li><li>ar_credit_je_id</li>
+                                </ul>
+                                <div class="rel-links">
+                                    <span class="rel-link-tag">outstanding = Σ debits − Σ credits</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rel-connector"><span class="arrow">↓</span>posts to</div>
+                        <div class="rel-layer">
+                            <div class="rel-entity">
+                                <h4>General Ledger</h4>
+                                <ul class="rel-fields">
+                                    <li>account_id</li><li>debit / credit</li>
+                                </ul>
+                                <div class="rel-links">
+                                    <span class="rel-link-tag">AR control = Σ customer balances</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>💡 Basic concept:</strong> An <code>Invoice</code> is a record of an <em>obligation</em>; a <code>Payment</code> is a record of <em>money movement</em>. Neither one "contains" the other — they are two independent facts joined by a third record, <code>PaymentAllocation</code>, which is the only place the ERP is allowed to say "this much of that payment settles this much of that invoice."<br><br>
+                        <strong>🧠 Main concept:</strong> Every balance you display to a user — outstanding amount, PAID/PARTIAL status, customer statement — is <em>derived</em> at read time from the chain <code>Invoice → PaymentAllocation → Reconciliation → GL</code>. Nothing is hard-coded as a single mutable field that different modules race to update.
+                    </div>
+                </section>
+
+                <section id="sales-flow">
+                    <h2>🛒 Sales Flow: Order → Delivery → Invoice → Payment</h2>
+                    <p>Sales is the commercial side of the transaction — it answers <em>what did we sell, to whom, and on what terms</em>. Not every ERP needs every step; a simple POS can collapse straight to <code>Sale → Invoice → Payment</code>, while an enterprise flow keeps every stage distinct and auditable.</p>
+
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Quotation<small>commercial offer, no financial impact</small></div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">Sales Order<small>commitment — NOT yet a receivable</small></div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">Delivery<small>stock −, COGS may post</small></div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">Invoice<small>obligation created — AR +</small></div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">Payment<small>money received</small></div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">Allocation<small>payment ↔ invoice link</small></div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">Reconciled<small>AR − , Invoice = PAID</small></div>
+                        </div>
+                    </div>
+
+                    <p>Worked example — a customer buys ৳10,000 of goods on credit:</p>
+                    <pre><code>Invoice INV-00001
+Subtotal      ৳9,000
+VAT           ৳1,000
+---------------------
+Total        ৳10,000
+
+Journal Entry:
+  DR Accounts Receivable    10,000
+      CR Sales Revenue                9,000
+      CR VAT Payable                  1,000
+
+Customer pays ৳4,000 (partial):
+  DR Cash                    4,000
+      CR Accounts Receivable          4,000
+
+Outstanding = 10,000 - 4,000 = 6,000  →  status: PARTIALLY PAID
+
+Customer pays remaining ৳6,000:
+  DR Cash                    6,000
+      CR Accounts Receivable          6,000
+
+Outstanding = 0  →  status: PAID</code></pre>
+                    <div class="warning-box">
+                        <strong>⚠️ Order ≠ Invoice ≠ Payment.</strong> An Order is a commitment ("I want to buy"). An Invoice is an obligation ("you owe me money"). A Payment is a settlement ("money has been received"). Treating a Sales Order as if it already creates a receivable is a common and costly modeling bug.
+                    </div>
+                </section>
+
+                <section id="purchase-flow">
+                    <h2>📦 Purchase Flow: PO → Receipt → Vendor Bill → Payment</h2>
+                    <p>The purchase side mirrors sales exactly, but from the supplier's perspective:</p>
+
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Purchase Request<small>internal need identified</small></div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">Purchase Order<small>commitment — NOT yet payable</small></div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">Goods Receipt<small>stock +, GRNI accrues</small></div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">Vendor Bill<small>obligation created — AP +</small></div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">Payment<small>money paid</small></div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">Allocation<small>payment ↔ bill link</small></div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">Reconciled<small>AP − , Bill = PAID</small></div>
+                        </div>
+                    </div>
+
+                    <p>Because goods receipt and vendor billing can arrive at different times, mature ERPs also track <strong>Goods Received Not Invoiced (GRNI)</strong> as an accrued liability until the vendor bill lands.</p>
+                    <pre><code>Vendor Bill
+Goods       ৳100,000
+VAT          ৳15,000
+---------------------
+Total       ৳115,000
+
+  DR Inventory / Expense    100,000
+  DR Input VAT               15,000
+      CR Accounts Payable            115,000
+
+Payment 1 = ৳80,000
+Payment 2 = ৳35,000
+------------------------
+Outstanding = 0  →  status: PAID</code></pre>
+                </section>
+
+                <section id="activity-diagram">
+                    <h2>🏊 Activity Diagram: The Invoice-to-Cash Swimlane</h2>
+                    <p>A flow diagram shows <em>what</em> happens to the documents. An activity diagram shows <em>who</em> does each step and where responsibility hands off between actors — the Customer, Sales, Accounting, and Finance. Read the numbered cards left-to-right, top-to-bottom; each <strong>handoff tag</strong> is where the process crosses into the next lane.</p>
+
+                    <div class="diagram-scroll">
+                        <div class="activity-grid">
+                            <div class="lane-head">Customer</div>
+                            <div class="lane-head">Sales</div>
+                            <div class="lane-head">Accounting</div>
+                            <div class="lane-head">Finance</div>
+
+                            <div class="step-card" style="grid-column:1; grid-row:2;"><span class="step-num">1</span>Places a Sales Order<span class="handoff-tag">↷ hands off to Sales</span></div>
+
+                            <div class="step-card" style="grid-column:2; grid-row:3;"><span class="step-num">2</span>Confirms order, arranges delivery<span class="handoff-tag">↷ hands off to Sales</span></div>
+
+                            <div class="step-card" style="grid-column:2; grid-row:4;"><span class="step-num">3</span>Creates &amp; posts the Invoice<span class="handoff-tag">↷ hands off to Accounting</span></div>
+
+                            <div class="step-card" style="grid-column:3; grid-row:5;"><span class="step-num">4</span>Posts AR journal entry<br><small style="color:var(--text-tertiary)">DR Accounts Receivable / CR Revenue</small><span class="handoff-tag">✓ AR created</span></div>
+
+                            <div class="step-card" style="grid-column:1; grid-row:6;"><span class="step-num">5</span>Makes a payment (cash / bank / gateway)<span class="handoff-tag">↷ hands off to Finance</span></div>
+
+                            <div class="step-card" style="grid-column:4; grid-row:7;"><span class="step-num">6</span>Receives &amp; posts the payment<br><small style="color:var(--text-tertiary)">DR Cash/Bank / CR AR (pre-allocation)</small><span class="handoff-tag">↷ hands off to Accounting</span></div>
+
+                            <div class="step-card" style="grid-column:3; grid-row:8;"><span class="step-num">7</span>Allocates payment to invoice &amp; reconciles AR<span class="handoff-tag">✓ AR = 0</span></div>
+
+                            <div class="step-card" style="grid-column:1; grid-row:9;"><span class="step-num">8</span>Sees invoice status = PAID on their statement</div>
+                        </div>
+                    </div>
+                    <p style="margin-top:1.5rem;">Notice that <strong>Accounting</strong> touches the process twice — once to record the obligation (step 4) and once to record the settlement (step 7) — and that neither touch is triggered by the other directly. Each is triggered by its own upstream document (the Invoice, then the Payment), which is exactly why the two must stay independent tables joined by an allocation record, as shown in the <a href="#relationship-diagram">relationship map</a> above.</p>
+                </section>
+
+                <section id="ar-ap">
+                    <h2>💳 Accounts Receivable &amp; Accounts Payable</h2>
+                    <p><strong>AR</strong> is money customers owe your company. <strong>AP</strong> is money your company owes suppliers. Neither is simply a flag on the <code>invoice</code> table — each is effectively a <strong>subledger</strong>: a running balance per business partner, derived from every invoice, credit note, and payment posted against them.</p>
+                    <pre><code>Customer A statement
+Opening Balance          ৳0
++ Invoice 1          ৳100,000
++ Invoice 2           ৳50,000
+- Payment             ৳80,000
+-----------------------------
+Closing Balance        ৳70,000</code></pre>
+                    <p>The AR subledger total must always reconcile with the AR <strong>control account</strong> in the General Ledger:</p>
+                    <pre><code>SUM(all customer balances)  =  GL "Accounts Receivable" balance
+SUM(all supplier balances)  =  GL "Accounts Payable" balance</code></pre>
+                </section>
+
+                <section id="double-entry">
+                    <h2>⚖️ Double-Entry Accounting Fundamentals</h2>
+                    <p>Every financial event must have equal total debits and credits. This single invariant is what keeps an ERP's books internally consistent no matter how many modules write to them.</p>
+                    <pre><code>Assets = Liabilities + Equity + Revenue - Expenses</code></pre>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Account type</th><th>Increase</th><th>Decrease</th></tr></thead>
+                        <tbody>
+                            <tr><td>Asset</td><td>Debit</td><td>Credit</td></tr>
+                            <tr><td>Expense</td><td>Debit</td><td>Credit</td></tr>
+                            <tr><td>Liability</td><td>Credit</td><td>Debit</td></tr>
+                            <tr><td>Equity</td><td>Credit</td><td>Debit</td></tr>
+                            <tr><td>Revenue</td><td>Credit</td><td>Debit</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>"Debit = increase, credit = decrease" is a common misconception — it depends entirely on the account type, as the table above shows. A few canonical entries:</p>
+                    <pre><code># Sale on credit
+DR Accounts Receivable
+    CR Sales Revenue
+
+# Cash received against an invoice
+DR Cash
+    CR Accounts Receivable
+
+# Pay a supplier
+DR Accounts Payable
+    CR Bank</code></pre>
+                    <div class="warning-box">
+                        <strong>⚠️ Payment never re-creates revenue.</strong> Revenue is recognized once, when the invoice posts. A payment only moves value from Accounts Receivable to Bank/Cash — recording it as revenue again double-counts the sale.
+                    </div>
+                </section>
+
+                <section id="journal-entries">
+                    <h2>📒 Journal Entries &amp; the General Ledger</h2>
+                    <p>Every financial event should ultimately become a journal entry — the accounting truth behind the business document.</p>
+                    <pre><code>JE-2026-000001
+Date: 27-Aug-2026          Reference: INV-2026-001
+
+Account                       Debit       Credit
+--------------------------------------------------
+Accounts Receivable          55,000
+Sales Revenue                             50,000
+VAT Payable                                5,000
+--------------------------------------------------
+TOTAL                        55,000       55,000</code></pre>
+                    <p>A clean schema separates the journal entry header from its lines, because one entry always has two or more balanced lines:</p>
+                    <pre><code>journal_entry
+--------------------------
+id
+date
+reference
+source_type      -- e.g. "invoice", "payment", "credit_note"
+source_id
+description
+status
+posted_at
+
+journal_entry_line
+--------------------------
+id
+journal_entry_id  (FK)
+account_id         (FK -> chart of accounts)
+debit
+credit
+partner_id
+currency
+exchange_rate</code></pre>
+                    <p>The <strong>General Ledger</strong> is simply the aggregation of every posted journal entry line, grouped by account:</p>
+                    <pre><code>Business Document (Invoice / Payment / Bill)
+        ↓
+Accounting Event
+        ↓
+Journal Entry (balanced: total debit = total credit)
+        ↓
+General Ledger</code></pre>
+                </section>
+
+                <section id="allocation">
+                    <h2>🔗 Payment Allocation: Many-to-Many by Design</h2>
+                    <p>This is the concept most custom ERPs get wrong first. Don't model <code>invoice.payment_id</code> as a one-to-one link — in reality, <strong>one invoice can be settled by many payments</strong>, and <strong>one payment can settle many invoices</strong>.</p>
+                    <pre><code>Invoice INV-001                    Payment PAY-1001
+Total = ৳100,000                   Amount = ৳100,000
+                                           │
+├── Payment 1 = ৳30,000                    ├── Invoice A → ৳40,000
+├── Payment 2 = ৳20,000                    ├── Invoice B → ৳35,000
+└── Payment 3 = ৳50,000                    └── Invoice C → ৳25,000
+
+Total Paid = ৳100,000               (Payment applied across 3 invoices)
+Balance = ৳0</code></pre>
+                    <p>The relationship <code>Invoice ←→ Payment</code> is therefore <strong>many-to-many</strong>, resolved through an allocation table:</p>
+                    <pre><code>payment
+----------------
+id
+customer_id
+payment_date
+amount
+payment_method
+bank_account_id
+reference
+status
+
+payment_allocation
+------------------
+id
+payment_id     (FK)
+invoice_id     (FK)
+allocated_amount
+allocation_date</code></pre>
+                    <p>If a payment isn't fully allocated — say a customer pays ৳100,000 against ৳90,000 of open invoices — the remaining ৳10,000 becomes an <strong>on-account credit balance</strong> rather than being force-fit onto an invoice it doesn't belong to.</p>
+                </section>
+
+                <section id="reconciliation">
+                    <h2>🧮 Reconciliation</h2>
+                    <p>Allocation and reconciliation are related but distinct. <strong>Allocation</strong> answers <em>how much of this payment applies to this invoice?</em> <strong>Reconciliation</strong> answers <em>which AR journal entries offset each other?</em></p>
+                    <pre><code>Invoice Journal Entry:   AR  +100,000
+Payment Journal Entry:   AR  -100,000
+                              ────────
+Reconciled AR balance:          0     →  Invoice = PAID</code></pre>
+                    <p>Partial reconciliation works the same way, just leaving a remainder:</p>
+                    <pre><code>AR Debit  (invoice)     100,000
+AR Credit (payment)      40,000
+-------------------------------
+Remaining outstanding    60,000   →  status: PARTIALLY PAID</code></pre>
+                </section>
+
+                <section id="lifecycle">
+                    <h2>🔄 Invoice &amp; Payment Lifecycle</h2>
+                    <p>A professional ERP derives status from a controlled state machine rather than letting any code path set <code>status</code> freely.</p>
+                    <pre><code>Invoice lifecycle                    Payment lifecycle
+
+DRAFT                                 Created
+  ↓                                     ↓
+CONFIRMED                             Pending
+  ↓                                     ↓
+POSTED  ──► JOURNAL ENTRY             Posted
+  ↓                                     ↓
+OUTSTANDING                           Allocated
+  ↓ (payment received)                  ↓
+PARTIALLY PAID                        Reconciled
+  ↓ (fully allocated)
+PAID</code></pre>
+                    <p>The outstanding balance is always <em>derived</em>, never stored as a naive flag:</p>
+                    <pre><code>Outstanding Balance =
+      Invoice Total
+    - Credit Notes
+    - Allocated Payments
+    + Debit Adjustments
+
+Outstanding = 0  →  PAID</code></pre>
+                </section>
+
+                <section id="status-matrix">
+                    <h2>🎛️ The Multi-Dimensional Status Model</h2>
+                    <p>A common mistake is cramming everything into one <code>invoice.status</code> field. In practice an invoice has <strong>four independent dimensions</strong> — whether the document itself is finalized, how much of it is settled, whether it's overdue, and (separately) where the payment that's settling it stands. Mixing them together produces states like <code>"overdue_partial_cancelled"</code> that are impossible to query cleanly.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Dimension</th><th>Applies to</th><th>Possible values</th><th>What it answers</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Document status</strong></td><td>Invoice / Bill</td><td>DRAFT, CONFIRMED, POSTED, CANCELLED, REVERSED</td><td>Is the document itself finalized and posted to the ledger?</td></tr>
+                            <tr><td><strong>Settlement status</strong></td><td>Invoice / Bill</td><td>UNPAID, PARTIALLY_PAID, PAID, OVERPAID, WRITTEN_OFF, CREDITED</td><td>How much of the obligation has actually been cleared?</td></tr>
+                            <tr><td><strong>Due status</strong></td><td>Invoice / Bill</td><td>NOT_DUE, DUE_TODAY, OVERDUE</td><td>Has the payment-term deadline passed?</td></tr>
+                            <tr><td><strong>Payment status</strong></td><td>Payment</td><td>DRAFT, PENDING, POSTED, PARTIALLY_ALLOCATED, FULLY_ALLOCATED, REVERSED, CANCELLED, FAILED</td><td>Where does the payment itself stand, independent of which invoice(s) it touches?</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <div class="info-box">
+                        <strong>💡 Why it matters:</strong> a real invoice can be <code>POSTED</code> + <code>PARTIALLY_PAID</code> + <code>OVERDUE</code> all at once — three true facts, three separate columns (or derived properties), each independently queryable for reporting, dunning, and aging without regex-parsing a single mashed-together string.
+                    </div>
+                </section>
+
+                <section id="decision-flowchart">
+                    <h2>🔀 Flowchart: The Settlement Decision Logic</h2>
+                    <p>This is the actual decision tree an ERP runs every time a payment is recorded against an invoice — the logic behind the <a href="#lifecycle">lifecycle</a> and the <a href="#status-matrix">status model</a> above, made explicit.</p>
+
+                    <div class="decision-flow">
+                        <div class="decision-node">Invoice Posted<br><small style="font-weight:400;color:var(--text-tertiary);">AR + Invoice Total</small></div>
+                        <div class="flow-arrow-down">↓</div>
+
+                        <div class="decision-row">
+                            <div class="decision-diamond"><span>Payment received?</span></div>
+                            <div class="decision-branch-note"><strong>No →</strong> stays OUTSTANDING. If due_date has passed, also flag OVERDUE (an independent dimension — see the status model).</div>
+                        </div>
+                        <div class="flow-arrow-down">↓ Yes</div>
+
+                        <div class="decision-node">Record Payment<br><small style="font-weight:400;color:var(--text-tertiary);">create PaymentAllocation against the invoice</small></div>
+                        <div class="flow-arrow-down">↓</div>
+
+                        <div class="decision-row">
+                            <div class="decision-diamond"><span>Allocated &lt; Outstanding?</span></div>
+                            <div class="decision-branch-note"><strong>Yes →</strong> Settlement status = PARTIALLY_PAID. AR reduced by the allocated amount; remainder stays open for the next payment.</div>
+                        </div>
+                        <div class="flow-arrow-down">↓ No</div>
+
+                        <div class="decision-row">
+                            <div class="decision-diamond"><span>Allocated &gt; Outstanding?</span></div>
+                            <div class="decision-branch-note"><strong>Yes →</strong> Overpayment. Allocate only up to the outstanding balance; park the excess as a Customer Credit / on-account balance.</div>
+                        </div>
+                        <div class="flow-arrow-down">↓ No (exactly equal)</div>
+
+                        <div class="decision-end">Outstanding = 0 → Settlement status = PAID<br>Reconciliation posted to the General Ledger</div>
+                    </div>
+                </section>
+
+                <section id="edge-cases">
+                    <h2>🧾 Credit Notes, Refunds, Overpayments &amp; Advances</h2>
+                    <h3>Credit note</h3>
+                    <p>Never edit a posted invoice to reflect a return. Issue a credit note instead, preserving the audit trail:</p>
+                    <pre><code>Original Invoice       ৳100,000
+Credit Note              -৳20,000
+----------------------------------
+Net Receivable            ৳80,000</code></pre>
+                    <h3>Refund</h3>
+                    <p>Different from a credit note — the ERP should preserve all three transactions rather than netting them away:</p>
+                    <pre><code>Invoice        ৳100,000
+Paid           ৳100,000
+Refund          -৳20,000
+--------------------------
+Net received     ৳80,000</code></pre>
+                    <h3>Overpayment</h3>
+                    <pre><code>Invoice  = ৳10,000
+Payment  = ৳15,000
+
+Allocation to invoice = ৳10,000  →  invoice PAID
+Unallocated           =  ৳5,000  →  customer on-account credit</code></pre>
+                    <h3>Advance payment</h3>
+                    <p>Customers can pay before an invoice even exists — the advance becomes a credit that later invoices draw down:</p>
+                    <pre><code>Advance payment          ৳50,000  →  Customer Credit
+Later invoice             ৳80,000
+Applied from advance     -৳50,000
+--------------------------------------
+Outstanding remaining     ৳30,000</code></pre>
+                </section>
+
+                <section id="scenario-playbook">
+                    <h2>🧪 Scenario Playbook: A ৳1,000 Invoice Under 40+ Conditions</h2>
+                    <p>The formula from the <a href="#lifecycle">lifecycle</a> section — <code>Outstanding = Invoice Total − Credits/Adjustments − Allocated Payments + Debit Adjustments</code> — has to survive every real condition a customer, cashier, or bank can throw at it. Below is a single ৳1,000 invoice run through the full range of scenarios an ERP must handle correctly. The same logic mirrors exactly onto the AP/supplier side.</p>
+
+                    <h3>1. Partial payment progression</h3>
+                    <p>The core case: any amount between ৳0 and ৳1,000 leaves the invoice <code>PARTIALLY_PAID</code> — there is no special threshold at 25%, 50%, or 90%. Only <code>Outstanding = 0</code> flips it to <code>PAID</code>.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Paid</th><th>% of invoice</th><th>Outstanding</th><th>Settlement status</th></tr></thead>
+                        <tbody>
+                            <tr><td>৳0</td><td>0%</td><td>৳1,000</td><td>UNPAID</td></tr>
+                            <tr><td>৳10</td><td>1%</td><td>৳990</td><td>PARTIALLY_PAID</td></tr>
+                            <tr><td>৳100</td><td>10%</td><td>৳900</td><td>PARTIALLY_PAID</td></tr>
+                            <tr><td>৳250</td><td>25%</td><td>৳750</td><td>PARTIALLY_PAID</td></tr>
+                            <tr><td>৳500</td><td>50%</td><td>৳500</td><td>PARTIALLY_PAID</td></tr>
+                            <tr><td>৳900</td><td>90%</td><td>৳100</td><td>PARTIALLY_PAID</td></tr>
+                            <tr><td>৳999</td><td>99.9%</td><td>৳1</td><td>PARTIALLY_PAID</td></tr>
+                            <tr><td>৳1,000</td><td>100%</td><td>৳0</td><td><strong>PAID</strong></td></tr>
+                            <tr><td>৳1,200</td><td>120%</td><td>৳0</td><td><strong>PAID</strong> + ৳200 customer credit</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+
+                    <h3>2. Many payments settling one invoice</h3>
+                    <p>There is no limit on how many payments can close one invoice — the allocation table simply accumulates rows until the sum reaches the total.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Breakdown</th><th>Payments</th><th>Sum</th><th>Result</th></tr></thead>
+                        <tbody>
+                            <tr><td>Two payments</td><td>600 + 400</td><td>1,000</td><td>PAID</td></tr>
+                            <tr><td>Three installments</td><td>300 + 300 + 400</td><td>1,000</td><td>PAID</td></tr>
+                            <tr><td>Four equal installments</td><td>250 × 4</td><td>1,000</td><td>PAID</td></tr>
+                            <tr><td>Eight small receipts</td><td>50+50+50+100+150+200+200+200</td><td>1,000</td><td>PAID</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+
+                    <h3>3. One payment settling many invoices</h3>
+                    <p>The mirror case, exercising the many-to-many allocation from the <a href="#allocation">allocation</a> section.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Open invoices</th><th>Payment</th><th>Allocation</th><th>Result</th></tr></thead>
+                        <tbody>
+                            <tr><td>A=1,000, B=2,000, C=3,000</td><td>৳4,000</td><td>A→1,000, B→2,000, C→1,000</td><td>A, B PAID; C PARTIALLY_PAID (2,000 left)</td></tr>
+                            <tr><td>A=1,000, B=1,000</td><td>৳1,500</td><td>A→1,000, B→500</td><td>A PAID; B PARTIALLY_PAID (500 left)</td></tr>
+                            <tr><td>A=1,000, B=2,000, C=3,000</td><td>৳7,000</td><td>A→1,000, B→2,000, C→3,000</td><td>All PAID + ৳1,000 customer credit</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+
+                    <h3>4. Overpayment, advances &amp; credit balances</h3>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Scenario</th><th>Numbers</th><th>Result</th></tr></thead>
+                        <tbody>
+                            <tr><td>Overpayment</td><td>Invoice 1,000 / Payment 1,200</td><td>PAID + ৳200 credit balance</td></tr>
+                            <tr><td>Large overpayment</td><td>Invoice 1,000 / Payment 2,000</td><td>PAID + ৳1,000 credit balance</td></tr>
+                            <tr><td>Advance before invoice</td><td>Advance 1,000, later Invoice 1,500</td><td>Advance applied → Outstanding 500</td></tr>
+                            <tr><td>Advance larger than invoice</td><td>Advance 2,000, Invoice 1,000</td><td>PAID + ৳1,000 remains as credit</td></tr>
+                            <tr><td>New payment spills into credit</td><td>Balance 200 due, Payment 500</td><td>200 → invoice (PAID), 300 → credit</td></tr>
+                            <tr><td>Opening balance</td><td>Migrated AR opening = 1,000</td><td>Posted as an AR opening entry, not a new invoice</td></tr>
+                            <tr><td>Existing credit offsets new invoice</td><td>Credit 500, new Invoice 1,000</td><td>Customer owes only ৳500</td></tr>
+                            <tr><td>Refund of credit balance</td><td>Credit 500, refund 300</td><td>Remaining credit = ৳200</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+
+                    <h3>5. Credit notes, discounts, write-offs &amp; tax</h3>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Scenario</th><th>Numbers</th><th>Result</th></tr></thead>
+                        <tbody>
+                            <tr><td>Partial credit note</td><td>Invoice 1,000, Credit Note 100, Payment 500</td><td>Outstanding = 400</td></tr>
+                            <tr><td>Full credit note</td><td>Invoice 1,000, Credit Note 1,000</td><td>Net invoice = 0 → SETTLED, no payment needed</td></tr>
+                            <tr><td>Settlement discount</td><td>Invoice 1,000, Discount 50, Payment 950</td><td>Outstanding = 0 (DR Sales Discount 50)</td></tr>
+                            <tr><td>Small write-off</td><td>Invoice 1,000, Payment 995</td><td>৳5 written off → PAID + WRITTEN_OFF</td></tr>
+                            <tr><td>Large write-off (needs approval)</td><td>Invoice 1,000, Payment 700</td><td>৳300 written off on management approval</td></tr>
+                            <tr><td>Payment + credit + write-off combined</td><td>Payment 850 + Credit 100 + Write-off 50</td><td>1,000 total → Outstanding = 0</td></tr>
+                            <tr><td>VAT-inclusive posting</td><td>Total 1,000 = Net 909.09 + VAT 90.91</td><td>DR AR 1,000 / CR Sales 909.09 / CR VAT 90.91</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+
+                    <h3>6. Reversals, cancellations &amp; corrections</h3>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Scenario</th><th>Correct handling</th></tr></thead>
+                        <tbody>
+                            <tr><td>Draft invoice cancelled</td><td>No GL impact — it was never posted, safe to delete/cancel outright</td></tr>
+                            <tr><td>Posted, paid invoice needs cancelling</td><td>Never delete — issue a Credit Note, then a Refund if cash already moved</td></tr>
+                            <tr><td>Payment reversed (bounced cheque / bank reject)</td><td>Reversal JE: DR AR / CR Bank — invoice returns to OUTSTANDING</td></tr>
+                            <tr><td>Posted payment cancelled by mistake</td><td>Reverse it (create an offsetting JE) — never hard-delete a posted payment</td></tr>
+                            <tr><td>Duplicate payment received</td><td>Second payment stays unallocated, then refunded or applied to a future invoice</td></tr>
+                            <tr><td>Payment allocated to the wrong invoice</td><td>Reverse the allocation, create a new one on the correct invoice — both logged in the audit trail</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+
+                    <h3>7. Timing, currency &amp; operational scenarios</h3>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Scenario</th><th>Correct handling</th></tr></thead>
+                        <tbody>
+                            <tr><td>Gateway payment pending/failed</td><td>Invoice stays OUTSTANDING until the gateway confirms — never mark PAID on "pending"</td></tr>
+                            <tr><td>Gateway clearing &amp; fee</td><td>Route through a Clearing Account, then split Bank + Fee on settlement (see <a href="#chart-of-accounts">Chart of Accounts</a>)</td></tr>
+                            <tr><td>Multi-currency invoice</td><td>Store invoice &amp; payment at their own exchange rates; the difference posts as FX Gain/Loss</td></tr>
+                            <tr><td>Cash shortage/overage at till</td><td>Post the difference to an approved Cash Over/Short account — never silently adjust the customer payment</td></tr>
+                            <tr><td>Paid early vs. paid late</td><td>Track <code>days_early</code> / <code>days_late</code> separately for DSO, aging, and collection reports</td></tr>
+                            <tr><td>Allocation ordering</td><td>Configurable rule: oldest-invoice-first (FIFO), due-date order, or manual user selection</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+
+                    <h3>8. Every scenario mirrors onto Accounts Payable</h3>
+                    <p>Nothing above is customer-specific — replace Customer→Supplier, Invoice→Vendor Bill, and Accounts Receivable→Accounts Payable, and the exact same allocation, reconciliation, and status logic applies.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>AR scenario</th><th>AP mirror</th></tr></thead>
+                        <tbody>
+                            <tr><td>Invoice 1,000, Payment 0</td><td>Bill 1,000, Payment 0 → AP = 1,000</td></tr>
+                            <tr><td>Invoice 1,000, Payment 500</td><td>Bill 1,000, Payment 500 → AP = 500</td></tr>
+                            <tr><td>Invoice 1,000, Payment 1,000</td><td>Bill 1,000, Payment 1,000 → AP = 0, PAID</td></tr>
+                            <tr><td>Overpayment → customer credit</td><td>Overpayment → supplier advance/credit</td></tr>
+                            <tr><td>One payment across A/B/C invoices</td><td>One payment across A/B/C vendor bills</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+
+                    <div class="success-box">
+                        <strong>✅ The takeaway:</strong> none of these 40+ conditions need a special case in application code. They all fall out automatically once <code>Outstanding</code> is a derived value, allocations are many-to-many, and every adjustment (credit, write-off, discount, FX difference) is its own typed transaction rather than a hand-edit to <code>paid_amount</code>.
+                    </div>
+                </section>
+
+                <section id="three-way-matching">
+                    <h2>🔍 Three-Way Matching</h2>
+                    <p>On the purchase side, mature ERPs cross-check the Purchase Order, Goods Receipt, and Vendor Bill before releasing payment:</p>
+                    <pre><code>Purchase Order    100 units @ ৳1,000
+Goods Receipt      95 units received
+Vendor Bill       100 units billed
+                    ─────────────────
+                    Mismatch = 5 units  →  flagged for approval</code></pre>
+                    <p>The sales-side equivalent compares Ordered vs. Delivered vs. Invoiced quantities before an invoice is allowed to post.</p>
+                </section>
+
+                <section id="audit-trail">
+                    <h2>🛡️ Audit Trail: Why You Never Delete Posted Documents</h2>
+                    <p>A posted invoice is referenced by AR, the General Ledger, tax reports, and customer statements. Deleting it silently breaks all of them. Enterprise systems only allow <code>Draft → Edit</code>, but <code>Posted → Reverse / Cancel / Credit Note</code> — never <code>Posted → Delete</code>.</p>
+                    <pre><code>audit_log
+--------------------
+id
+user_id
+action          -- CREATE, UPDATE, POST, CANCEL
+entity_type     -- "invoice", "payment", ...
+entity_id
+timestamp
+old_values      (jsonb)
+new_values      (jsonb)
+reason</code></pre>
+                    <p>Corrections to posted financial data should be made by <strong>reversing</strong> the original entry and posting a new one — never by rewriting history:</p>
+                    <pre><code>Original JE:  DR Expense 50,000 / CR Bank 50,000
+Reversal JE:  DR Bank 50,000 / CR Expense 50,000
+Corrected JE: (the accurate entry)</code></pre>
+                    <div class="warning-box">
+                        <strong>⚠️ Fiscal period locking:</strong> Once a period (e.g. August 2026) is closed, no user should be able to post or edit entries dated within it without an explicit, authorized adjustment entry.
+                    </div>
+                </section>
+
+                <section id="schema">
+                    <h2>🗄️ Recommended Database Schema (Django/PostgreSQL)</h2>
+                    <p>For a Django/PostgreSQL ERP, keep Sales, Purchase, and Accounting as separate layers connected through documents and journal entries — not as tightly-coupled tables reaching into each other's internals.</p>
+                    <pre><code>Customer ──┬── Sales Order ── Order Lines
+           │
+           └── Invoice ── Invoice Lines
+                  │
+                  ↓
+          Accounts Receivable
+                  │
+                  ↓
+          Payment Allocation ←── Payment
+                  │
+                  ↓
+            Journal Entry ── Journal Entry Lines
+                  │
+                  ↓
+              GL Accounts
+
+Supplier ──┬── Purchase Order ── PO Lines
+           │
+           └── Vendor Bill ── Bill Lines
+                  │
+                  ↓
+           Accounts Payable
+                  │
+                  ↓
+          Payment Allocation ←── Supplier Payment
+                  │
+                  ↓
+            Journal Entry ── Journal Entry Lines
+                  │
+                  ↓
+              GL Accounts</code></pre>
+                    <p>Core entities worth modeling explicitly:</p>
+                    <pre><code>Customer, Supplier
+ChartOfAccount, Account
+
+SalesOrder, SalesOrderLine
+Delivery, DeliveryLine
+Invoice, InvoiceLine
+
+PurchaseOrder, PurchaseOrderLine
+GoodsReceipt, GoodsReceiptLine
+VendorBill, VendorBillLine
+
+Payment, PaymentAllocation
+CreditNote, CreditNoteLine, DebitNote
+
+JournalEntry, JournalEntryLine
+Reconciliation, ReconciliationLine
+
+CashAccount, BankAccount
+Tax, TaxRate, Currency, ExchangeRate
+AuditLog, DocumentSequence</code></pre>
+                    <div class="info-box">
+                        <strong>💡 Document numbering:</strong> Never expose raw primary keys to users. Generate business references such as <code>INV-2026-000123</code>, <code>PAY-2026-000045</code>, <code>PO-2026-000012</code> via a <code>DocumentSequence</code> table, and keep <code>id</code> internal.
+                    </div>
+                </section>
+
+                <section id="chart-of-accounts">
+                    <h2>📊 Chart of Accounts &amp; Control Accounts</h2>
+                    <p>Double-entry accounting needs a structured Chart of Accounts underneath it:</p>
+                    <pre><code>1000 Assets
+├── 1100 Cash
+├── 1200 Bank
+├── 1300 Accounts Receivable   (control account)
+└── 1400 Inventory
+
+2000 Liabilities
+├── 2100 Accounts Payable      (control account)
+└── 2200 VAT Payable
+
+3000 Equity
+└── 3100 Owner Capital
+
+4000 Revenue
+├── 4100 Product Sales
+└── 4200 Service Revenue
+
+5000 Expenses
+├── 5100 Salary
+├── 5200 Rent
+└── 5300 Utilities</code></pre>
+                    <p>For payment methods like bKash, Nagad, or card gateways, model them as real financial accounts rather than free-text strings — and route gateway payments through a <strong>clearing account</strong> so gateway fees reconcile cleanly:</p>
+                    <pre><code>Customer pays ৳10,000 by card:
+  DR Card Clearing Account    10,000
+      CR Accounts Receivable          10,000
+
+Bank settles, minus a ৳200 gateway fee:
+  DR Bank                      9,800
+  DR Payment Gateway Fee         200
+      CR Card Clearing Account         10,000
+
+Card Clearing Account balance = 0</code></pre>
+                </section>
+
+                <section id="best-practices">
+                    <h2>✅ Best Practices Checklist</h2>
+                    <div class="success-box">
+                        <h3 style="margin-top:0;">Five concepts to master first</h3>
+                        <ul>
+                            <li><strong>Document lifecycle</strong> — Order → Delivery → Invoice → Payment, each a distinct, independently-auditable step.</li>
+                            <li><strong>Double-entry accounting</strong> — every financial event balances debits and credits.</li>
+                            <li><strong>AR / AP</strong> — who owes whom, tracked as subledgers reconciled against GL control accounts.</li>
+                            <li><strong>Allocation &amp; reconciliation</strong> — a many-to-many link between payments and invoices, never a single foreign key.</li>
+                            <li><strong>Audit trail</strong> — posted financial documents are reversed or credited, never silently edited or deleted.</li>
+                        </ul>
+                    </div>
+                    <p>Once these five are correct, Sales, Purchase, POS, Inventory, Tax, and Expense modules can all be built on top of the same financial foundation, with the <strong>accounting engine as the central authority</strong> rather than `invoice`, `payment`, `sales`, and `purchase` tables reaching directly into each other.</p>
+
+                    <h3>Final words</h3>
+                    <p>The most important architectural rule: don't make the <code>invoice</code> table responsible for everything. Business modules generate financial events; a dedicated accounting engine records and reconciles those events. That separation is what makes an ERP scale, audit cleanly, and survive years of feature growth without turning into a tangle of ad-hoc status flags.</p>
+
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <a href="blog.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold">
+                            ← Back to Blog
+                        </a>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        ↑
+    </div>
+
+    <!-- Footer -->
+<footer class="footer" style="margin-top: 60px;">
+<div class="container">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <strong>Md. Mostasim Mahmud Tasim</strong>
+      <p>Software Engineer</p>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/tasim313" target="_blank">GitHub</a>
+      <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" target="_blank">LinkedIn</a>
+      <a href="mailto:tasim.swe@gmail.com">Email</a>
+    </div>
+  </div>
+  <p class="footer-copy">&copy; 2026 Md. Mostasim Mahmud Tasim. All rights reserved.</p>
+</div>
+</footer>
+<script src="js/main.js"></script>
+<script>
+    document.querySelectorAll('pre').forEach(pre => {
+        pre.addEventListener('click', function() {
+            const code = this.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalBg = this.style.backgroundColor;
+                this.style.backgroundColor = '#059669';
+                setTimeout(() => { this.style.backgroundColor = originalBg; }, 500);
+            });
+        });
+    });
+</script>
+</body>
+</html>
