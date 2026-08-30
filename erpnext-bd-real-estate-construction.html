@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERPNext for Bangladesh Real Estate: Dhaka Skyline Properties &amp; Construction Ltd. | Md. Mostasim Mahmud Tasim</title>
+<meta name="description" content="A realistic ERPNext real estate and construction implementation for a fictional Dhaka developer — base module mapping, two custom modules (Property/Project Management and Sales & Installments), Construction Management, BOQ cost control, and Bangladesh VAT considerations.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* Article Specific Styles */
+.article-container { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+.article-content { font-size: 1.0625rem; line-height: 1.8; color: var(--text-secondary); }
+.article-content h2 { font-size: 1.9rem; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); color: var(--text-primary); font-weight: 700; }
+.article-content h3 { font-size: 1.3125rem; margin-top: 2.25rem; margin-bottom: 1rem; color: var(--text-primary); font-weight: 700; }
+.article-content h4 { font-size: 1.0625rem; margin-top: 1.75rem; margin-bottom: 0.75rem; color: var(--text-primary); font-weight: 600; }
+.article-content p { margin-bottom: 1.5rem; }
+.article-content ul, .article-content ol { margin: 1.5rem 0; padding-left: 2rem; }
+.article-content li { margin-bottom: 0.5rem; }
+.article-content pre { background: #1a1a1a; color: #f8f8f2; padding: 1.5rem; border-radius: 8px; overflow-x: auto; margin: 1.5rem 0; font-family: 'Courier New', monospace; font-size: 0.8125rem; line-height: 1.5; cursor: pointer; }
+.article-content code { background: var(--bg-alt); color: var(--text-primary); padding: 0.2rem 0.4rem; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.875rem; }
+.article-content pre code { background: transparent; color: inherit; padding: 0; }
+.article-content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.8125rem; }
+.article-content th, .article-content td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; vertical-align: top; }
+.article-content th { background: var(--bg-alt); color: var(--text-primary); font-weight: 700; }
+.table-wrap { overflow-x: auto; }
+.info-box { background: var(--accent-subtle); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.warning-box { background: #fff7ed; border-left: 4px solid #f97316; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.success-box { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.table-of-contents { background: var(--bg-alt); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 12px 12px 0; }
+.table-of-contents ul { list-style: none; padding-left: 0; columns: 2; column-gap: 24px; }
+.table-of-contents li { margin-bottom: 0.6rem; padding-left: 1.5rem; position: relative; break-inside: avoid; }
+.table-of-contents li:before { content: "→"; position: absolute; left: 0; color: var(--accent); }
+.table-of-contents a { color: var(--accent); text-decoration: none; font-weight: 500; font-size: 0.9375rem; }
+.table-of-contents a:hover { text-decoration: underline; }
+@media (max-width: 640px) { .table-of-contents ul { columns: 1; } }
+header h1 { font-size: 2.25rem; font-weight: 800; color: var(--text-primary); line-height: 1.2; margin-bottom: 1.5rem; margin-top: 2rem; }
+header .category-badge { display: inline-block; background: var(--accent-subtle); color: var(--accent); padding: 6px 16px; border-radius: 20px; font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.reading-time { font-size: 0.875rem; color: var(--text-tertiary); font-weight: 500; }
+header p.text-center { text-align: center; margin-bottom: 1rem; color: var(--text-secondary); }
+
+/* Flow diagram */
+.diagram-scroll { overflow-x: auto; margin: 2rem 0; padding-bottom: 4px; }
+.flow-diagram { display: flex; align-items: stretch; gap: 0; min-width: min-content; }
+.flow-step { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 0.75rem; font-weight: 700; color: var(--text-primary); text-align: center; min-width: 108px; display: flex; flex-direction: column; justify-content: center; text-decoration: none; }
+.flow-step small { display: block; font-weight: 400; color: var(--text-tertiary); font-size: 0.625rem; margin-top: 6px; line-height: 1.4; }
+.flow-arrow { display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 1.1rem; flex: 0 0 auto; padding: 0 8px; }
+.flow-diagram.vertical { flex-direction: column; align-items: center; }
+.flow-diagram.vertical .flow-arrow { padding: 4px 0; }
+.flow-diagram.vertical .flow-step { min-width: 220px; }
+
+/* Relationship / layered diagram */
+.rel-diagram { margin: 2rem 0; }
+.rel-layer { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+.rel-connector { display: flex; justify-content: center; align-items: center; gap: 36px; padding: 8px 0; color: var(--accent); font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; text-align: center; }
+.rel-entity { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 10px; min-width: 150px; max-width: 220px; overflow: hidden; flex: 1 1 160px; }
+.rel-entity h4 { margin: 0; padding: 9px 12px; background: var(--accent-subtle); color: var(--accent); font-size: 0.75rem; font-weight: 700; border-bottom: 1px solid var(--border); }
+.rel-entity .rel-fields { list-style: none; margin: 0; padding: 8px 12px; font-size: 0.6875rem; font-family: 'Courier New', monospace; color: var(--text-tertiary); }
+.rel-entity .rel-fields li { margin-bottom: 3px; }
+
+/* Decision flowchart */
+.decision-flow { display: flex; flex-direction: column; align-items: center; margin: 2rem 0; }
+.decision-node { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); text-align: center; max-width: 340px; }
+.decision-flow .flow-arrow-down { color: var(--accent); font-size: 1.25rem; padding: 4px 0; }
+.decision-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.decision-diamond { width: 128px; height: 128px; background: var(--accent-subtle); border: 2px solid var(--accent); transform: rotate(45deg); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.decision-diamond span { transform: rotate(-45deg); font-size: 0.75rem; font-weight: 700; text-align: center; color: var(--text-primary); padding: 10px; line-height: 1.3; }
+.decision-branch-note { background: var(--bg-alt); border: 1px dashed var(--border); border-radius: 8px; padding: 10px 14px; font-size: 0.75rem; color: var(--text-secondary); max-width: 240px; }
+.decision-branch-note strong { color: var(--accent); }
+.decision-end { background: var(--accent); color: #fff; border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 700; text-align: center; max-width: 340px; }
+</style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="nav" role="navigation">
+<div class="nav-inner">
+  <a href="index.html" class="nav-brand">Mostasim Mahmud Tasim</a>
+  <ul class="nav-links">
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="index.html#experience">Experience</a></li>
+    <li><a href="index.html#capabilities">Engineering</a></li>
+    <li><a href="index.html#projects">Projects</a></li>
+    <li><a href="index.html#infrastructure">Infrastructure</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="https://github.com/tasim313" class="nav-ext" target="_blank"><i class="fa-brands fa-github"></i></a>
+    <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" class="nav-ext" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+    <button class="theme-toggle" id="themeToggle"><svg id="sunIcon" style="display:none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg><svg id="moonIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg></button>
+    <button class="mobile-toggle" id="mobileToggle"><span></span><span></span><span></span></button>
+  </div>
+</div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html#about">About</a>
+  <a href="index.html#experience">Experience</a>
+  <a href="index.html#capabilities">Engineering</a>
+  <a href="index.html#projects">Projects</a>
+  <a href="index.html#infrastructure">Infrastructure</a>
+  <a href="blog.html">Blog</a>
+  <a href="index.html#contact">Contact</a>
+</div>
+
+    <!-- Article Header -->
+    <header class="pt-12 pb-8">
+        <div class="article-container">
+            <div class="text-center mb-8">
+                <span class="category-badge">ERPNext &amp; Frappe</span>
+                <span class="reading-time ml-4">🇧🇩 BD Case Study · Part 3: Real Estate</span>
+            </div>
+
+            <h1>ERPNext for Bangladesh Real Estate: Dhaka Skyline Properties &amp; Construction Ltd.</h1>
+
+            <div class="text-center text-gray-600 mb-8">
+                <p class="text-sm">Published: <span class="font-semibold">Aug 30, 2026</span></p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Article Content -->
+    <main class="pb-16">
+        <div class="article-container">
+            <!-- Table of Contents -->
+            <div class="table-of-contents fade-in">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">📋 Table of Contents</h3>
+                <ul class="space-y-2">
+                    <li><a href="#realestate-profile">Company Profile Recap</a></li>
+                    <li><a href="#project-lifecycle">The Project Lifecycle</a></li>
+                    <li><a href="#realestate-base-modules">Real Estate on Existing ERPNext Modules</a></li>
+                    <li><a href="#custom-module-a-property">Custom Module A: Property &amp; Project Management</a></li>
+                    <li><a href="#custom-module-b-sales">Custom Module B: Property Sales &amp; Installments</a></li>
+                    <li><a href="#construction-management">Construction Management</a></li>
+                    <li><a href="#realestate-core-relationship">Custom Property Module ↔ ERPNext Core</a></li>
+                    <li><a href="#construction-procurement">Construction Procurement</a></li>
+                    <li><a href="#boq-cost-control">BOQ &amp; Cost Control</a></li>
+                    <li><a href="#apartment-sales-accounting">Apartment Sales &amp; Accounting</a></li>
+                    <li><a href="#realestate-vat">Bangladesh VAT/Tax for Real Estate</a></li>
+                    <li><a href="#realestate-role-matrix">Role/Permission Matrix</a></li>
+                    <li><a href="#realestate-workflow">Property Booking Workflow</a></li>
+                    <li><a href="#realestate-dashboards">Real Estate Dashboards</a></li>
+                    <li><a href="#realestate-end-to-end">End-to-End Workflow</a></li>
+                    <li><a href="#realestate-failure-scenarios">Troubleshooting Scenarios</a></li>
+                    <li><a href="#realestate-data-security">Data Security</a></li>
+                    <li><a href="#realestate-uat">UAT Checklist</a></li>
+                    <li><a href="#whats-next">What's Next</a></li>
+                </ul>
+            </div>
+
+            <!-- Article Content -->
+            <article class="article-content fade-in">
+
+                <section id="realestate-profile">
+                    <h2>🏙️ Company Profile Recap</h2>
+                    <p><strong>Dhaka Skyline Properties &amp; Construction Ltd.</strong> is the fictional Dhaka-based developer used throughout this companion series, first introduced in <a href="erpnext-bd-implementation-methodology.html#companies">Part 1's company profiles</a>. It combines land acquisition, real estate development, and in-house construction under one roof — the same shape as many real Dhaka-market developers, but every project, unit, and figure in this article is illustrative only.</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Land Acquisition</div>
+                            <div class="flow-step">Real Estate Development</div>
+                            <div class="flow-step">Apartment Projects</div>
+                            <div class="flow-step">Commercial Buildings</div>
+                            <div class="flow-step">Construction</div>
+                            <div class="flow-step">Subcontracting</div>
+                            <div class="flow-step">Materials Procurement</div>
+                            <div class="flow-step">Engineering</div>
+                            <div class="flow-step">Architecture</div>
+                            <div class="flow-step">Project Management</div>
+                            <div class="flow-step">Apartment Sales</div>
+                            <div class="flow-step">Installment Collection</div>
+                        </div>
+                    </div>
+                    <p>Part 1's six-question training framework (WHO/WHAT/WHY/WHEN/WHERE/HOW) and its Configure/Customize/Custom-Module/Integration decision tree apply here unchanged — this article reuses those patterns rather than re-deriving them, and focuses on how they play out specifically for a property developer running construction alongside sales.</p>
+                </section>
+
+                <section id="project-lifecycle">
+                    <h2>🔄 The Project Lifecycle</h2>
+                    <p>Every apartment project this company runs follows the same backbone, from raw land to a handed-over unit generating no further transactions:</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram vertical">
+                            <div class="flow-step">Land</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Project</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Design</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">BOQ<small>Bill of Quantities</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Budget</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Procurement</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Construction</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Progress</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Apartment Inventory</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Customer Booking</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Installment</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Handover</div>
+                        </div>
+                    </div>
+                    <p>Note that sales can start well before construction finishes — bookings and installment collection typically run in parallel with the Procurement/Construction/Progress stages, which is exactly why the sales side needs its own custom module rather than waiting for Handover to touch ERPNext at all (see <a href="#custom-module-b-sales">Custom Module B</a> below).</p>
+                </section>
+
+                <section id="realestate-base-modules">
+                    <h2>🧩 How Real Estate Operations Use Existing ERPNext Modules</h2>
+                    <p>Before adding anything custom, most of the day-to-day transaction volume in this company already fits standard ERPNext modules — this is the "Configure" and "Customize" rungs of Part 1's decision tree, exhausted first:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Module</th><th>Used for, in this company</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>CRM</strong></td><td>Lead, Opportunity, Customer — capturing property inquiries before a booking exists</td></tr>
+                            <tr><td><strong>Selling</strong></td><td>Quotation, Sales Order, Sales Invoice, Payment — used for the sale side of an apartment once it enters the standard document chain</td></tr>
+                            <tr><td><strong>Buying</strong></td><td>Supplier, Purchase Order, Purchase Receipt, Purchase Invoice — cement, steel, tiles, fittings, and every other construction material supplier</td></tr>
+                            <tr><td><strong>Stock</strong></td><td>Construction materials, warehouse (site stores), material receipt/transfer/consumption</td></tr>
+                            <tr><td><strong>Projects</strong></td><td>Project, Task, Timesheet — internal engineering/architecture effort tracking</td></tr>
+                            <tr><td><strong>Accounting</strong></td><td>Project cost, customer payment, supplier payment, contractor payment, bank, expense, profitability</td></tr>
+                            <tr><td><strong>Assets</strong></td><td>Construction equipment, vehicles, machinery</td></tr>
+                            <tr><td><strong>HR/Payroll</strong></td><td>Engineers, architects, site workers, admin staff</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>For the base-side mechanics behind the Buying, Stock, and Projects rows, see <a href="erpnext-modules-business-workflows.html#buying-module">the Buying module workflow</a>, <a href="erpnext-modules-business-workflows.html#stock-module">the Stock module workflow</a>, and <a href="erpnext-modules-business-workflows.html#projects-module">the Projects module workflow</a> from the core 9-part course.</p>
+                </section>
+
+                <section id="custom-module-a-property">
+                    <h2>🏗️ Custom Module A: Property &amp; Project Management</h2>
+                    <p>None of Project, Building, Floor, Unit, or Apartment as a saleable, trackable inventory concept exists as a standard ERPNext DocType — this is squarely the "need new DocTypes, deep integration" end of the customization decision tree, so it becomes a custom module rather than a stack of Custom Fields.</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Project</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Building</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Floor</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Unit</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Apartment</div>
+                        </div>
+                    </div>
+                    <p>Related DocTypes hang off this chain: <strong>Unit Type</strong> (e.g. 3 Bedroom, 2 Bedroom, Duplex), <strong>Unit Status</strong> (Available, Booked, Sold, Handed Over), and <strong>Property Feature</strong> (balcony, parking, view) — all designed as simple lookup/Select-backed DocTypes that keep the Unit record itself lean.</p>
+                    <p>A worked, entirely fictional example — not a real development, just an illustration of how the hierarchy nests:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Level</th><th>Illustrative value</th></tr></thead>
+                        <tbody>
+                            <tr><td>Project</td><td>"Bashundhara Residential Tower" (fictional)</td></tr>
+                            <tr><td>Building</td><td>Tower A</td></tr>
+                            <tr><td>Floor</td><td>12</td></tr>
+                            <tr><td>Unit</td><td>A-1203</td></tr>
+                            <tr><td>Unit Type</td><td>3 Bedroom</td></tr>
+                            <tr><td>Status</td><td>Available</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>Using Part 1's exact field-level training table shape (Field | Type | Required? | Who enters? | When? | Why? | Example | Related DocType), here is the illustrative Unit DocType:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Field</th><th>Type</th><th>Required?</th><th>Who enters?</th><th>When?</th><th>Why?</th><th>Example</th><th>Related DocType</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>unit_no</code></td><td>Data (naming/autoname)</td><td>Yes</td><td>Project Manager</td><td>Unit creation, at project setup</td><td>Unique identifier used across sales, construction, and handover documents</td><td>A-1203</td><td>—</td></tr>
+                            <tr><td><code>building</code></td><td>Link → Building</td><td>Yes</td><td>Project Manager</td><td>Unit creation</td><td>Ties the unit into the Project → Building → Floor hierarchy</td><td>Tower A</td><td>Building</td></tr>
+                            <tr><td><code>floor_no</code></td><td>Data / Int</td><td>Yes</td><td>Project Manager</td><td>Unit creation</td><td>Floor-level grouping for layout and pricing</td><td>12</td><td>Floor</td></tr>
+                            <tr><td><code>unit_type</code></td><td>Link → Unit Type</td><td>Yes</td><td>Project Manager</td><td>Unit creation</td><td>Drives layout, base pricing tier, and marketing material</td><td>3 Bedroom</td><td>Unit Type</td></tr>
+                            <tr><td><code>area_sqft</code></td><td>Float</td><td>Yes</td><td>Project Manager / Architect</td><td>Unit creation, from design</td><td>Basis for price-per-square-foot calculations</td><td>1450</td><td>—</td></tr>
+                            <tr><td><code>status</code></td><td>Select: Available / Booked / Sold / Handed Over</td><td>Yes</td><td>System (workflow-driven) with Sales Manager override</td><td>Updated at each sales/handover milestone</td><td>Central inventory-availability flag sales relies on</td><td>Available</td><td>Unit Status</td></tr>
+                            <tr><td><code>price</code></td><td>Currency (৳)</td><td>Yes</td><td>Sales Manager</td><td>Set at listing, revisable before booking</td><td>Basis for Quotation and Booking amounts</td><td>৳ 1,25,00,000 (example)</td><td>—</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <div class="info-box">
+                        <strong>💡 Hedge, as always:</strong> field names, types, and exact Select options above are illustrative, not a copy of any specific installation's schema — confirm actual field definitions in Developer Mode before treating them as fixed.
+                    </div>
+                </section>
+
+                <section id="custom-module-b-sales">
+                    <h2>💳 Custom Module B: Property Sales &amp; Installment Management</h2>
+                    <p>Just as <a href="erpnext-bd-hospital-management.html">the hospital case study</a>'s Lab Request/Sample chain models a clinical process, this project's Booking/Installment chain models the sales-and-collection process specific to real estate — a domain ERPNext's standard Selling module doesn't natively express as a multi-year payment schedule.</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Property Lead</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Property Booking</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Customer Property</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Installment Plan</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Installment Schedule</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Installment Payment</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Handover</div>
+                        </div>
+                    </div>
+                    <p>A related <strong>Cancellation</strong> DocType handles the (common, in real estate) case where a booking is reversed and the unit needs to flow back to Available status with any refund logic handled explicitly rather than silently.</p>
+                    <p>As a day-to-day workflow rather than a DocType chain, the same process reads:</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Lead</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Site Visit</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Quotation</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Booking</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Agreement</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Installment Plan</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Payment</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Construction Progress</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Final Payment</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Handover</div>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <strong>💡 This is a real-world instance of a general pattern.</strong> An Installment Plan/Schedule is not a new accounting idea — it's a direct, domain-specific instance of the "one invoice/obligation settled by many payments over time" pattern covered generally in <a href="erp-invoice-payment-architecture.html#allocation">Invoice vs Payment: allocation</a>, and the partial-payment scenario table in <a href="erp-invoice-payment-architecture.html#scenario-playbook">the scenario playbook</a> mirrors almost exactly what an apartment buyer paying in installments over several years looks like operationally.
+                    </div>
+                </section>
+
+                <section id="construction-management">
+                    <h2>🧱 Construction Management</h2>
+                    <p>Construction execution gets its own cluster of custom DocTypes, separate from the sales-facing module above:</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Construction Project</div>
+                            <div class="flow-step">BOQ</div>
+                            <div class="flow-step">BOQ Item</div>
+                            <div class="flow-step">Work Package</div>
+                            <div class="flow-step">Construction Activity</div>
+                            <div class="flow-step">Site Progress</div>
+                            <div class="flow-step">Contractor</div>
+                            <div class="flow-step">Subcontract</div>
+                            <div class="flow-step">Material Request</div>
+                            <div class="flow-step">Material Consumption</div>
+                            <div class="flow-step">Site Measurement</div>
+                        </div>
+                    </div>
+                    <div class="rel-diagram">
+                        <div class="rel-layer"><div class="rel-entity"><h4>Project</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span></div>
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>BOQ</h4><ul class="rel-fields"><li>→ BOQ Item</li></ul></div>
+                            <div class="rel-entity"><h4>Work Package</h4></div>
+                            <div class="rel-entity"><h4>Contractor</h4></div>
+                            <div class="rel-entity"><h4>Site Progress</h4></div>
+                            <div class="rel-entity"><h4>Material Consumption</h4></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="realestate-core-relationship">
+                    <h2>🔗 Custom Property Module ↔ ERPNext Core</h2>
+                    <p>Like every custom module in this series, the property module is only useful because it links back into ERPNext core rather than duplicating it:</p>
+                    <div class="rel-diagram">
+                        <div class="rel-layer"><div class="rel-entity"><h4>Custom Property Module</h4></div></div>
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>Project</h4></div>
+                            <div class="rel-entity"><h4>Building</h4></div>
+                            <div class="rel-entity"><h4>Floor</h4></div>
+                            <div class="rel-entity"><h4>Unit</h4></div>
+                            <div class="rel-entity"><h4>Booking</h4></div>
+                        </div>
+                        <div class="rel-connector"><span class="arrow">↓</span>links into</div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>ERPNext Core</h4></div></div>
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>Customer</h4></div>
+                            <div class="rel-entity"><h4>Item</h4></div>
+                            <div class="rel-entity"><h4>Project</h4></div>
+                        </div>
+                        <div class="rel-connector"><span class="arrow">↓</span>drives</div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>Sales / Stock / Cost → Accounting</h4></div></div>
+                    </div>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Custom DocType</th><th>Base DocType</th><th>Relationship</th><th>Why</th><th>When</th></tr></thead>
+                        <tbody>
+                            <tr><td>Property Unit</td><td>Item / Project</td><td>Link</td><td>Sales/costing</td><td>Project setup</td></tr>
+                            <tr><td>Buyer</td><td>Customer</td><td>Link</td><td>Sales</td><td>Booking</td></tr>
+                            <tr><td>Construction Material</td><td>Item</td><td>Link</td><td>Stock</td><td>Procurement</td></tr>
+                            <tr><td>Contractor</td><td>Supplier</td><td>Link</td><td>Purchasing</td><td>Contracting</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="construction-procurement">
+                    <h2>📦 Construction Procurement</h2>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Engineer</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Material Request</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">RFQ</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Supplier Quotation</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Purchase Order</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Purchase Receipt</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Warehouse</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Site Transfer</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Consumption</div>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Step</th><th>Base ERPNext or Custom?</th></tr></thead>
+                        <tbody>
+                            <tr><td>Material Request</td><td>Base — standard Buying DocType</td></tr>
+                            <tr><td>RFQ / Request for Quotation</td><td>Base — standard Buying DocType</td></tr>
+                            <tr><td>Supplier Quotation</td><td>Base — standard Buying DocType</td></tr>
+                            <tr><td>Purchase Order</td><td>Base — standard Buying DocType</td></tr>
+                            <tr><td>Purchase Receipt</td><td>Base — standard Buying/Stock DocType</td></tr>
+                            <tr><td>Warehouse</td><td>Base — standard Stock DocType (site stores modeled as a Warehouse)</td></tr>
+                            <tr><td>Site Transfer</td><td>Custom — models moving material from central store to an active site</td></tr>
+                            <tr><td>Consumption</td><td>Custom — tracked via a custom Material Consumption DocType tied to a Construction Activity</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>For the base-side mechanics of Material Request through Purchase Invoice, see <a href="erpnext-modules-business-workflows.html#buying-module">the Buying module workflow</a> from the core course — this section only adds the construction-specific tail (site transfer and activity-level consumption) on top of it.</p>
+                </section>
+
+                <section id="boq-cost-control">
+                    <h2>📐 BOQ &amp; Cost Control</h2>
+                    <p>The Bill of Quantities (BOQ) is the backbone of construction cost control: it estimates, up front, exactly how much of each material and labor category a project needs, at what rate, giving a baseline that actuals get compared against continuously rather than only at project close.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Concept</th><th>Meaning</th></tr></thead>
+                        <tbody>
+                            <tr><td>BOQ</td><td>The itemized list of quantities and rates the project is planned/budgeted against</td></tr>
+                            <tr><td>Estimated Quantity</td><td>Planned quantity of a material/work item, set at design/budgeting stage</td></tr>
+                            <tr><td>Actual Quantity</td><td>Quantity actually consumed/executed, from Material Consumption and Site Measurement</td></tr>
+                            <tr><td>Estimated Rate</td><td>Planned unit cost used to build the original budget</td></tr>
+                            <tr><td>Actual Rate</td><td>Real unit cost paid, from Purchase Invoice/contractor billing</td></tr>
+                            <tr><td>Estimated Cost</td><td>Estimated Quantity × Estimated Rate</td></tr>
+                            <tr><td>Actual Cost</td><td>Actual Quantity × Actual Rate, aggregated per BOQ line or Work Package</td></tr>
+                            <tr><td>Variance</td><td>Actual Cost minus Estimated Cost — the number project managers watch most closely</td></tr>
+                            <tr><td>Project Budget</td><td>The approved ceiling the BOQ rolls up into, at project level</td></tr>
+                            <tr><td>Purchase Cost</td><td>Material cost, from Purchase Invoice</td></tr>
+                            <tr><td>Labor Cost</td><td>Site labor cost, from timesheets/payroll or subcontract billing</td></tr>
+                            <tr><td>Contractor Cost</td><td>Amount billed by subcontractors against their Subcontract agreement</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">BOQ</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Budget</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Purchase</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Consumption</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Actual Cost</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Variance</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="apartment-sales-accounting">
+                    <h2>💰 Apartment Sales &amp; Accounting</h2>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Apartment</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Quotation</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Booking</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Agreement</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Installment Schedule</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Payment Entry</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Outstanding</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Handover</div>
+                        </div>
+                    </div>
+                    <p>The custom property documents connect into ERPNext's financial core the same way any custom sales flow should: a Booking references a <strong>Customer</strong> record (not a bespoke buyer table), the underlying obligation is expressed through a standard <strong>Sales Order</strong>/<strong>Sales Invoice</strong>, each installment collected is a standard <strong>Payment Entry</strong> allocated against that invoice, every posting lands in the same <strong>Account</strong> structure as any other sale, and the whole thing rolls up under the relevant <strong>Project</strong> for cost/profitability reporting.</p>
+                    <p>Crucially, at no point does the custom module store its own "amount still owed" field as the source of truth — it derives it. This depends directly on the principle covered in <a href="erp-invoice-payment-architecture.html#lifecycle">Invoice vs Payment: the document lifecycle</a>: outstanding balance is always derived from invoice minus allocated payments, never stored and hand-maintained, precisely because an installment plan can span years and dozens of partial payments where a stale stored balance would silently drift from reality.</p>
+                </section>
+
+                <section id="realestate-vat">
+                    <h2>🧾 Bangladesh VAT/Tax for Real Estate &amp; Construction</h2>
+                    <p>Real estate and construction sit under several distinct tax touchpoints in Bangladesh's VAT/tax regime — property sales, construction services, supplier-side VAT on materials, contractor invoices, and advance payments can each attract different treatment. This section describes the concepts an ERPNext configuration needs to model, not the actual current rates.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Concept</th><th>What it means for this implementation</th></tr></thead>
+                        <tbody>
+                            <tr><td>Property sales tax/VAT</td><td>Sale of a completed or under-construction apartment can attract VAT and/or other property-related charges — modeled via a Sales Taxes and Charges template on the apartment Sales Invoice</td></tr>
+                            <tr><td>Construction service taxation</td><td>Construction/contracting services can be taxed differently from goods — modeled via a separate Item Tax Template on construction-service line items</td></tr>
+                            <tr><td>Supplier VAT</td><td>Material suppliers (cement, steel, etc.) charge VAT on Purchase Invoices — modeled via a Purchase Taxes and Charges template</td></tr>
+                            <tr><td>Contractor invoices</td><td>Subcontractor billing may carry its own withholding-type treatment distinct from material supplier VAT</td></tr>
+                            <tr><td>Tax templates</td><td>Sales/Purchase/Item Tax Templates are how ERPNext expresses all of the above as configuration rather than hard-coded logic</td></tr>
+                            <tr><td>Customer invoices</td><td>The Sales Invoice format and printed VAT breakdown a buyer receives must match statutory requirements</td></tr>
+                            <tr><td>Advance payments</td><td>Booking/installment advances collected before the full obligation is invoiced may have their own tax-point timing rules</td></tr>
+                            <tr><td>Withholding-type concepts</td><td>Amounts a payer is required to deduct/report at source when paying certain suppliers or contractors</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>Every percentage that could appear in a real configuration (property VAT rate, construction service rate, supplier VAT rate, withholding rate) is an <strong>example/configuration placeholder</strong> only — no rate is stated as real or current anywhere in this article. This reuses the exact framing established in <a href="erpnext-bd-implementation-methodology.html#bangladesh-context">Part 1's Bangladesh Context section</a>, which this article inherits rather than repeats.</p>
+                    <div class="warning-box">
+                        <strong>⚠️ Verify before production.</strong> Current Bangladesh NBR (National Board of Revenue) rules, VAT rates, and the company's specific VAT/BIN registration status must be validated with a qualified tax advisor and the official NBR source before any of this is configured for a live, production ERPNext implementation. Nothing in this section should be read as tax advice or a current rate.
+                    </div>
+                </section>
+
+                <section id="realestate-role-matrix">
+                    <h2>👥 Real Estate Role/Permission Matrix</h2>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Sales Executive</div>
+                            <div class="flow-step">Sales Manager</div>
+                            <div class="flow-step">Project Manager</div>
+                            <div class="flow-step">Site Engineer</div>
+                            <div class="flow-step">Procurement Officer</div>
+                            <div class="flow-step">Store Manager</div>
+                            <div class="flow-step">Accountant</div>
+                            <div class="flow-step">HR Manager</div>
+                            <div class="flow-step">Director</div>
+                            <div class="flow-step">System Manager</div>
+                        </div>
+                    </div>
+                    <div class="flow-diagram vertical">
+                        <div class="flow-step">Role</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Permission</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Document</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Action</div>
+                    </div>
+                    <p>Exact read/write/create/submit/cancel permissions per role, and any record-level restriction (e.g. a Site Engineer limited to one Project), are configured the standard ERPNext way — through <a href="erpnext-users-permissions.html#permission-manager">the Role Permission Manager</a> — rather than hard-coded in this custom module's controllers.</p>
+                </section>
+
+                <section id="realestate-workflow">
+                    <h2>📝 Property Booking Workflow</h2>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Draft</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Sales Review</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Manager Approval</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Agreement</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Finance Verification</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Confirmed</div>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>State</th><th>Allowed Role</th><th>Typical action</th></tr></thead>
+                        <tbody>
+                            <tr><td>Draft</td><td>Sales Executive</td><td>Creates the booking against a selected Unit and Customer</td></tr>
+                            <tr><td>Sales Review</td><td>Sales Manager</td><td>Checks pricing, unit availability, and buyer documentation</td></tr>
+                            <tr><td>Manager Approval</td><td>Sales Manager / Director</td><td>Approves the booking terms and any discount</td></tr>
+                            <tr><td>Agreement</td><td>Sales Manager</td><td>Generates/attaches the sale agreement and installment plan</td></tr>
+                            <tr><td>Finance Verification</td><td>Accountant</td><td>Confirms the advance payment is received and correctly recorded</td></tr>
+                            <tr><td>Confirmed</td><td>System (workflow-driven)</td><td>Unit status flips to Booked; installment schedule becomes active</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="realestate-dashboards">
+                    <h2>📊 Real Estate Dashboards</h2>
+                    <h3>Management</h3>
+                    <ul>
+                        <li>Total Projects</li>
+                        <li>Units Available</li>
+                        <li>Units Sold</li>
+                        <li>Booking Value</li>
+                        <li>Collection</li>
+                        <li>Outstanding</li>
+                        <li>Construction Cost</li>
+                        <li>Budget Variance</li>
+                        <li>Project Progress</li>
+                        <li>Profitability</li>
+                    </ul>
+                    <h3>Project Manager</h3>
+                    <ul>
+                        <li>Tasks</li>
+                        <li>BOQ</li>
+                        <li>Material consumption</li>
+                        <li>Site progress</li>
+                        <li>Contractor progress</li>
+                        <li>Cost variance</li>
+                    </ul>
+                    <h3>Sales Manager</h3>
+                    <ul>
+                        <li>Leads</li>
+                        <li>Site Visits</li>
+                        <li>Bookings</li>
+                        <li>Conversion</li>
+                        <li>Collection</li>
+                    </ul>
+                </section>
+
+                <section id="realestate-end-to-end">
+                    <h2>🏁 End-to-End Real Estate Workflow</h2>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram vertical">
+                            <div class="flow-step">Lead</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Site Visit</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Opportunity</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Property Unit Selection</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Quotation</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Booking</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Agreement</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Installment</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Construction</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Progress</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Payment</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Final Settlement</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Handover</div>
+                        </div>
+                    </div>
+                    <p>Reading this chain left to right by origin: <strong>Opportunity</strong>, <strong>Quotation</strong>, and <strong>Payment</strong> are Base ERPNext documents running unmodified; <strong>Property Unit Selection</strong>, <strong>Booking</strong>, <strong>Installment</strong>, and <strong>Construction Progress</strong> are Custom Module documents built specifically for this company. Neither side works in isolation — every custom step ultimately links back to a Customer, Item, Project, or Account so the two halves stay one coherent system rather than two disconnected apps.</p>
+                </section>
+
+                <section id="realestate-failure-scenarios">
+                    <h2>🔍 Real-World Troubleshooting Scenarios</h2>
+                    <h3>Scenario 1: "Apartment is showing available after booking"</h3>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Symptom</th><th>What to investigate</th></tr></thead>
+                        <tbody>
+                            <tr><td rowspan="6">Unit still shows Available after a booking was submitted</td><td>Booking status — is it actually Confirmed, or stuck earlier in the workflow?</td></tr>
+                            <tr><td>Unit status field — was it actually updated by the booking's business logic?</td></tr>
+                            <tr><td>Workflow — did the state transition that's supposed to flip unit status actually fire?</td></tr>
+                            <tr><td>Transaction sequencing — was the booking saved before or after another process read the unit's status?</td></tr>
+                            <tr><td>Race condition — could two bookings have been submitted for the same unit near-simultaneously?</td></tr>
+                            <tr><td>Permission — does the user updating status actually have write access to the Unit DocType?</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <h3>Scenario 2: "Project cost exceeds budget"</h3>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Symptom</th><th>What to investigate</th></tr></thead>
+                        <tbody>
+                            <tr><td rowspan="6">Project actual cost is running above approved budget</td><td>BOQ — was the original BOQ realistic, or under-estimated from the start?</td></tr>
+                            <tr><td>Purchase — are Purchase Invoice rates significantly above BOQ estimated rates?</td></tr>
+                            <tr><td>Stock consumption — is material being over-consumed relative to BOQ quantities (waste, theft, miscount)?</td></tr>
+                            <tr><td>Contractor — is a subcontractor billing above their Subcontract agreement?</td></tr>
+                            <tr><td>Expense — are non-material costs (equipment rental, site overhead) being posted against this project correctly?</td></tr>
+                            <tr><td>Project cost / Accounting — is the cost actually correct, or is it a GL posting/cost-center misallocation from an unrelated project?</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="realestate-data-security">
+                    <h2>🔒 Real Estate Data Security</h2>
+                    <div class="success-box">
+                        <ul style="margin-bottom:0;">
+                            <li>Customer contact information (phone, email, address) restricted to roles that need it for sales or collections.</li>
+                            <li>NID/passport-related information, if collected as part of KYC for a booking, treated as sensitive and access-restricted, not stored in freely visible fields.</li>
+                            <li>Sale agreements and contracts stored as controlled attachments with access limited to Sales Manager, Accountant, and Director roles.</li>
+                            <li>Payment information (installment history, bank references) visible only to Accountant, Sales Manager, and Director roles.</li>
+                            <li>Property ownership documents kept under document-level permission rules, not open list-view access.</li>
+                            <li>Financial records (project cost, profitability, contractor payments) restricted to Accountant, Director, and System Manager roles.</li>
+                        </ul>
+                    </div>
+                    <p><strong>Note:</strong> this article uses only fictional sample data — no real customer, project, or financial information appears anywhere in this series.</p>
+                </section>
+
+                <section id="realestate-uat">
+                    <h2>✅ Real Estate UAT Checklist</h2>
+                    <ul>
+                        <li>Lead capture — a new inquiry correctly creates a Lead/Opportunity and is assigned to a Sales Executive</li>
+                        <li>Unit availability — the Unit list correctly reflects Available/Booked/Sold/Handed Over status at every stage</li>
+                        <li>Booking — a booking correctly moves through Draft → Confirmed and updates unit status accordingly</li>
+                        <li>Installment schedule/payment — a schedule generates correctly from the agreed plan, and payments allocate against it correctly</li>
+                        <li>Procurement — Material Request through Purchase Invoice runs correctly for a construction material</li>
+                        <li>Stock/material consumption — site transfer and consumption correctly reduce stock and post against the right Construction Activity</li>
+                        <li>Project cost tracking — BOQ estimated vs actual cost and variance calculate correctly</li>
+                        <li>Payment — customer and supplier/contractor payments post to the correct accounts</li>
+                        <li>Handover — the final handover step correctly closes out the unit's sales and construction records</li>
+                    </ul>
+                </section>
+
+                <section id="whats-next">
+                    <h2>🗺️ What's Next</h2>
+                    <p>This article is <strong>Part 3 of the 4-part ERPNext Bangladesh Implementation Case Study series</strong>. For the company profile, training framework, and customization decision tree this article builds on, see <a href="erpnext-bd-implementation-methodology.html">Part 1: Implementation Methodology</a>. For a parallel case study applying the same approach to a different domain, see <a href="erpnext-bd-hospital-management.html">Part 2: Hospital Management</a> — comparing its clinical Lab Request/Sample chain against this project's construction BOQ/Work Package chain is a useful way to see the same custom-module discipline applied twice. For how this project's two custom modules (Property &amp; Project Management, and Property Sales &amp; Installment Management) and its Construction Management app would actually be built, tested, and deployed, continue to <a href="erpnext-bd-custom-dev-devops-production.html">Part 4: Custom Development, DevOps &amp; Production</a>.</p>
+
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <a href="blog.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold">
+                            ← Back to Blog
+                        </a>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        ↑
+    </div>
+
+    <!-- Footer -->
+<footer class="footer" style="margin-top: 60px;">
+<div class="container">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <strong>Md. Mostasim Mahmud Tasim</strong>
+      <p>Software Engineer</p>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/tasim313" target="_blank">GitHub</a>
+      <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" target="_blank">LinkedIn</a>
+      <a href="mailto:tasim.swe@gmail.com">Email</a>
+    </div>
+  </div>
+  <p class="footer-copy">&copy; 2026 Md. Mostasim Mahmud Tasim. All rights reserved.</p>
+</div>
+</footer>
+<script src="js/main.js"></script>
+<script>
+    document.querySelectorAll('pre').forEach(pre => {
+        pre.addEventListener('click', function() {
+            const code = this.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalBg = this.style.backgroundColor;
+                this.style.backgroundColor = '#059669';
+                setTimeout(() => { this.style.backgroundColor = originalBg; }, 500);
+            });
+        });
+    });
+</script>
+</body>
+</html>

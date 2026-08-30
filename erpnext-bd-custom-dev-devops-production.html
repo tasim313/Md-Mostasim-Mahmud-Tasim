@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERPNext Custom Development, DevOps &amp; Production: The Bangladesh Case Study Playbook | Md. Mostasim Mahmud Tasim</title>
+<meta name="description" content="How the hospital and real estate custom modules actually get built, tested, and deployed — custom app structure, Python/JavaScript logic, security, Redis, Nginx, CI/CD, backups, monitoring, and the final series wrap-up.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* Article Specific Styles */
+.article-container { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+.article-content { font-size: 1.0625rem; line-height: 1.8; color: var(--text-secondary); }
+.article-content h2 { font-size: 1.9rem; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); color: var(--text-primary); font-weight: 700; }
+.article-content h3 { font-size: 1.3125rem; margin-top: 2.25rem; margin-bottom: 1rem; color: var(--text-primary); font-weight: 700; }
+.article-content h4 { font-size: 1.0625rem; margin-top: 1.75rem; margin-bottom: 0.75rem; color: var(--text-primary); font-weight: 600; }
+.article-content p { margin-bottom: 1.5rem; }
+.article-content ul, .article-content ol { margin: 1.5rem 0; padding-left: 2rem; }
+.article-content li { margin-bottom: 0.5rem; }
+.article-content pre { background: #1a1a1a; color: #f8f8f2; padding: 1.5rem; border-radius: 8px; overflow-x: auto; margin: 1.5rem 0; font-family: 'Courier New', monospace; font-size: 0.8125rem; line-height: 1.5; cursor: pointer; }
+.article-content code { background: var(--bg-alt); color: var(--text-primary); padding: 0.2rem 0.4rem; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.875rem; }
+.article-content pre code { background: transparent; color: inherit; padding: 0; }
+.article-content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.8125rem; }
+.article-content th, .article-content td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; vertical-align: top; }
+.article-content th { background: var(--bg-alt); color: var(--text-primary); font-weight: 700; }
+.table-wrap { overflow-x: auto; }
+.info-box { background: var(--accent-subtle); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.warning-box { background: #fff7ed; border-left: 4px solid #f97316; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.success-box { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.table-of-contents { background: var(--bg-alt); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 12px 12px 0; }
+.table-of-contents ul { list-style: none; padding-left: 0; columns: 2; column-gap: 24px; }
+.table-of-contents li { margin-bottom: 0.6rem; padding-left: 1.5rem; position: relative; break-inside: avoid; }
+.table-of-contents li:before { content: "→"; position: absolute; left: 0; color: var(--accent); }
+.table-of-contents a { color: var(--accent); text-decoration: none; font-weight: 500; font-size: 0.9375rem; }
+.table-of-contents a:hover { text-decoration: underline; }
+@media (max-width: 640px) { .table-of-contents ul { columns: 1; } }
+header h1 { font-size: 2.25rem; font-weight: 800; color: var(--text-primary); line-height: 1.2; margin-bottom: 1.5rem; margin-top: 2rem; }
+header .category-badge { display: inline-block; background: var(--accent-subtle); color: var(--accent); padding: 6px 16px; border-radius: 20px; font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.reading-time { font-size: 0.875rem; color: var(--text-tertiary); font-weight: 500; }
+header p.text-center { text-align: center; margin-bottom: 1rem; color: var(--text-secondary); }
+
+/* Flow diagram */
+.diagram-scroll { overflow-x: auto; margin: 2rem 0; padding-bottom: 4px; }
+.flow-diagram { display: flex; align-items: stretch; gap: 0; min-width: min-content; }
+.flow-step { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 0.75rem; font-weight: 700; color: var(--text-primary); text-align: center; min-width: 108px; display: flex; flex-direction: column; justify-content: center; text-decoration: none; }
+.flow-step small { display: block; font-weight: 400; color: var(--text-tertiary); font-size: 0.625rem; margin-top: 6px; line-height: 1.4; }
+.flow-arrow { display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 1.1rem; flex: 0 0 auto; padding: 0 8px; }
+.flow-diagram.vertical { flex-direction: column; align-items: center; }
+.flow-diagram.vertical .flow-arrow { padding: 4px 0; }
+.flow-diagram.vertical .flow-step { min-width: 220px; }
+
+/* Relationship / layered diagram */
+.rel-diagram { margin: 2rem 0; }
+.rel-layer { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+.rel-connector { display: flex; justify-content: center; align-items: center; gap: 36px; padding: 8px 0; color: var(--accent); font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; text-align: center; }
+.rel-entity { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 10px; min-width: 150px; max-width: 220px; overflow: hidden; flex: 1 1 160px; }
+.rel-entity h4 { margin: 0; padding: 9px 12px; background: var(--accent-subtle); color: var(--accent); font-size: 0.75rem; font-weight: 700; border-bottom: 1px solid var(--border); }
+.rel-entity .rel-fields { list-style: none; margin: 0; padding: 8px 12px; font-size: 0.6875rem; font-family: 'Courier New', monospace; color: var(--text-tertiary); }
+.rel-entity .rel-fields li { margin-bottom: 3px; }
+
+/* Decision flowchart */
+.decision-flow { display: flex; flex-direction: column; align-items: center; margin: 2rem 0; }
+.decision-node { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); text-align: center; max-width: 340px; }
+.decision-flow .flow-arrow-down { color: var(--accent); font-size: 1.25rem; padding: 4px 0; }
+.decision-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.decision-diamond { width: 128px; height: 128px; background: var(--accent-subtle); border: 2px solid var(--accent); transform: rotate(45deg); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.decision-diamond span { transform: rotate(-45deg); font-size: 0.75rem; font-weight: 700; text-align: center; color: var(--text-primary); padding: 10px; line-height: 1.3; }
+.decision-branch-note { background: var(--bg-alt); border: 1px dashed var(--border); border-radius: 8px; padding: 10px 14px; font-size: 0.75rem; color: var(--text-secondary); max-width: 240px; }
+.decision-branch-note strong { color: var(--accent); }
+.decision-end { background: var(--accent); color: #fff; border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 700; text-align: center; max-width: 340px; }
+</style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="nav" role="navigation">
+<div class="nav-inner">
+  <a href="index.html" class="nav-brand">Mostasim Mahmud Tasim</a>
+  <ul class="nav-links">
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="index.html#experience">Experience</a></li>
+    <li><a href="index.html#capabilities">Engineering</a></li>
+    <li><a href="index.html#projects">Projects</a></li>
+    <li><a href="index.html#infrastructure">Infrastructure</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="https://github.com/tasim313" class="nav-ext" target="_blank"><i class="fa-brands fa-github"></i></a>
+    <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" class="nav-ext" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+    <button class="theme-toggle" id="themeToggle"><svg id="sunIcon" style="display:none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg><svg id="moonIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg></button>
+    <button class="mobile-toggle" id="mobileToggle"><span></span><span></span><span></span></button>
+  </div>
+</div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html#about">About</a>
+  <a href="index.html#experience">Experience</a>
+  <a href="index.html#capabilities">Engineering</a>
+  <a href="index.html#projects">Projects</a>
+  <a href="index.html#infrastructure">Infrastructure</a>
+  <a href="blog.html">Blog</a>
+  <a href="index.html#contact">Contact</a>
+</div>
+
+    <!-- Article Header -->
+    <header class="pt-12 pb-8">
+        <div class="article-container">
+            <div class="text-center mb-8">
+                <span class="category-badge">ERPNext &amp; Frappe</span>
+                <span class="reading-time ml-4">🇧🇩 BD Case Study · Part 4: DevOps &amp; Production</span>
+            </div>
+
+            <h1>ERPNext Custom Development, DevOps &amp; Production: The Bangladesh Case Study Playbook</h1>
+
+            <div class="text-center text-gray-600 mb-8">
+                <p class="text-sm">Published: <span class="font-semibold">Aug 30, 2026</span></p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Article Content -->
+    <main class="pb-16">
+        <div class="article-container">
+            <!-- Table of Contents -->
+            <div class="table-of-contents fade-in">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">📋 Table of Contents</h3>
+                <ul class="space-y-2">
+                    <li><a href="#custom-dev-lifecycle">Custom Development Lifecycle</a></li>
+                    <li><a href="#custom-app-structure-bd">Custom App Structure for Both Projects</a></li>
+                    <li><a href="#custom-doctype-examples">Four Worked DocType Designs</a></li>
+                    <li><a href="#python-business-logic">Python Business Logic</a></li>
+                    <li><a href="#client-side-js">JavaScript / Client-Side</a></li>
+                    <li><a href="#security-architecture">Security Architecture</a></li>
+                    <li><a href="#redis-role">Redis in This Architecture</a></li>
+                    <li><a href="#realtime-websocket">Real-Time / WebSocket</a></li>
+                    <li><a href="#database-architecture-bd">Database Architecture for Production</a></li>
+                    <li><a href="#nginx-production">Nginx in Production</a></li>
+                    <li><a href="#production-deployment-diagram">Full Production Deployment Architecture</a></li>
+                    <li><a href="#cicd-pipeline">CI/CD Pipeline</a></li>
+                    <li><a href="#release-versioning">Release &amp; Versioning</a></li>
+                    <li><a href="#db-migration">Database Migration</a></li>
+                    <li><a href="#backup-architecture">Backup Architecture</a></li>
+                    <li><a href="#monitoring">Monitoring</a></li>
+                    <li><a href="#reporting-architecture">Reporting Architecture</a></li>
+                    <li><a href="#api-integration-both">API Integration for Both Projects</a></li>
+                    <li><a href="#external-integration-both">External Integration</a></li>
+                    <li><a href="#custom-module-apis">Custom Module API Examples</a></li>
+                    <li><a href="#testing-strategy">Testing Strategy</a></li>
+                    <li><a href="#deployment-checklist">Deployment Checklist</a></li>
+                    <li><a href="#disaster-recovery">Disaster Recovery</a></li>
+                    <li><a href="#business-continuity">Business Continuity</a></li>
+                    <li><a href="#performance-scalability">Performance &amp; Scalability</a></li>
+                    <li><a href="#multi-company-branch">Multi-Company &amp; Multi-Branch</a></li>
+                    <li><a href="#master-comparison">Hospital vs Real Estate: The Complete Comparison</a></li>
+                    <li><a href="#final-architecture-bd">Final Architecture: One Diagram for the Whole Series</a></li>
+                    <li><a href="#developer-roadmap-bd">Developer Roadmap</a></li>
+                    <li><a href="#decision-framework-recap">The Decision Framework, Applied</a></li>
+                    <li><a href="#final-project">Final Project Assignment</a></li>
+                    <li><a href="#series-wrap">Series Complete</a></li>
+                </ul>
+            </div>
+
+            <!-- Article Content -->
+            <article class="article-content fade-in">
+
+                <section id="custom-dev-lifecycle">
+                    <h2>🔁 Custom Development Lifecycle</h2>
+                    <p>Parts 2 and 3 of this series walked through the hospital's Clinical Management and Laboratory modules and the real estate firm's Property and Construction modules from the business side — what each screen means and why it exists. This part walks through the same four custom modules from the <strong>developer</strong> side: how a requirement actually becomes a DocType, a controller, a UI, an API, and eventually a deployed, monitored production system. This is the same custom-development lifecycle that <a href="erpnext-custom-frappe-app-development.html#app-directory-structure">Building a Custom Frappe App</a> in the 9-part course covers generically — this part applies it concretely to the two real projects instead of a single teaching example.</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram vertical">
+                            <div class="flow-step">Requirement</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Business Analysis</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">DocType Design</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Field Design</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Relationship Design</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Permission Design</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Workflow Design</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Python Controller</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">JavaScript</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Hooks</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">API</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Reports</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Testing</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Migration</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Deployment</div>
+                        </div>
+                    </div>
+                    <p>Every DocType covered in this part — Patient, Lab Request, Property Unit, Property Booking, and the ones behind them from Parts 2 and 3 — passed through this exact chain. Skipping a step (most commonly permission design or testing) is where custom Frappe apps tend to accumulate the kind of technical debt that only surfaces once real users hit the system in production.</p>
+                </section>
+
+                <section id="custom-app-structure-bd">
+                    <h2>📦 Custom App Structure for Both Projects</h2>
+                    <p>Both custom domains — hospital and real estate — can share one physical app layout, split into two module folders. The base directory pattern is the same one covered in <a href="erpnext-custom-frappe-app-development.html#app-directory-structure">the 9-part course's custom app structure section</a>; the only difference here is that this app carries two unrelated business domains side by side instead of one:</p>
+                    <pre><code>custom_app/
+├── hooks.py
+├── modules.txt
+├── patches.txt
+├── public/
+├── templates/
+├── api/
+├── config/
+└── custom_app/
+    ├── hospital/
+    │   ├── doctype/
+    │   ├── report/
+    │   ├── page/
+    │   └── workspace/
+    └── property/
+        ├── doctype/
+        ├── report/
+        ├── page/
+        └── workspace/</code></pre>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Entry</th><th>What it holds</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>hooks.py</code></td><td>App-level config: doc events, scheduler events, fixtures, includes — see <a href="erpnext-custom-frappe-app-development.html#hooks-events-deep">Hooks &amp; Events Deep Dive</a></td></tr>
+                            <tr><td><code>modules.txt</code></td><td>The modules this app declares (here, effectively Hospital and Property)</td></tr>
+                            <tr><td><code>patches.txt</code></td><td>Ordered list of data/schema migration scripts run on <code>bench migrate</code></td></tr>
+                            <tr><td><code>public/</code></td><td>JS/CSS/images served to the browser for both modules</td></tr>
+                            <tr><td><code>templates/</code></td><td>Jinja templates for web pages, print formats, and emails</td></tr>
+                            <tr><td><code>api/</code></td><td>Whitelisted Python methods exposed as custom REST-style endpoints (see <a href="#custom-module-apis">Custom Module API Examples</a> below)</td></tr>
+                            <tr><td><code>config/</code></td><td>Module/desktop config — icons, labels, and workspace registration</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>One app with two module folders and two separate apps are both legitimate choices, and the right one is a deployment decision more than a technical one:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Choice</th><th>Tradeoff</th></tr></thead>
+                        <tbody>
+                            <tr><td>One app, two modules</td><td>Simpler deployment and versioning — one <code>bench get-app</code>, one install, one version tag for both businesses. Harder to release a hospital-only fix without touching the property code path.</td></tr>
+                            <tr><td>Two separate apps</td><td>Independent release cycles per business — the hospital app can ship a hotfix without redeploying the property app. More moving parts: two repos, two version histories, two install steps per site.</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="custom-doctype-examples">
+                    <h2>🧱 Four Worked DocType Designs</h2>
+                    <p>Parts 2 and 3 already explained what these DocTypes mean to the business — see <a href="erpnext-bd-hospital-management.html#custom-module-a-clinical">Clinical Management</a> and <a href="erpnext-bd-hospital-management.html#custom-module-b-lab">Laboratory</a> for the hospital, and <a href="erpnext-bd-real-estate-construction.html#custom-module-a-property">Property/Sales</a> and <a href="erpnext-bd-real-estate-construction.html#custom-module-b-sales">Construction Management</a> for real estate. This section covers the same four DocTypes from the <strong>developer</strong> view: how they'd typically be shaped as DocType definitions, illustratively — exact field names and behavior always depend on the actual implementation and version.</p>
+
+                    <h3>Patient (Hospital)</h3>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+                        <tbody>
+                            <tr><td><em>naming</em></td><td>autoname</td><td>Illustrative naming series, e.g. <code>PAT-.YYYY.-.#####</code></td></tr>
+                            <tr><td>patient_name</td><td>Data</td><td>Mandatory</td></tr>
+                            <tr><td>customer</td><td>Link (Customer)</td><td>Ties the Patient back to ERPNext core billing</td></tr>
+                            <tr><td>primary_doctor</td><td>Link (Employee/Practitioner)</td><td>Optional at registration, set before a visit</td></tr>
+                            <tr><td><em>permissions</em></td><td>—</td><td>Front-desk/registration roles: read+write; Doctor/Nurse roles: read+write on assigned patients; Admin: full</td></tr>
+                            <tr><td><em>submit/cancel</em></td><td>—</td><td>Typically a simple, non-submittable master — a patient record persists and is edited, not submitted per visit</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+
+                    <h3>Lab Request (Hospital)</h3>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+                        <tbody>
+                            <tr><td><em>naming</em></td><td>autoname</td><td>Illustrative series, e.g. <code>LAB-REQ-.YYYY.-.#####</code></td></tr>
+                            <tr><td>patient</td><td>Link (Patient)</td><td>Mandatory</td></tr>
+                            <tr><td>requested_tests</td><td>Table (child)</td><td>One row per requested test, mandatory at least one row</td></tr>
+                            <tr><td>requesting_doctor</td><td>Link (Employee)</td><td>Set on creation</td></tr>
+                            <tr><td><em>permissions</em></td><td>—</td><td>Doctor: create/read; Lab Technician: read/write on assigned requests; Lab Manager: submit/cancel</td></tr>
+                            <tr><td><em>submit/cancel</em></td><td>—</td><td>Submittable transaction document — a submitted request is what a lab technician acts on, and cancellation follows the standard submit/cancel lifecycle</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+
+                    <h3>Property Unit (Real Estate)</h3>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+                        <tbody>
+                            <tr><td><em>naming</em></td><td>autoname</td><td>Illustrative, e.g. <code>&lt;project&gt;-&lt;floor&gt;-&lt;unit_no&gt;</code></td></tr>
+                            <tr><td>project</td><td>Link (Project)</td><td>Mandatory</td></tr>
+                            <tr><td>unit_status</td><td>Select</td><td>e.g. Available / Booked / Sold — mandatory, defaults to Available</td></tr>
+                            <tr><td>size_sqft</td><td>Float</td><td>Used in pricing calculations</td></tr>
+                            <tr><td><em>permissions</em></td><td>—</td><td>Sales role: read; Property Manager role: read/write; Admin: full</td></tr>
+                            <tr><td><em>submit/cancel</em></td><td>—</td><td>Simple master with a status field — not submittable itself; its status changes as bookings against it are submitted or cancelled</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+
+                    <h3>Property Booking (Real Estate)</h3>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+                        <tbody>
+                            <tr><td><em>naming</em></td><td>autoname</td><td>Illustrative series, e.g. <code>BOOK-.YYYY.-.#####</code></td></tr>
+                            <tr><td>unit</td><td>Link (Property Unit)</td><td>Mandatory</td></tr>
+                            <tr><td>customer</td><td>Link (Customer)</td><td>Mandatory</td></tr>
+                            <tr><td>installment_plan</td><td>Table (child)</td><td>Installment schedule rows</td></tr>
+                            <tr><td><em>permissions</em></td><td>—</td><td>Sales Executive: create; Sales Manager: submit/cancel; Accounts: read for reconciliation</td></tr>
+                            <tr><td><em>submit/cancel</em></td><td>—</td><td>Submittable transaction document — submitting is what should flip the linked Unit's status to Booked/Sold via server-side logic</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="python-business-logic">
+                    <h2>🐍 Python Business Logic</h2>
+                    <p>Doc-event hooks are where server-side rules actually live, because — unlike client scripts — they cannot be bypassed by a browser tab or a direct API call:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Hook</th><th>When it fires</th><th>Typical use here</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>validate</code></td><td>Before every save, draft or submit</td><td>Property Booking: check the linked Unit's status is "Available" before allowing the booking to proceed</td></tr>
+                            <tr><td><code>before_save</code></td><td>Just before the record is written</td><td>Normalize/derive a computed field, e.g. total installment amount</td></tr>
+                            <tr><td><code>before_submit</code></td><td>Just before a submittable doc is submitted</td><td>Lab Request: confirm all requested tests have a result entered</td></tr>
+                            <tr><td><code>on_submit</code></td><td>Immediately after submit</td><td>Lab Report: auto-create a Sales Invoice for the linked Patient/Customer</td></tr>
+                            <tr><td><code>on_cancel</code></td><td>Immediately after cancel</td><td>Property Booking: revert the linked Unit's status back to Available</td></tr>
+                            <tr><td><code>on_update</code></td><td>After any save (draft or submitted)</td><td>Push a real-time notification to a dashboard (see <a href="#realtime-websocket">Real-Time / WebSocket</a>)</td></tr>
+                            <tr><td><code>autoname</code></td><td>While generating the document's name</td><td>Custom naming series per hospital department or per real estate project</td></tr>
+                            <tr><td><code>permissions</code></td><td>On every access check</td><td>Row-level rule, e.g. a Doctor only sees Lab Requests they raised, via <code>permission_query_conditions</code></td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>The following is illustrative syntax only — a shape a <code>validate()</code> method for a Lab-Request-style controller might take, not exact code from a real deployment:</p>
+                    <pre><code># Illustrative syntax — not guaranteed exact for any specific version
+class LabRequest(Document):
+    def validate(self):
+        # validate patient
+        # validate requested tests
+        # validate status</code></pre>
+                    <p>Not every piece of logic belongs in the same place — picking the right layer matters as much as writing correct logic:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Layer</th><th>Belongs here</th></tr></thead>
+                        <tbody>
+                            <tr><td>Client Script</td><td>UI-only behavior: show/hide fields, set filters, prompt the user — see <a href="erpnext-customization-guide.html#client-script">Client Script</a></td></tr>
+                            <tr><td>Python controller</td><td>Rules that must always hold true regardless of how the document was created (form, API, import)</td></tr>
+                            <tr><td>Hook (<code>hooks.py</code>)</td><td>Cross-cutting logic tied to lifecycle events, especially logic reacting to another app's/module's DocType</td></tr>
+                            <tr><td>API (whitelisted method)</td><td>Logic exposed deliberately to external callers, with its own auth/validation</td></tr>
+                            <tr><td>Server Script</td><td>Admin-configurable logic without a full app deployment — see <a href="erpnext-customization-guide.html#server-script">Server Script</a></td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="client-side-js">
+                    <h2>🖱️ JavaScript / Client-Side</h2>
+                    <p>Client scripts shape what the user experiences in the moment: which fields appear, what a Link field's query is filtered to, what gets fetched from a related document, and what inline validation warns about before a save is even attempted. Typical client-side responsibilities include form events (<code>refresh</code>, <code>onload</code>, field-level triggers), dynamic field visibility, Link field queries scoped to relevant records, pulling and displaying data from a linked document, and lightweight UX-level validation.</p>
+                    <p>The following is illustrative syntax only:</p>
+                    <pre><code>// Illustrative syntax — not guaranteed exact for any specific version
+frappe.ui.form.on("Lab Request", {
+    refresh(frm) {
+        // UI behavior
+    }
+});</code></pre>
+                    <div class="warning-box">
+                        <strong>⚠️ Client-side validation is never sufficient on its own.</strong> A determined user with browser dev tools, or a script calling the API directly, can bypass any amount of JavaScript validation entirely — the request still reaches the server. Anything that must <em>always</em> hold true — a booking can't be made against a Sold unit, a Lab Report can't be submitted without a result — has to be enforced in Python (see <a href="#python-business-logic">Python Business Logic</a> above and <a href="erpnext-customization-guide.html#client-script">Client Script</a> for where the line sits).
+                    </div>
+                </section>
+
+                <section id="security-architecture">
+                    <h2>🔐 Security Architecture</h2>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram vertical">
+                            <div class="flow-step">User</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Authentication</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Role</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Role Permission</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">User Permission</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Document Permission</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Server Validation</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Database</div>
+                        </div>
+                    </div>
+                    <p>For the full depth on roles and permissions, see <a href="erpnext-users-permissions.html">Users, Roles &amp; Permissions</a> and the hardening checklist in <a href="erpnext-api-deployment-troubleshooting.html#security-hardening">Security Hardening</a>. Every layer below matters — skipping any one of them is where real incidents tend to start:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Concern</th><th>One-line explanation</th></tr></thead>
+                        <tbody>
+                            <tr><td>Password security</td><td>Enforce a real password policy; never store or log plaintext passwords</td></tr>
+                            <tr><td>HTTPS</td><td>Every request, every environment — including internal staging — should be TLS-encrypted</td></tr>
+                            <tr><td>RBAC</td><td>Roles gate what a user can do; keep roles scoped to job function, not blanket admin access</td></tr>
+                            <tr><td>API authentication</td><td>Every API caller must authenticate; no anonymous write access to business data</td></tr>
+                            <tr><td>API key/secret</td><td>Scoped per integration, rotated on suspicion of exposure, never committed to source control</td></tr>
+                            <tr><td>OAuth</td><td>Preferred for third-party/user-delegated integrations over shared static keys where supported</td></tr>
+                            <tr><td>CSRF considerations</td><td>Browser-session requests need CSRF protection; token-authenticated API calls follow a different threat model</td></tr>
+                            <tr><td>Server-side validation</td><td>The only validation that can't be bypassed by the caller — see <a href="#client-side-js">JavaScript / Client-Side</a></td></tr>
+                            <tr><td>Audit trail</td><td>Owner, modified_by, and version history on every document — essential for both clinical and financial records</td></tr>
+                            <tr><td>File permissions</td><td>Private files (e.g. lab results, contracts) must not be served from a publicly readable path</td></tr>
+                            <tr><td>Database credentials</td><td>Unique per environment, never reused between staging and production</td></tr>
+                            <tr><td>Secrets management</td><td>Environment variables or a secrets manager — never hard-coded in app source</td></tr>
+                            <tr><td>Firewall</td><td>Only the ports actually needed (typically 80/443/22) exposed to the internet</td></tr>
+                            <tr><td>Least privilege</td><td>Every user, role, and service account gets the minimum access that lets it do its job</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="redis-role">
+                    <h2>🧵 Redis in This Architecture</h2>
+                    <p>Redis is not optional infrastructure sitting off to the side — several core pieces of the stack depend on it directly:</p>
+                    <div class="rel-diagram">
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>Web</h4></div>
+                            <div class="rel-entity"><h4>Queue</h4></div>
+                            <div class="rel-entity"><h4>Scheduler</h4></div>
+                            <div class="rel-entity"><h4>Socket</h4></div>
+                        </div>
+                        <div class="rel-connector"><span class="arrow">↓ all depend on</span></div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>Redis</h4></div></div>
+                    </div>
+                    <p>Redis backs the background job queue, response/data caching, and the real-time pub/sub channel that Socket.IO uses. If Redis becomes unavailable, the general expectation — not a guarantee for any specific version or deployment — is that background jobs (the hospital's nightly reminder emails, a bulk installment reminder job for the real estate firm) stall or stop being picked up, and real-time notifications (like a lab-result approval alert) stop delivering. Whether core document create/read/update/delete through the web process keeps working during a Redis outage depends on how much of that path is cached versus computed live, and should be verified against the actual deployment rather than assumed.</p>
+                </section>
+
+                <section id="realtime-websocket">
+                    <h2>📡 Real-Time / WebSocket</h2>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">User A</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">ERPNext</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Realtime Event</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">WebSocket</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">User B</div>
+                        </div>
+                    </div>
+                    <p>Two illustrative scenarios from the two custom apps:</p>
+                    <ul>
+                        <li><strong>Hospital:</strong> a Lab Technician approves a Lab Result → a realtime event fires → the requesting doctor's dashboard shows a live notification, without a page refresh.</li>
+                        <li><strong>Real estate:</strong> a Sales Manager approves a Property Booking → a realtime event fires → the sales dashboard updates unit availability for every sales executive currently viewing it.</li>
+                    </ul>
+                </section>
+
+                <section id="database-architecture-bd">
+                    <h2>🗄️ Database Architecture for Production</h2>
+                    <p>MariaDB is the primary, long-supported database engine for ERPNext and the Frappe Framework, and it's the safe default assumption for any production deployment in this series. PostgreSQL support has existed in parts of the Frappe ecosystem at various points, but its availability, maturity, and exact capabilities are <strong>version and deployment dependent</strong> — verify PostgreSQL support and its exact capabilities for the specific ERPNext/Frappe release before choosing it, and do not assume feature parity with MariaDB. This series does not instruct switching database engines and treats MariaDB as the baseline throughout.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Concern</th><th>Conceptual note</th></tr></thead>
+                        <tbody>
+                            <tr><td>Transactions</td><td>Multi-statement operations (e.g. a submit that writes several tables) should be atomic — all succeed or all roll back</td></tr>
+                            <tr><td>Indexes</td><td>Fields used heavily in filters/joins (Link fields, status fields) benefit from indexing; over-indexing has its own write-performance cost</td></tr>
+                            <tr><td>Backup</td><td>Regular, automated, verified — see <a href="#backup-architecture">Backup Architecture</a></td></tr>
+                            <tr><td>Restore</td><td>A backup that has never been restored in a test is not a proven backup</td></tr>
+                            <tr><td>Performance</td><td>Query patterns matter more than raw hardware once data volume grows — see <a href="#performance-scalability">Performance &amp; Scalability</a></td></tr>
+                            <tr><td>Connection management</td><td>Connection pooling and sane timeouts prevent one runaway process from starving the database</td></tr>
+                            <tr><td>Migration</td><td>Schema changes should be applied through the framework's migration mechanism, not hand-run SQL — see <a href="#db-migration">Database Migration</a></td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="nginx-production">
+                    <h2>🌐 Nginx in Production</h2>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram vertical">
+                            <div class="flow-step">Internet</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">DNS</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Cloud Firewall</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Nginx</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">HTTPS</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">ERPNext</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Workers</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Redis</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Database</div>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Concern</th><th>Role</th></tr></thead>
+                        <tbody>
+                            <tr><td>Reverse proxy</td><td>Sits in front of the app server, forwarding requests to Gunicorn</td></tr>
+                            <tr><td>SSL termination</td><td>Handles TLS so the app server itself doesn't manage certificates</td></tr>
+                            <tr><td>HTTP→HTTPS redirect</td><td>Ensures no request is ever served unencrypted</td></tr>
+                            <tr><td>Domain routing</td><td>Routes multiple site domains on one bench to the correct site</td></tr>
+                            <tr><td>Static file serving</td><td>Serves JS/CSS/uploaded files directly, without hitting the Python process</td></tr>
+                            <tr><td>Proxy headers</td><td>Forwards real client IP and protocol info to the app server</td></tr>
+                            <tr><td>WebSocket support</td><td>Upgrade headers configured so Socket.IO connections work through the proxy</td></tr>
+                            <tr><td>Timeout configuration</td><td>Long-running requests (large reports, bulk operations) need sane, explicit timeouts</td></tr>
+                            <tr><td>Security headers</td><td>HSTS, X-Frame-Options, and similar headers reduce common web attack surface</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="production-deployment-diagram">
+                    <h2>🏭 Full Production Deployment Architecture</h2>
+                    <div class="rel-diagram">
+                        <div class="rel-layer"><div class="rel-entity"><h4>Internet</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓ HTTPS</span></div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>NGINX</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓ ↓</span></div>
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>Web App</h4></div>
+                            <div class="rel-entity"><h4>WebSocket</h4></div>
+                        </div>
+                        <div class="rel-connector"><span class="arrow">↓</span></div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>Frappe</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓ ↓ ↓</span></div>
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>Workers</h4></div>
+                            <div class="rel-entity"><h4>Scheduler</h4></div>
+                            <div class="rel-entity"><h4>API</h4></div>
+                        </div>
+                        <div class="rel-connector"><span class="arrow">↓</span></div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>Redis</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span></div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>Database</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span></div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>Backups</h4></div></div>
+                    </div>
+                    <p>Every box in this diagram appeared individually earlier in the series — the <a href="erpnext-beginner-to-intermediate.html#production">Beginner course's production diagram</a> covers the same shape at a general level; this version reflects the full path both the hospital and real estate deployments run in practice.</p>
+                </section>
+
+                <section id="cicd-pipeline">
+                    <h2>🔄 CI/CD Pipeline</h2>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram vertical">
+                            <div class="flow-step">Developer</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Git Branch</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Pull Request</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Code Review</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">CI<small>Lint · Unit Test · Integration Test · Build · Security Scan</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Staging</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">UAT</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Approval</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Production</div>
+                        </div>
+                    </div>
+                    <ul>
+                        <li>Git as the single source of truth for both custom apps' code</li>
+                        <li>Feature branches per requirement, never committing straight to the production branch</li>
+                        <li>Pull requests as the review gate before merge</li>
+                        <li>Version tags marking every release that reaches production</li>
+                        <li>Release notes summarizing what changed, for both the technical team and the business stakeholders</li>
+                        <li>Database migrations tested in staging before they ever run against production data</li>
+                        <li><code>bench</code> commands (build, migrate, restart) scripted rather than run ad hoc by hand</li>
+                        <li>A documented rollback strategy for every release, decided before deployment, not improvised after</li>
+                    </ul>
+                </section>
+
+                <section id="release-versioning">
+                    <h2>🏷️ Release &amp; Versioning</h2>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Feature Development</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Commit</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Pull Request</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Review</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">CI</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Version</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Release</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Deploy Staging</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">UAT</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Production</div>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Version</th><th>Meaning</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>1.0.0</code></td><td>Initial release</td></tr>
+                            <tr><td><code>1.1.0</code></td><td>New feature, backward compatible</td></tr>
+                            <tr><td><code>1.1.1</code></td><td>Bug fix only, no new behavior</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>A breaking change (removing a field the API relies on, changing a DocType's meaning) bumps the major version; a new, backward-compatible capability (a new report, a new optional field) bumps the minor version; a fix with no behavior change bumps the patch version. Treating these three categories differently is what lets other systems (the hospital's mobile app, the property website) know whether upgrading is safe without reading every commit.</p>
+                </section>
+
+                <section id="db-migration">
+                    <h2>🗃️ Database Migration</h2>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Developer</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Change DocType</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Migration/Patch</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Git</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">CI</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Staging</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Backup</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Production Migration</div>
+                        </div>
+                    </div>
+                    <ul>
+                        <li><code>bench migrate</code> as the standard mechanism for applying pending schema/data changes</li>
+                        <li>Patches for one-off data transformations that a plain schema change can't express</li>
+                        <li>Schema changes (new fields, changed field types) driven through the DocType definition, not hand-written SQL</li>
+                        <li>Fixtures for exporting/reapplying configuration (custom fields, roles, workflows) across environments</li>
+                        <li>Data migration scripts tested against a copy of production-shaped data, not just an empty dev site</li>
+                        <li>Rollback planning decided <em>before</em> running a migration in production, not after something breaks</li>
+                    </ul>
+                    <p>See <a href="erpnext-custom-frappe-app-development.html">Building a Custom Frappe App</a> for how patches and fixtures are structured, and <a href="erpnext-api-deployment-troubleshooting.html#backup-recovery">Backup &amp; Recovery</a> for why a backup always precedes a production migration.</p>
+                </section>
+
+                <section id="backup-architecture">
+                    <h2>💾 Backup Architecture</h2>
+                    <div class="rel-diagram">
+                        <div class="rel-layer"><div class="rel-entity"><h4>Production ERPNext</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓ ↓ ↓</span></div>
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>Database Backup</h4></div>
+                            <div class="rel-entity"><h4>Private Files</h4></div>
+                            <div class="rel-entity"><h4>Public Files</h4></div>
+                        </div>
+                        <div class="rel-connector"><span class="arrow">↓</span></div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>Backup Storage</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓ ↓ ↓</span></div>
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>Daily</h4></div>
+                            <div class="rel-entity"><h4>Weekly</h4></div>
+                            <div class="rel-entity"><h4>Monthly</h4></div>
+                        </div>
+                    </div>
+                    <ul>
+                        <li>Full database backup on a regular, automated schedule</li>
+                        <li>File backup covering both private files (lab results, contracts) and public files</li>
+                        <li>Encryption at rest for backup storage, especially given the clinical and financial data involved</li>
+                        <li>Offsite backup — never stored only on the same server it protects against losing</li>
+                        <li>A defined retention policy across daily/weekly/monthly tiers</li>
+                        <li>Restore testing on a real cadence, not a one-time exercise</li>
+                        <li>A documented disaster recovery plan (see <a href="#disaster-recovery">Disaster Recovery</a>)</li>
+                        <li>An explicit RPO (Recovery Point Objective) — how much data loss is acceptable</li>
+                        <li>An explicit RTO (Recovery Time Objective) — how long recovery is allowed to take</li>
+                    </ul>
+                </section>
+
+                <section id="monitoring">
+                    <h2>📈 Monitoring</h2>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Category</th><th>Example signals</th></tr></thead>
+                        <tbody>
+                            <tr><td>Infrastructure</td><td>CPU, RAM, disk usage and headroom</td></tr>
+                            <tr><td>Application</td><td>Error rates, response time, application logs</td></tr>
+                            <tr><td>Database</td><td>Slow queries, connection counts</td></tr>
+                            <tr><td>Queue</td><td>Background job backlog, failed job count</td></tr>
+                            <tr><td>Security</td><td>Failed login attempts, unusual API call volume</td></tr>
+                            <tr><td>Business KPIs</td><td>Daily revenue, bookings, admissions — the same figures behind the hospital and real estate dashboards covered in Parts 2 and 3</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="reporting-architecture">
+                    <h2>📊 Reporting Architecture</h2>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">DocType</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Database</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Report Query/Logic</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Report</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Dashboard</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Management Decision</div>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Type</th><th>One line</th></tr></thead>
+                        <tbody>
+                            <tr><td>Query Report</td><td>SQL-defined tabular report, fast to build for a fixed question</td></tr>
+                            <tr><td>Script Report</td><td>Python-defined report for logic too complex for a single query</td></tr>
+                            <tr><td>Report Builder</td><td>No-code filtered/grouped view built entirely in the UI</td></tr>
+                            <tr><td>Dashboard</td><td>A composed page of charts and number cards around one theme</td></tr>
+                            <tr><td>Chart</td><td>A single visual aggregation, reusable across dashboards</td></tr>
+                            <tr><td>Number Card</td><td>One headline metric, e.g. today's admissions or today's bookings</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="api-integration-both">
+                    <h2>🔗 API Integration for Both Projects</h2>
+                    <ul>
+                        <li>Authentication via API key/secret or OAuth, never anonymous write access</li>
+                        <li>GET for reads, POST for creates, PUT for updates, DELETE for removals — standard REST semantics</li>
+                        <li>Webhooks for outbound event notification (e.g. notifying the property website when a unit's status changes)</li>
+                        <li>Explicit error handling and meaningful HTTP status codes on every endpoint</li>
+                        <li>Rate limiting to protect the server from a runaway or misbehaving integration</li>
+                        <li>Logging every external API call for auditability</li>
+                        <li>Security scoped per integration — see <a href="erpnext-api-deployment-troubleshooting.html#rest-api-deep">REST API Deep Dive</a> for the full mechanics</li>
+                    </ul>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Hospital Mobile App</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">ERPNext API</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Patient / Appointment / Lab</div>
+                        </div>
+                    </div>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Property Website</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">ERPNext API</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Property Units</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Availability</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Booking</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="external-integration-both">
+                    <h2>🌍 External Integration</h2>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Category</th><th>Meaning</th></tr></thead>
+                        <tbody>
+                            <tr><td>Native</td><td>Built into ERPNext/Frappe already — no custom code needed</td></tr>
+                            <tr><td>Custom</td><td>Built specifically for this deployment via the custom app's hooks and APIs</td></tr>
+                            <tr><td>Third-party</td><td>An external service or system this deployment connects to over an API/webhook</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>Illustrative examples per project, not a confirmed integration list for any real deployment:</p>
+                    <ul>
+                        <li><strong>Hospital:</strong> SMS gateway, email, payment gateway, the hospital's public website, a mobile app, laboratory instruments (where technically supported by the specific hardware/interface), and accounting/reporting systems</li>
+                        <li><strong>Real estate:</strong> the public marketing website, lead capture forms, payment gateway, SMS, email, maps, a customer self-service portal, and document/e-signature systems</li>
+                    </ul>
+                </section>
+
+                <section id="custom-module-apis">
+                    <h2>🧩 Custom Module API Examples</h2>
+                    <pre><code>POST /api/method/hospital.api.create_lab_request
+GET  /api/method/hospital.api.get_patient
+GET  /api/method/hospital.api.get_lab_result
+
+GET  /api/method/property.api.available_units
+POST /api/method/property.api.book_unit
+GET  /api/method/property.api.installments</code></pre>
+                    <p>These are illustrative example endpoint names only; actual endpoint design, naming, and security depend on the real implementation and must be reviewed against the target version's whitelisted-method conventions.</p>
+                </section>
+
+                <section id="testing-strategy">
+                    <h2>🧪 Testing Strategy</h2>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram vertical">
+                            <div class="flow-step">Unit Test</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Integration Test</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Workflow Test</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Permission Test</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Accounting Test</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Stock Test</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">API Test</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Performance Test</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Security Test</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">UAT</div>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Project</th><th>Example test case</th></tr></thead>
+                        <tbody>
+                            <tr><td>Hospital</td><td>Submitting a Lab Report with an unapproved Result should be blocked</td></tr>
+                            <tr><td>Real Estate</td><td>Booking a Unit already marked Sold should be blocked</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="deployment-checklist">
+                    <h2>✅ Deployment Checklist</h2>
+                    <div class="success-box">
+                        <strong>Before deployment</strong>
+                        <ul style="margin-bottom:0;">
+                            <li>Code reviewed</li>
+                            <li>Tests passed</li>
+                            <li>Database backup taken</li>
+                            <li>File backup taken</li>
+                            <li>Migration tested in staging</li>
+                            <li>Environment variables verified</li>
+                            <li>SSL verified</li>
+                            <li>Worker processes verified</li>
+                            <li>Scheduler verified</li>
+                            <li>Redis verified</li>
+                            <li>Database verified</li>
+                            <li>Nginx verified</li>
+                        </ul>
+                    </div>
+                    <div class="success-box">
+                        <strong>After deployment</strong>
+                        <ul style="margin-bottom:0;">
+                            <li>Login test</li>
+                            <li>Permission test</li>
+                            <li>API test</li>
+                            <li>Workflow test</li>
+                            <li>Accounting test</li>
+                            <li>Stock test</li>
+                            <li>Backup test</li>
+                            <li>Monitoring test</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section id="disaster-recovery">
+                    <h2>🆘 Disaster Recovery</h2>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram vertical">
+                            <div class="flow-step">Production Failure</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Detect</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Stop Damage</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Backup Verification</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Restore</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Database Recovery</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">File Recovery</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Application Recovery</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Validation</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Production Resume</div>
+                        </div>
+                    </div>
+                    <ul>
+                        <li>RPO (Recovery Point Objective) — how much data the business can tolerate losing</li>
+                        <li>RTO (Recovery Time Objective) — how long the business can tolerate being down</li>
+                        <li>Backup retention long enough to cover the realistic detection window for a problem</li>
+                        <li>Restore testing done on a schedule, so the first real restore isn't the first attempted one</li>
+                    </ul>
+                </section>
+
+                <section id="business-continuity">
+                    <h2>🏥 Business Continuity</h2>
+                    <p><strong>Hospital:</strong> if ERPNext becomes unavailable during an emergency admission, the fallback is a paper-based manual process — a physical admission form, a manually logged Lab Request slip — that keeps patient care moving without waiting on the system. Once ERPNext is restored, that paper trail is entered back in as a reconciliation step, cross-checked against what actually happened during the outage before anything is billed or closed out.</p>
+                    <p><strong>Real estate:</strong> if ERPNext becomes unavailable while a buyer is ready to book a unit, the fallback is a temporary manual capture of the transaction (a paper or offline booking form) rather than losing the sale. Once the system is back, that capture is reconciled into a proper Property Booking record — with an explicit check against double-booking, since a unit could otherwise be manually promised to two buyers during the same outage window.</p>
+                </section>
+
+                <section id="performance-scalability">
+                    <h2>⚡ Performance &amp; Scalability</h2>
+                    <ul>
+                        <li>Database indexes on frequently filtered/joined fields</li>
+                        <li>Query optimization before reaching for more hardware</li>
+                        <li>Redis caching for expensive, frequently repeated reads</li>
+                        <li>Background jobs for anything that doesn't need to block the user's request</li>
+                        <li>Queue workers scaled to match actual job volume</li>
+                        <li>Pagination on every list/report that can return large result sets</li>
+                        <li>Reports designed with large datasets in mind from the start, not retrofitted after they get slow</li>
+                        <li>File storage that scales independently of the database</li>
+                        <li>API responses optimized to return only what the caller needs</li>
+                    </ul>
+                    <p>The hospital's Lab Result history can realistically grow into millions of rows over years of operation, and the real estate firm's installment records can reach thousands of customers with recurring schedules — both are the kind of growth that makes indexing and query design matter more than raw server size.</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Single Server</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Production Server</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Separate Database</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Multiple Workers</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Load Balancer</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Scalable Architecture</div>
+                        </div>
+                    </div>
+                    <div class="warning-box">
+                        <strong>⚠️ Scale when a measured bottleneck justifies it, not before.</strong> Neither the hospital nor the real estate deployment needs microservices, sharded databases, or a service mesh at the data volumes described in this series. Premature infrastructure complexity adds operational risk and cost without a corresponding, measured performance problem to justify it — scale one step at a time, driven by actual monitoring data.
+                    </div>
+                </section>
+
+                <section id="multi-company-branch">
+                    <h2>🏢 Multi-Company &amp; Multi-Branch</h2>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Hospital</th><th>Configuration option</th></tr></thead>
+                        <tbody>
+                            <tr><td>Main Hospital / Diagnostic Center / Pharmacy</td><td>Either as separate Companies, or as one Company using Cost Centers to separate them — both are valid choices depending on how independently each unit needs to report financially</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Real Estate</th><th>Configuration option</th></tr></thead>
+                        <tbody>
+                            <tr><td>Development Company / Construction Company / Property Management Company</td><td>Same choice applies — separate Companies for independent books, or one Company with Cost Centers for a simpler consolidated view</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>Branch examples: the hospital operating Dhaka Main Branch, Chittagong Branch, and Sylhet Branch; the real estate firm operating a Dhaka Office, a Chattogram Office, and individual Project Site Offices. Branch architecture isn't cosmetic — it affects how Warehouses, Cost Centers, and User/permission scoping (see <a href="erpnext-users-permissions.html#user-types">User Types</a>) are structured across the whole deployment.</p>
+                </section>
+
+                <section id="master-comparison">
+                    <h2>⚖️ Hospital vs Real Estate: The Complete Comparison</h2>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Area</th><th>Hospital</th><th>Real Estate</th></tr></thead>
+                        <tbody>
+                            <tr><td>Customer</td><td>Patient / Corporate account</td><td>Buyer</td></tr>
+                            <tr><td>Item</td><td>Medicine / Service</td><td>Material / Service</td></tr>
+                            <tr><td>Project</td><td>Hospital Expansion</td><td>Construction Project</td></tr>
+                            <tr><td>Stock</td><td>Medicine</td><td>Construction Material</td></tr>
+                            <tr><td>Custom Module</td><td>Clinical Management</td><td>Property Management</td></tr>
+                            <tr><td>Billing</td><td>Patient Billing</td><td>Apartment Sales</td></tr>
+                            <tr><td>Workflow</td><td>Lab Approval</td><td>Booking Approval</td></tr>
+                            <tr><td>Accounting</td><td>Healthcare Revenue</td><td>Property Revenue</td></tr>
+                            <tr><td>HR</td><td>Doctor / Nurse</td><td>Engineer / Worker</td></tr>
+                            <tr><td>Asset</td><td>Medical Equipment</td><td>Construction Equipment</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>The shape is identical in both columns — only the vocabulary changes. That's the core lesson of the whole series: ERPNext's core modules (Accounting, Stock, HR, Projects) don't change between industries; only the custom module vocabulary layered on top of them does.</p>
+                </section>
+
+                <section id="final-architecture-bd">
+                    <h2>🧭 Final Architecture: One Diagram for the Whole Series</h2>
+                    <div class="rel-diagram">
+                        <div class="rel-layer"><div class="rel-entity"><h4>BUSINESS</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span></div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>ERPNext PLATFORM</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓ ↓ ↓</span></div>
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>Hospital Custom App</h4></div>
+                            <div class="rel-entity"><h4>Real Estate Custom App</h4></div>
+                            <div class="rel-entity"><h4>Other Apps</h4></div>
+                        </div>
+                        <div class="rel-connector"><span class="arrow">↓ converge</span></div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>ERPNext CORE</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓ ↓ ↓</span></div>
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>Accounting</h4></div>
+                            <div class="rel-entity"><h4>Stock</h4></div>
+                            <div class="rel-entity"><h4>HR</h4></div>
+                        </div>
+                        <div class="rel-connector"><span class="arrow">↓ converge</span></div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>Database</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓ ↓ ↓</span></div>
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>Redis</h4></div>
+                            <div class="rel-entity"><h4>Workers</h4></div>
+                            <div class="rel-entity"><h4>Files</h4></div>
+                        </div>
+                        <div class="rel-connector"><span class="arrow">↓</span></div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>Nginx</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span></div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>Internet</h4></div></div>
+                    </div>
+                    <p>Everything in this series — the methodology in Part 1, the two custom apps in Parts 2 and 3, and every mechanism in this part — is one instance of this one diagram.</p>
+                </section>
+
+                <section id="developer-roadmap-bd">
+                    <h2>🗺️ Developer Roadmap</h2>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram vertical">
+                            <div class="flow-step">ERP Beginner</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">ERPNext User</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">ERPNext Administrator</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Frappe Developer</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Custom DocType Developer</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Custom App Developer</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">ERP Integration Developer</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">ERPNext DevOps</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">ERP Solution Architect</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="decision-framework-recap">
+                    <h2>🧩 The Decision Framework, Applied</h2>
+                    <p>Every custom DocType and workflow built across both projects in this series — Patient, Lab Request, Property Unit, Property Booking, and everything alongside them — was arrived at by walking Part 1's <a href="erpnext-bd-implementation-methodology.html#decision-framework">Configure vs Customize vs Custom Module vs Integration decision framework</a>: does an existing ERPNext feature already cover this? Configure it. Can a field or workflow addition cover it? Customize it. Does it need a genuinely new business object ERPNext has no concept of? Build a custom module. Does it need to talk to something outside ERPNext entirely? Build an integration. Two real, fully worked projects later, the framework held up in every case — nothing in this series needed to bypass it or modify ERPNext core.</p>
+                </section>
+
+                <section id="final-project">
+                    <h2>🎓 Final Project Assignment</h2>
+                    <h3>Project A: Hospital Management ERP</h3>
+                    <p><strong>Minimum requirements:</strong> Patient, Doctor, Appointment, Admission, Lab, Pharmacy, Billing, Accounting, Inventory, HR, Payroll, Reports.</p>
+                    <p><strong>Custom Apps:</strong> Hospital Clinical Management, Laboratory Management.</p>
+
+                    <h3>Project B: Real Estate &amp; Construction ERP</h3>
+                    <p><strong>Minimum requirements:</strong> Lead, Customer, Project, Building, Unit, Booking, Installment, Construction, BOQ, Procurement, Stock, Accounting, HR, Payroll, Reports.</p>
+                    <p><strong>Custom Apps:</strong> Property Management, Construction Management.</p>
+
+                    <p>Both projects follow the same deliverable chain, start to finish:</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram vertical">
+                            <div class="flow-step">Business Requirement Document</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Process Flow</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">ERPNext Module Mapping</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Custom Module Architecture</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">DocType Design</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Database Relationship</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Permission Matrix</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Workflow</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Python</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">JavaScript</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">API</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Testing</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">CI/CD</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Deployment</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Backup</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Monitoring</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="series-wrap">
+                    <h2>🏁 Series Complete</h2>
+                    <p>This closes the 4-part <strong>ERPNext Bangladesh Implementation Case Study</strong>: <a href="erpnext-bd-implementation-methodology.html">Part 1 — Implementation Methodology</a>, <a href="erpnext-bd-hospital-management.html">Part 2 — Hospital Management</a>, <a href="erpnext-bd-real-estate-construction.html">Part 3 — Real Estate &amp; Construction</a>, and this part, <strong>Part 4 — Custom Development, DevOps &amp; Production</strong>.</p>
+                    <p>Taken together with the existing <a href="erpnext-beginner-to-intermediate.html">9-part ERPNext Beginner to Intermediate course</a> and the two framework-agnostic accounting-theory posts — <a href="erp-invoice-payment-architecture.html">Invoice vs Payment: The Complete ERP Accounting Architecture</a> and the <a href="accounting-erp-curriculum.html">Accounting to ERP curriculum</a> — this site now carries one coherent body of ERPNext knowledge: the general architecture and course material, the accounting theory underneath it, and this case study series showing that architecture and theory applied to two real, fully worked Bangladesh businesses. Any one piece can be read on its own; read together, they form a complete path from "what is ERPNext" to "how do you actually build and run a production ERPNext deployment for a real business."</p>
+
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <a href="blog.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold">
+                            ← Back to Blog
+                        </a>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        ↑
+    </div>
+
+    <!-- Footer -->
+<footer class="footer" style="margin-top: 60px;">
+<div class="container">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <strong>Md. Mostasim Mahmud Tasim</strong>
+      <p>Software Engineer</p>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/tasim313" target="_blank">GitHub</a>
+      <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" target="_blank">LinkedIn</a>
+      <a href="mailto:tasim.swe@gmail.com">Email</a>
+    </div>
+  </div>
+  <p class="footer-copy">&copy; 2026 Md. Mostasim Mahmud Tasim. All rights reserved.</p>
+</div>
+</footer>
+<script src="js/main.js"></script>
+<script>
+    document.querySelectorAll('pre').forEach(pre => {
+        pre.addEventListener('click', function() {
+            const code = this.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalBg = this.style.backgroundColor;
+                this.style.backgroundColor = '#059669';
+                setTimeout(() => { this.style.backgroundColor = originalBg; }, 500);
+            });
+        });
+    });
+</script>
+</body>
+</html>

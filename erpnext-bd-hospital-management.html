@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERPNext for Bangladesh Hospitals: Dhaka Care Medical &amp; Hospital Ltd. | Md. Mostasim Mahmud Tasim</title>
+<meta name="description" content="A realistic ERPNext hospital implementation for a fictional Dhaka private hospital — base module mapping, two custom modules (Clinical Management and Laboratory), pharmacy and lab workflows, billing, and Bangladesh VAT configuration considerations.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* Article Specific Styles */
+.article-container { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+.article-content { font-size: 1.0625rem; line-height: 1.8; color: var(--text-secondary); }
+.article-content h2 { font-size: 1.9rem; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); color: var(--text-primary); font-weight: 700; }
+.article-content h3 { font-size: 1.3125rem; margin-top: 2.25rem; margin-bottom: 1rem; color: var(--text-primary); font-weight: 700; }
+.article-content h4 { font-size: 1.0625rem; margin-top: 1.75rem; margin-bottom: 0.75rem; color: var(--text-primary); font-weight: 600; }
+.article-content p { margin-bottom: 1.5rem; }
+.article-content ul, .article-content ol { margin: 1.5rem 0; padding-left: 2rem; }
+.article-content li { margin-bottom: 0.5rem; }
+.article-content pre { background: #1a1a1a; color: #f8f8f2; padding: 1.5rem; border-radius: 8px; overflow-x: auto; margin: 1.5rem 0; font-family: 'Courier New', monospace; font-size: 0.8125rem; line-height: 1.5; cursor: pointer; }
+.article-content code { background: var(--bg-alt); color: var(--text-primary); padding: 0.2rem 0.4rem; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.875rem; }
+.article-content pre code { background: transparent; color: inherit; padding: 0; }
+.article-content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.8125rem; }
+.article-content th, .article-content td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; vertical-align: top; }
+.article-content th { background: var(--bg-alt); color: var(--text-primary); font-weight: 700; }
+.table-wrap { overflow-x: auto; }
+.info-box { background: var(--accent-subtle); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.warning-box { background: #fff7ed; border-left: 4px solid #f97316; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.success-box { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.table-of-contents { background: var(--bg-alt); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 12px 12px 0; }
+.table-of-contents ul { list-style: none; padding-left: 0; columns: 2; column-gap: 24px; }
+.table-of-contents li { margin-bottom: 0.6rem; padding-left: 1.5rem; position: relative; break-inside: avoid; }
+.table-of-contents li:before { content: "→"; position: absolute; left: 0; color: var(--accent); }
+.table-of-contents a { color: var(--accent); text-decoration: none; font-weight: 500; font-size: 0.9375rem; }
+.table-of-contents a:hover { text-decoration: underline; }
+@media (max-width: 640px) { .table-of-contents ul { columns: 1; } }
+header h1 { font-size: 2.25rem; font-weight: 800; color: var(--text-primary); line-height: 1.2; margin-bottom: 1.5rem; margin-top: 2rem; }
+header .category-badge { display: inline-block; background: var(--accent-subtle); color: var(--accent); padding: 6px 16px; border-radius: 20px; font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.reading-time { font-size: 0.875rem; color: var(--text-tertiary); font-weight: 500; }
+header p.text-center { text-align: center; margin-bottom: 1rem; color: var(--text-secondary); }
+
+/* Flow diagram */
+.diagram-scroll { overflow-x: auto; margin: 2rem 0; padding-bottom: 4px; }
+.flow-diagram { display: flex; align-items: stretch; gap: 0; min-width: min-content; }
+.flow-step { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 0.75rem; font-weight: 700; color: var(--text-primary); text-align: center; min-width: 108px; display: flex; flex-direction: column; justify-content: center; text-decoration: none; }
+.flow-step small { display: block; font-weight: 400; color: var(--text-tertiary); font-size: 0.625rem; margin-top: 6px; line-height: 1.4; }
+.flow-arrow { display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 1.1rem; flex: 0 0 auto; padding: 0 8px; }
+.flow-diagram.vertical { flex-direction: column; align-items: center; }
+.flow-diagram.vertical .flow-arrow { padding: 4px 0; }
+.flow-diagram.vertical .flow-step { min-width: 220px; }
+
+/* Relationship / layered diagram */
+.rel-diagram { margin: 2rem 0; }
+.rel-layer { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+.rel-connector { display: flex; justify-content: center; align-items: center; gap: 36px; padding: 8px 0; color: var(--accent); font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; text-align: center; }
+.rel-entity { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 10px; min-width: 150px; max-width: 220px; overflow: hidden; flex: 1 1 160px; }
+.rel-entity h4 { margin: 0; padding: 9px 12px; background: var(--accent-subtle); color: var(--accent); font-size: 0.75rem; font-weight: 700; border-bottom: 1px solid var(--border); }
+.rel-entity .rel-fields { list-style: none; margin: 0; padding: 8px 12px; font-size: 0.6875rem; font-family: 'Courier New', monospace; color: var(--text-tertiary); }
+.rel-entity .rel-fields li { margin-bottom: 3px; }
+
+/* Decision flowchart */
+.decision-flow { display: flex; flex-direction: column; align-items: center; margin: 2rem 0; }
+.decision-node { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); text-align: center; max-width: 340px; }
+.decision-flow .flow-arrow-down { color: var(--accent); font-size: 1.25rem; padding: 4px 0; }
+.decision-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.decision-diamond { width: 128px; height: 128px; background: var(--accent-subtle); border: 2px solid var(--accent); transform: rotate(45deg); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.decision-diamond span { transform: rotate(-45deg); font-size: 0.75rem; font-weight: 700; text-align: center; color: var(--text-primary); padding: 10px; line-height: 1.3; }
+.decision-branch-note { background: var(--bg-alt); border: 1px dashed var(--border); border-radius: 8px; padding: 10px 14px; font-size: 0.75rem; color: var(--text-secondary); max-width: 240px; }
+.decision-branch-note strong { color: var(--accent); }
+.decision-end { background: var(--accent); color: #fff; border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 700; text-align: center; max-width: 340px; }
+</style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="nav" role="navigation">
+<div class="nav-inner">
+  <a href="index.html" class="nav-brand">Mostasim Mahmud Tasim</a>
+  <ul class="nav-links">
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="index.html#experience">Experience</a></li>
+    <li><a href="index.html#capabilities">Engineering</a></li>
+    <li><a href="index.html#projects">Projects</a></li>
+    <li><a href="index.html#infrastructure">Infrastructure</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="https://github.com/tasim313" class="nav-ext" target="_blank"><i class="fa-brands fa-github"></i></a>
+    <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" class="nav-ext" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+    <button class="theme-toggle" id="themeToggle"><svg id="sunIcon" style="display:none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg><svg id="moonIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg></button>
+    <button class="mobile-toggle" id="mobileToggle"><span></span><span></span><span></span></button>
+  </div>
+</div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html#about">About</a>
+  <a href="index.html#experience">Experience</a>
+  <a href="index.html#capabilities">Engineering</a>
+  <a href="index.html#projects">Projects</a>
+  <a href="index.html#infrastructure">Infrastructure</a>
+  <a href="blog.html">Blog</a>
+  <a href="index.html#contact">Contact</a>
+</div>
+
+    <!-- Article Header -->
+    <header class="pt-12 pb-8">
+        <div class="article-container">
+            <div class="text-center mb-8">
+                <span class="category-badge">ERPNext &amp; Frappe</span>
+                <span class="reading-time ml-4">🇧🇩 BD Case Study · Part 2: Hospital</span>
+            </div>
+
+            <h1>ERPNext for Bangladesh Hospitals: Dhaka Care Medical &amp; Hospital Ltd.</h1>
+
+            <div class="text-center text-gray-600 mb-8">
+                <p class="text-sm">Published: <span class="font-semibold">Aug 30, 2026</span></p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Article Content -->
+    <main class="pb-16">
+        <div class="article-container">
+            <!-- Table of Contents -->
+            <div class="table-of-contents fade-in">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">📋 Table of Contents</h3>
+                <ul class="space-y-2">
+                    <li><a href="#hospital-profile">Hospital Profile</a></li>
+                    <li><a href="#patient-journey">The Patient Journey</a></li>
+                    <li><a href="#hospital-base-modules">Hospital Operations on Base ERPNext</a></li>
+                    <li><a href="#custom-module-a-clinical">Custom Module A: Clinical Management</a></li>
+                    <li><a href="#custom-module-b-lab">Custom Module B: Laboratory &amp; Diagnostic</a></li>
+                    <li><a href="#custom-core-relationship">Custom Module ↔ ERPNext Core</a></li>
+                    <li><a href="#pharmacy-workflow">Pharmacy Workflow</a></li>
+                    <li><a href="#lab-workflow">Laboratory Workflow</a></li>
+                    <li><a href="#hospital-billing">Hospital Billing</a></li>
+                    <li><a href="#hospital-vat">Bangladesh VAT for Hospital Services</a></li>
+                    <li><a href="#hospital-role-matrix">Role/Permission Matrix</a></li>
+                    <li><a href="#hospital-dashboards">Hospital Dashboards</a></li>
+                    <li><a href="#hospital-end-to-end">End-to-End Workflow</a></li>
+                    <li><a href="#hospital-failure-scenarios">Troubleshooting Scenarios</a></li>
+                    <li><a href="#hospital-data-security">Hospital Data Security</a></li>
+                    <li><a href="#hospital-uat">UAT Checklist</a></li>
+                    <li><a href="#whats-next">What's Next</a></li>
+                </ul>
+            </div>
+
+            <!-- Article Content -->
+            <article class="article-content fade-in">
+
+                <section id="hospital-profile">
+                    <h2>🏥 Hospital Profile: Dhaka Care Medical &amp; Hospital Ltd.</h2>
+                    <div class="info-box">
+                        <strong>Fictional company, illustrative implementation.</strong> Dhaka Care Medical &amp; Hospital Ltd. is a fictional private hospital and diagnostic center in Dhaka, Bangladesh, used as a running example across this companion series — first introduced in <a href="erpnext-bd-implementation-methodology.html#companies">Part 1's company profile</a>. No real hospital's data, systems, or configuration are represented here.
+                    </div>
+                    <p>The hospital runs both inpatient and outpatient care alongside its own diagnostic lab and pharmacy, which is exactly the kind of multi-department, multi-revenue-stream organization ERPNext is well suited to model once its core modules are combined with a couple of domain-specific custom modules. Its departments, for the purpose of this case study:</p>
+                    <div class="rel-diagram">
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>OPD</h4></div>
+                            <div class="rel-entity"><h4>Emergency</h4></div>
+                            <div class="rel-entity"><h4>IPD</h4></div>
+                            <div class="rel-entity"><h4>ICU</h4></div>
+                            <div class="rel-entity"><h4>CCU</h4></div>
+                            <div class="rel-entity"><h4>OT</h4></div>
+                            <div class="rel-entity"><h4>Pharmacy</h4></div>
+                            <div class="rel-entity"><h4>Laboratory</h4></div>
+                            <div class="rel-entity"><h4>Radiology</h4></div>
+                            <div class="rel-entity"><h4>Blood Bank</h4></div>
+                            <div class="rel-entity"><h4>Ambulance</h4></div>
+                            <div class="rel-entity"><h4>Nursing</h4></div>
+                        </div>
+                    </div>
+                    <p>Every section below assumes this department list and reuses the same <a href="erpnext-bd-implementation-methodology.html">Part 1 implementation methodology</a> — the base-module-first, custom-module-only-when-necessary discipline this series is built around.</p>
+                </section>
+
+                <section id="patient-journey">
+                    <h2>🚶 The Patient Journey</h2>
+                    <p>Before mapping anything to ERPNext DocTypes, it helps to see the journey as a patient actually experiences it — one continuous path that later gets split across a custom clinical module, a custom lab module, and several base ERPNext modules:</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Patient</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Appointment</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Consultation</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Investigation</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Prescription</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Admission</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Treatment</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Discharge</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Billing</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Payment</div>
+                        </div>
+                    </div>
+                    <p>Each stop on that journey touches a different record. Laid out as relationships instead of a sequence, the same journey looks like this:</p>
+                    <div class="rel-diagram">
+                        <div class="rel-layer"><div class="rel-entity"><h4>Patient</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span>generates / is seen by</div>
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>Doctor</h4></div>
+                            <div class="rel-entity"><h4>Appointment</h4></div>
+                            <div class="rel-entity"><h4>Lab</h4></div>
+                            <div class="rel-entity"><h4>Radiology</h4></div>
+                            <div class="rel-entity"><h4>Pharmacy</h4></div>
+                            <div class="rel-entity"><h4>Bed</h4></div>
+                            <div class="rel-entity"><h4>Admission</h4></div>
+                            <div class="rel-entity"><h4>Treatment</h4></div>
+                            <div class="rel-entity"><h4>Billing</h4></div>
+                        </div>
+                    </div>
+                    <p>Everything in that second layer ultimately references the same Patient record — this is the "reference, don't duplicate" master-data pattern the base course establishes in <a href="erpnext-beginner-to-intermediate.html#table-map">Part 1's master/transaction table split</a>, applied to a hospital instead of a warehouse.</p>
+                </section>
+
+                <section id="hospital-base-modules">
+                    <h2>🧩 Hospital Operations on Base ERPNext</h2>
+                    <p>Most of what keeps a hospital's <em>business</em> running — not its clinical work, its business — is already covered by ERPNext's standard modules, exactly as introduced in <a href="erpnext-beginner-to-intermediate.html#core-modules">Part 1 of the base course</a> and detailed per-module in <a href="erpnext-modules-business-workflows.html">Part 3</a>. Nothing here needs a custom DocType:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Module</th><th>Used for, in this hospital</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Accounting</strong></td><td>Patient billing, doctor payment, supplier payment, pharmacy/diagnostic revenue, expenses, hospital assets, bank, cash, GL</td></tr>
+                            <tr><td><strong>Buying</strong></td><td>Medicine procurement, medical equipment, lab consumables, surgical materials, office supplies</td></tr>
+                            <tr><td><strong>Stock</strong></td><td>Medicines, consumables, surgical supplies, lab reagents, equipment inventory</td></tr>
+                            <tr><td><strong>HR</strong></td><td>Doctors, nurses, pharmacists, lab technicians, receptionists, admin staff</td></tr>
+                            <tr><td><strong>Payroll</strong></td><td>Salary, allowances, deductions, payroll accounting</td></tr>
+                            <tr><td><strong>Assets</strong></td><td>MRI, CT scanner, X-ray machine, ICU equipment, ambulance, computers</td></tr>
+                            <tr><td><strong>Projects</strong></td><td>Hospital expansion, new branch, equipment installation, construction projects</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>What's <em>not</em> in that table — appointments, consultations, admissions, lab requests — is precisely what the two custom modules below exist to cover, following the same Configure → Customize → Custom Module → Integration decision ladder <a href="erpnext-bd-implementation-methodology.html">Part 1</a> establishes.</p>
+                </section>
+
+                <section id="custom-module-a-clinical">
+                    <h2>🩺 Custom Module A: Hospital Clinical Management</h2>
+                    <p>Nothing in base ERPNext models a patient, an appointment slot, or a bed — so this is the "need new DocTypes" branch of the customization decision tree. The clinical module's DocTypes:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>DocType</th><th>Role</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Patient</strong></td><td>Master record for the person receiving care</td></tr>
+                            <tr><td><strong>Patient Registration</strong></td><td>The intake event that creates or re-identifies a Patient</td></tr>
+                            <tr><td><strong>Appointment</strong></td><td>A scheduled slot with a Doctor</td></tr>
+                            <tr><td><strong>Doctor</strong></td><td>Master record for a consulting/attending physician</td></tr>
+                            <tr><td><strong>Consultation</strong></td><td>The actual visit/encounter record</td></tr>
+                            <tr><td><strong>Diagnosis</strong></td><td>Clinical finding(s) recorded against a Consultation</td></tr>
+                            <tr><td><strong>Prescription</strong></td><td>Medicines and instructions issued from a Consultation</td></tr>
+                            <tr><td><strong>Admission</strong></td><td>An inpatient stay, opened when OPD care isn't enough</td></tr>
+                            <tr><td><strong>Discharge</strong></td><td>Closes an Admission</td></tr>
+                            <tr><td><strong>Bed</strong></td><td>A physical, assignable inpatient resource</td></tr>
+                            <tr><td><strong>Ward</strong></td><td>Groups Beds (general ward, ICU, CCU, …)</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>The relationships branch in two directions from Patient, so they're shown as two focused diagrams rather than forcing one diagram to show both branches at once:</p>
+                    <h3>Outpatient branch</h3>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Patient</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Appointment</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Consultation</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Diagnosis + Prescription</div>
+                        </div>
+                    </div>
+                    <h3>Inpatient branch</h3>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Patient</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Admission</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Ward + Bed</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Discharge</div>
+                        </div>
+                    </div>
+                    <p>A compact field-level view of the <strong>Patient</strong> DocType only, in the same field-level training table shape <a href="erpnext-bd-implementation-methodology.html">Part 1</a> uses throughout that article for training end users field by field:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Field</th><th>Type</th><th>Required?</th><th>Who enters?</th><th>When?</th><th>Why?</th><th>Example</th><th>Related DocType</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>patient_id</code></td><td>Data (naming series)</td><td>Auto</td><td>System</td><td>On save</td><td>Unique, human-readable patient identifier used across the whole record</td><td><code>PAT-2026-00042</code></td><td>—</td></tr>
+                            <tr><td><code>patient_name</code></td><td>Data</td><td>Yes</td><td>Receptionist</td><td>Registration</td><td>Identifies the patient on every downstream document</td><td>Abdul Karim</td><td>—</td></tr>
+                            <tr><td><code>date_of_birth</code></td><td>Date</td><td>Recommended</td><td>Receptionist</td><td>Registration</td><td>Age-appropriate dosing, pediatric vs adult routing</td><td>1990-04-12</td><td>—</td></tr>
+                            <tr><td><code>gender</code></td><td>Select</td><td>Recommended</td><td>Receptionist</td><td>Registration</td><td>Clinical relevance, ward assignment</td><td>Male</td><td>—</td></tr>
+                            <tr><td><code>contact_number</code></td><td>Data (Phone)</td><td>Yes</td><td>Receptionist</td><td>Registration</td><td>Appointment confirmation, emergency contact</td><td>+8801XXXXXXXXX</td><td>—</td></tr>
+                            <tr><td><code>address</code></td><td>Small Text</td><td>Recommended</td><td>Receptionist</td><td>Registration</td><td>Records District/Division for demographic and referral tracking</td><td>Mirpur, Dhaka</td><td>Address</td></tr>
+                            <tr><td><code>blood_group</code></td><td>Select</td><td>Recommended</td><td>Nurse/Receptionist</td><td>Registration or first admission</td><td>Emergency and transfusion safety</td><td>B+</td><td>—</td></tr>
+                            <tr><td><code>customer</code></td><td>Link → Customer</td><td>Auto/System</td><td>System (on registration)</td><td>Registration</td><td>Lets the Patient bill through the standard ERPNext AR flow without duplicating billing logic</td><td><code>CUST-PAT-00042</code></td><td>Customer</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <div class="warning-box">
+                        As with every DocType and field name in this series, treat these as illustrative — exact field names, types, and mandatory rules must be finalized in the actual site's Customize Form / DocType editor and validated against the ERPNext version in use, per the <a href="erpnext-beginner-to-intermediate.html#accuracy-note">accuracy note in Part 1 of the base course</a>.
+                    </div>
+                </section>
+
+                <section id="custom-module-b-lab">
+                    <h2>🧫 Custom Module B: Laboratory &amp; Diagnostic Management</h2>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Lab Request</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Sample</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Sample Type</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Test</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Test Parameter</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Result</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Result Approval</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Lab Report</div>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <strong>💡 This is the same Lab Sample pattern the base course's capstone already built — specialized.</strong> The 9-part base course's <a href="erpnext-lab-management-capstone-project.html">Laboratory Management capstone project</a> introduced a generic Patient → Sample → Test Request → Test → Lab Result → Lab Report pattern as a standalone teaching example. This hospital's Laboratory &amp; Diagnostic Management module is that <em>exact same architectural pattern</em>, now expanded for a real, multi-department hospital: it adds explicit <strong>Sample Type</strong> and <strong>Test Parameter</strong> granularity so a single Lab Request can carry a full diagnostic panel (e.g. a CBC with a dozen individual parameters) rather than one result per request. See the capstone's <a href="erpnext-lab-management-capstone-project.html#doctype-design">DocType Design</a> and <a href="erpnext-lab-management-capstone-project.html#workflow">Workflow</a> sections for the underlying mechanics this module reuses rather than re-derives.
+                    </div>
+                    <p>Concretely: <strong>Sample Type</strong> (blood, urine, swab, CSF, …) and <strong>Test Parameter</strong> (e.g. hemoglobin, WBC count, platelet count within one CBC Test) are the two additions that make the pattern hospital-grade — a single physical Sample can carry multiple Tests, and a single Test can carry multiple Test Parameters, each with its own reference range and Result row.</p>
+                </section>
+
+                <section id="custom-core-relationship">
+                    <h2>🔗 Custom Module ↔ ERPNext Core</h2>
+                    <p>Both custom modules exist to model things ERPNext doesn't know about natively — but every one of their key records ultimately drives a base ERPNext DocType, exactly the three-level integration pattern (UI, Data, Business Logic) from <a href="erpnext-beginner-to-intermediate.html#custom-module">Part 1's custom module case study</a>:</p>
+                    <div class="rel-diagram">
+                        <div class="rel-layer"><div class="rel-entity"><h4>Custom Hospital Module</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span>links into</div>
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>Patient</h4></div>
+                            <div class="rel-entity"><h4>Appointment</h4></div>
+                            <div class="rel-entity"><h4>Admission</h4></div>
+                            <div class="rel-entity"><h4>Lab Request</h4></div>
+                            <div class="rel-entity"><h4>Lab Result</h4></div>
+                        </div>
+                        <div class="rel-connector"><span class="arrow">↓</span>drives</div>
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>Customer</h4></div>
+                            <div class="rel-entity"><h4>Item</h4></div>
+                            <div class="rel-entity"><h4>Employee</h4></div>
+                        </div>
+                        <div class="rel-connector"><span class="arrow">↓</span></div>
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>Billing</h4></div>
+                            <div class="rel-entity"><h4>Stock</h4></div>
+                            <div class="rel-entity"><h4>HR</h4></div>
+                        </div>
+                        <div class="rel-connector"><span class="arrow">↓</span></div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>Accounting</h4></div></div>
+                    </div>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Custom DocType</th><th>Base DocType</th><th>Relationship</th><th>Why</th><th>When</th></tr></thead>
+                        <tbody>
+                            <tr><td>Patient</td><td>Customer</td><td>Link</td><td>Billing</td><td>At registration</td></tr>
+                            <tr><td>Medicine</td><td>Item</td><td>Link</td><td>Inventory</td><td>Pharmacy setup</td></tr>
+                            <tr><td>Hospital Employee</td><td>Employee</td><td>Link</td><td>HR</td><td>Staff onboarding</td></tr>
+                            <tr><td>Lab Service</td><td>Item</td><td>Link</td><td>Billing</td><td>Service setup</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="pharmacy-workflow">
+                    <h2>💊 Pharmacy</h2>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Doctor</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Prescription</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Pharmacy</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Medicine</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Stock</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Delivery / Issue</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Invoice</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Payment</div>
+                        </div>
+                    </div>
+                    <p>Once a Prescription reaches the Pharmacy counter, nothing about dispensing a medicine is hospital-specific anymore — it's a standard ERPNext Stock + Selling problem: every Medicine is an <strong>Item</strong> (typically inside an <strong>Item Group</strong> like "Pharmaceuticals"), tracked by <strong>Batch</strong> and expiry, held in a pharmacy <strong>Warehouse</strong>, and moved by whatever document issues it — each such movement writing a <strong>Stock Ledger Entry</strong>. Where Serial or Batch tracking, pricing, and Sales Invoice generation actually happen mechanically is covered in depth already, rather than re-derived here — see <a href="erpnext-modules-business-workflows.html#stock-module">Part 3's Stock module walkthrough</a> and <a href="erpnext-module-integration-accounting-stock.html#stock-ledger-entry-generation">Part 5's Stock Ledger Entry generation section</a>.</p>
+                    <p>The only hospital-specific piece is the front end of that chain: a Prescription (custom DocType) needs to resolve its medicine lines into ordinary Items before the pharmacy's stock/billing documents can pick them up — the same Link-field integration pattern used throughout this module.</p>
+                </section>
+
+                <section id="lab-workflow">
+                    <h2>🔬 Laboratory Workflow</h2>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Doctor</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Lab Request</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Sample Collection</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Sample Accession</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Test Assignment</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Result Entry</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Technician Verification</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Doctor/Pathologist Approval</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Report</div>
+                        </div>
+                    </div>
+                    <p>Who can act at which step is a permissions question, not a workflow-state question alone — both matter together, the same layered idea from <a href="erpnext-beginner-to-intermediate.html#users-roles">Part 1's permission flow</a>:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Role</th><th>Typical permission on Lab Request/Result</th></tr></thead>
+                        <tbody>
+                            <tr><td>Receptionist</td><td>Create request</td></tr>
+                            <tr><td>Lab Technician</td><td>Edit sample/result, no approval</td></tr>
+                            <tr><td>Pathologist</td><td>Approve/verify</td></tr>
+                            <tr><td>Lab Manager</td><td>Oversight/reassign</td></tr>
+                            <tr><td>Accountant</td><td>View only, for billing</td></tr>
+                            <tr><td>Administrator</td><td>Full</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="hospital-billing">
+                    <h2>🧾 Hospital Billing</h2>
+                    <p>A single hospital visit routinely bills across several departments at once — this is exactly the "many sources converge on one settlement layer" pattern from <a href="erpnext-beginner-to-intermediate.html#module-interconnection">Part 1's module interconnection diagram</a>, applied to billing specifically:</p>
+                    <div class="rel-diagram">
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>Consultation</h4></div>
+                            <div class="rel-entity"><h4>Lab</h4></div>
+                            <div class="rel-entity"><h4>Radiology</h4></div>
+                            <div class="rel-entity"><h4>Bed</h4></div>
+                            <div class="rel-entity"><h4>Medicine</h4></div>
+                            <div class="rel-entity"><h4>Procedure</h4></div>
+                        </div>
+                        <div class="rel-connector"><span class="arrow">↓</span>converge into</div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>Patient Invoice</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span></div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>Payment</h4></div></div>
+                    </div>
+                    <p>The mechanism that makes this possible without a custom billing engine: every billable custom-module concept — a Lab Service, a bed-day, a procedure — is mapped to an ordinary ERPNext <strong>Item</strong>, so it can appear as one line on a standard Sales Invoice alongside consultation fees and dispensed medicine. The hospital never needs its own invoice format; it needs its custom records to resolve to Items before the Sales Invoice is raised.</p>
+                    <p>Why the Invoice and the Payment stay two separate records even here — a multi-service hospital bill is exactly the case where partial payments, insurance reimbursement delays, and installment settlement make that separation matter most — is the underlying accounting theory covered in full in <a href="erp-invoice-payment-architecture.html#core-concept">Invoice vs Payment: The Core Concept</a> and <a href="erp-invoice-payment-architecture.html#allocation">its Allocation model</a>.</p>
+                </section>
+
+                <section id="hospital-vat">
+                    <h2>🇧🇩 Bangladesh VAT/Tax for Hospital Services</h2>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Service/Item</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Tax Category</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Tax Template</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Sales Invoice</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Tax Lines</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Accounting</div>
+                        </div>
+                    </div>
+                    <div class="warning-box">
+                        <strong>⚠️ Every VAT/tax percentage below is an example/configuration placeholder — not a real, current Bangladesh rate.</strong> This follows the exact framing set out in <a href="erpnext-bd-implementation-methodology.html#bangladesh-context">Part 1's Bangladesh Context section</a>: verify applicable current Bangladesh <strong>NBR (National Board of Revenue)</strong> rules, and the hospital's actual <strong>VAT/BIN registration status</strong>, before any of this is configured for production. Healthcare services in particular can carry exemptions, reduced rates, or category-specific treatment under NBR rules that this article does not attempt to state authoritatively.
+                    </div>
+                    <p>Conceptually — not as guaranteed exact ERPNext behavior — a hospital's tax setup rests on a few pieces: a <strong>BIN</strong> (Business Identification Number) and VAT registration status recorded against the Company; a decision on <strong>VAT-inclusive vs VAT-exclusive</strong> pricing per price list; one or more <strong>Tax Categories</strong> (e.g. standard service, exempt service, corporate/insurance-billed service) that a Sales Invoice's customer or item resolves to; and <strong>Tax Templates</strong> that attach the actual percentage and the target VAT Payable–type account. Whatever the resolved rate, the tax line ultimately posts through the same <strong>GL Entry</strong> mechanism as any other accounting impact — see <a href="erpnext-module-integration-accounting-stock.html#gl-entry-generation">Part 5's GL Entry generation section</a> for how that posting mechanically happens.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Service/Item</th><th>Illustrative tax treatment</th></tr></thead>
+                        <tbody>
+                            <tr><td>Consultation</td><td>Example VAT rate = configurable placeholder (services can be exempt or reduced-rate — verify with NBR)</td></tr>
+                            <tr><td>Diagnostic service</td><td>Example VAT rate = configurable placeholder</td></tr>
+                            <tr><td>Medicine</td><td>Example VAT rate = configurable placeholder (pharmaceuticals often have distinct NBR treatment — verify)</td></tr>
+                            <tr><td>Hospital bed</td><td>Example VAT rate = configurable placeholder</td></tr>
+                            <tr><td>Procedure</td><td>Example VAT rate = configurable placeholder</td></tr>
+                            <tr><td>Corporate/insurance service</td><td>Example VAT rate = configurable placeholder (billing entity may differ from the patient, affecting the applicable Tax Category)</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="hospital-role-matrix">
+                    <h2>🔐 Hospital Role/Permission Matrix</h2>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Role</th><th>Patient</th><th>Doctor</th><th>Lab</th><th>Pharmacy</th><th>Billing</th><th>HR</th><th>Admin</th></tr></thead>
+                        <tbody>
+                            <tr><td>Receptionist</td><td>Create/Edit</td><td>View</td><td>Create</td><td>No</td><td>View</td><td>No</td><td>No</td></tr>
+                            <tr><td>Doctor</td><td>View/Edit (clinical)</td><td>View own</td><td>Create/View</td><td>View</td><td>No</td><td>No</td><td>No</td></tr>
+                            <tr><td>Lab Technician</td><td>Limited (linked records only)</td><td>No</td><td>Edit</td><td>No</td><td>No</td><td>No</td><td>No</td></tr>
+                            <tr><td>Pharmacist</td><td>Limited</td><td>No</td><td>No</td><td>Edit</td><td>Create (pharmacy invoice)</td><td>No</td><td>No</td></tr>
+                            <tr><td>Accountant</td><td>View</td><td>View</td><td>View</td><td>View</td><td>Full</td><td>Limited</td><td>No</td></tr>
+                            <tr><td>HR</td><td>No</td><td>Limited</td><td>No</td><td>No</td><td>No</td><td>Full</td><td>No</td></tr>
+                            <tr><td>Administrator</td><td>Full</td><td>Full</td><td>Full</td><td>Full</td><td>Full</td><td>Full</td><td>Full</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <div class="warning-box">
+                        This matrix is illustrative. Actual permissions in a live site are configured through the <strong>Role Permission Manager</strong> and <strong>User Permissions</strong> — see <a href="erpnext-users-permissions.html#permission-manager">Part 2's Permission Manager section</a> — and must be validated against the real roles created for this hospital's site before go-live.
+                    </div>
+                </section>
+
+                <section id="hospital-dashboards">
+                    <h2>📊 Hospital Dashboards</h2>
+                    <h3>Management</h3>
+                    <ul>
+                        <li>Daily Revenue</li>
+                        <li>Patient Count</li>
+                        <li>OPD Count</li>
+                        <li>IPD Occupancy</li>
+                        <li>Pharmacy Sales</li>
+                        <li>Lab Revenue</li>
+                        <li>Outstanding</li>
+                        <li>Expenses</li>
+                    </ul>
+                    <h3>Lab Manager</h3>
+                    <ul>
+                        <li>Pending Samples</li>
+                        <li>Testing Queue</li>
+                        <li>Pending Verification</li>
+                        <li>Critical Results</li>
+                        <li>Turnaround Time</li>
+                    </ul>
+                    <h3>Pharmacy</h3>
+                    <ul>
+                        <li>Low Stock</li>
+                        <li>Expired Medicine</li>
+                        <li>Daily Sales</li>
+                        <li>Fast Moving Items</li>
+                    </ul>
+                </section>
+
+                <section id="hospital-end-to-end">
+                    <h2>🔁 End-to-End Hospital Workflow</h2>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram vertical">
+                            <div class="flow-step">Registration</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Appointment</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Doctor Consultation</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Prescription</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Lab Request</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Sample</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Lab Result</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Pharmacy</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Admission</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Treatment</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Discharge</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Billing</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Payment</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Accounting</div>
+                        </div>
+                    </div>
+                    <p>Reading that chain against what actually implements each step: <strong>Payment</strong> and <strong>Accounting/GL</strong> are pure base ERPNext — no custom code touches them. <strong>Appointment, Consultation, Admission,</strong> and <strong>Lab Request/Result</strong> are Custom Module territory — they don't exist in ERPNext core and are exactly what the two custom modules in this article were built to cover. Everything else in the chain (Prescription resolving to Pharmacy stock, Billing resolving to a Sales Invoice) is the seam where the custom modules hand off into base ERPNext via ordinary Link fields.</p>
+                </section>
+
+                <section id="hospital-failure-scenarios">
+                    <h2>🧯 Real-World Troubleshooting Scenarios</h2>
+                    <h3>Scenario 1: Lab result cannot be approved</h3>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Symptom</th><th>What to investigate</th></tr></thead>
+                        <tbody>
+                            <tr><td>"Lab result cannot be approved"</td><td>Permission, Workflow state, Role, Validation, Server error</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <h3>Scenario 2: Medicine stock is incorrect</h3>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Symptom</th><th>What to investigate</th></tr></thead>
+                        <tbody>
+                            <tr><td>"Medicine stock is incorrect"</td><td>Stock Entry, Delivery, Purchase Receipt, Stock Ledger Entry, Warehouse, Batch</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <h3>Scenario 3: Patient invoice has wrong tax</h3>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Symptom</th><th>What to investigate</th></tr></thead>
+                        <tbody>
+                            <tr><td>"Patient invoice has wrong tax"</td><td>Item, Tax Category, Tax Template, Company, Customer, Invoice</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="hospital-data-security">
+                    <h2>🛡️ Hospital Data Security</h2>
+                    <div class="success-box">
+                        <ul style="margin-bottom:0;">
+                            <li>Least privilege — every role gets only the access its job requires, nothing more</li>
+                            <li>Role separation — clinical, lab, pharmacy, billing, and HR access kept distinct</li>
+                            <li>Audit trail — owner, modified_by, and version history preserved on every document</li>
+                            <li>Access logging — who viewed or changed a patient record, and when</li>
+                            <li>Backups — scheduled, offsite, and periodically tested for actual recovery</li>
+                            <li>Encryption — data at rest and in transit</li>
+                            <li>HTTPS everywhere — no plaintext access to any hospital data</li>
+                            <li>Restricted database access — no shared or ad-hoc direct DB credentials</li>
+                            <li>Secure API — scoped keys, never a System Manager key for integrations</li>
+                            <li>File access controls on attachments (reports, scans, discharge summaries)</li>
+                            <li>Production secrets kept out of source control and rotated on exposure</li>
+                        </ul>
+                    </div>
+                    <p>As stated throughout this series: this article uses only <strong>fictional patient and company data</strong>, and does not represent any real Bangladesh hospital's actual data, systems, or security posture.</p>
+                </section>
+
+                <section id="hospital-uat">
+                    <h2>✅ Hospital UAT Checklist</h2>
+                    <p>Before go-live, walk every one of the following end to end on the actual configured site — not in isolation:</p>
+                    <ul>
+                        <li>Patient registration</li>
+                        <li>Appointment scheduling and rescheduling</li>
+                        <li>Lab: request through report (including an abnormal/flagged result path)</li>
+                        <li>Pharmacy: prescription through stock issue</li>
+                        <li>Billing: a multi-service invoice covering consultation, lab, and medicine together</li>
+                        <li>Payment: full, partial, and insurance/corporate settlement paths</li>
+                        <li>Reports: management, lab manager, and pharmacy dashboards render with real data</li>
+                    </ul>
+                </section>
+
+                <section id="whats-next">
+                    <h2>🗺️ What's Next</h2>
+                    <p>This is <strong>Part 2 of the 4-part ERPNext Bangladesh Implementation Case Study</strong> — a companion series to the 9-part base course, walking one fictional Bangladeshi organization's ERPNext rollout end to end.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Part</th><th>Focus</th></tr></thead>
+                        <tbody>
+                            <tr><td>1</td><td><a href="erpnext-bd-implementation-methodology.html">Implementation methodology — company profile, the six-question training framework, and the customization decision tree</a></td></tr>
+                            <tr><td>2</td><td>Hospital Management — Dhaka Care Medical &amp; Hospital Ltd. (this article)</td></tr>
+                            <tr><td>3</td><td><a href="erpnext-bd-real-estate-construction.html">Real Estate &amp; Construction — the next project in the series</a></td></tr>
+                            <tr><td>4</td><td><a href="erpnext-bd-custom-dev-devops-production.html">Custom development, DevOps &amp; production — how this hospital's two custom modules would actually be built and deployed</a></td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>Part 4 in particular is where the Clinical Management and Laboratory &amp; Diagnostic modules sketched here stop being a design exercise and become an actual custom Frappe app: repository structure, CI, staging vs production sites, and a deployment pipeline — following the same custom-app architecture the base course establishes in <a href="erpnext-custom-frappe-app-development.html">Part 7</a>.</p>
+
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <a href="blog.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold">
+                            ← Back to Blog
+                        </a>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        ↑
+    </div>
+
+    <!-- Footer -->
+<footer class="footer" style="margin-top: 60px;">
+<div class="container">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <strong>Md. Mostasim Mahmud Tasim</strong>
+      <p>Software Engineer</p>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/tasim313" target="_blank">GitHub</a>
+      <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" target="_blank">LinkedIn</a>
+      <a href="mailto:tasim.swe@gmail.com">Email</a>
+    </div>
+  </div>
+  <p class="footer-copy">&copy; 2026 Md. Mostasim Mahmud Tasim. All rights reserved.</p>
+</div>
+</footer>
+<script src="js/main.js"></script>
+<script>
+    document.querySelectorAll('pre').forEach(pre => {
+        pre.addEventListener('click', function() {
+            const code = this.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalBg = this.style.backgroundColor;
+                this.style.backgroundColor = '#059669';
+                setTimeout(() => { this.style.backgroundColor = originalBg; }, 500);
+            });
+        });
+    });
+</script>
+</body>
+</html>
