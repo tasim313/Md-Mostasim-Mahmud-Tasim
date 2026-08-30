@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customizing ERPNext: Fields, Scripts, Workflows & Print Formats | Md. Mostasim Mahmud Tasim</title>
+<meta name="description" content="The no-code-to-code customization ladder in ERPNext — Custom Field, Property Setter, Client Script, Server Script, Workflow, Print Format, Report Builder, and Web Form — with a decision tree for choosing the right tool.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* Article Specific Styles */
+.article-container { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+.article-content { font-size: 1.0625rem; line-height: 1.8; color: var(--text-secondary); }
+.article-content h2 { font-size: 1.9rem; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); color: var(--text-primary); font-weight: 700; }
+.article-content h3 { font-size: 1.3125rem; margin-top: 2.25rem; margin-bottom: 1rem; color: var(--text-primary); font-weight: 700; }
+.article-content h4 { font-size: 1.0625rem; margin-top: 1.75rem; margin-bottom: 0.75rem; color: var(--text-primary); font-weight: 600; }
+.article-content p { margin-bottom: 1.5rem; }
+.article-content ul, .article-content ol { margin: 1.5rem 0; padding-left: 2rem; }
+.article-content li { margin-bottom: 0.5rem; }
+.article-content pre { background: #1a1a1a; color: #f8f8f2; padding: 1.5rem; border-radius: 8px; overflow-x: auto; margin: 1.5rem 0; font-family: 'Courier New', monospace; font-size: 0.8125rem; line-height: 1.5; cursor: pointer; }
+.article-content code { background: var(--bg-alt); color: var(--text-primary); padding: 0.2rem 0.4rem; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.875rem; }
+.article-content pre code { background: transparent; color: inherit; padding: 0; }
+.article-content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.8125rem; }
+.article-content th, .article-content td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; vertical-align: top; }
+.article-content th { background: var(--bg-alt); color: var(--text-primary); font-weight: 700; }
+.table-wrap { overflow-x: auto; }
+.info-box { background: var(--accent-subtle); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.warning-box { background: #fff7ed; border-left: 4px solid #f97316; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.success-box { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.table-of-contents { background: var(--bg-alt); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 12px 12px 0; }
+.table-of-contents ul { list-style: none; padding-left: 0; columns: 2; column-gap: 24px; }
+.table-of-contents li { margin-bottom: 0.6rem; padding-left: 1.5rem; position: relative; break-inside: avoid; }
+.table-of-contents li:before { content: "→"; position: absolute; left: 0; color: var(--accent); }
+.table-of-contents a { color: var(--accent); text-decoration: none; font-weight: 500; font-size: 0.9375rem; }
+.table-of-contents a:hover { text-decoration: underline; }
+@media (max-width: 640px) { .table-of-contents ul { columns: 1; } }
+header h1 { font-size: 2.25rem; font-weight: 800; color: var(--text-primary); line-height: 1.2; margin-bottom: 1.5rem; margin-top: 2rem; }
+header .category-badge { display: inline-block; background: var(--accent-subtle); color: var(--accent); padding: 6px 16px; border-radius: 20px; font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.reading-time { font-size: 0.875rem; color: var(--text-tertiary); font-weight: 500; }
+header p.text-center { text-align: center; margin-bottom: 1rem; color: var(--text-secondary); }
+
+/* Flow diagram */
+.diagram-scroll { overflow-x: auto; margin: 2rem 0; padding-bottom: 4px; }
+.flow-diagram { display: flex; align-items: stretch; gap: 0; min-width: min-content; }
+.flow-step { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 0.75rem; font-weight: 700; color: var(--text-primary); text-align: center; min-width: 108px; display: flex; flex-direction: column; justify-content: center; text-decoration: none; }
+.flow-step small { display: block; font-weight: 400; color: var(--text-tertiary); font-size: 0.625rem; margin-top: 6px; line-height: 1.4; }
+.flow-arrow { display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 1.1rem; flex: 0 0 auto; padding: 0 8px; }
+.flow-diagram.vertical { flex-direction: column; align-items: center; }
+.flow-diagram.vertical .flow-arrow { padding: 4px 0; }
+.flow-diagram.vertical .flow-step { min-width: 220px; }
+
+/* Relationship / layered diagram */
+.rel-diagram { margin: 2rem 0; }
+.rel-layer { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+.rel-connector { display: flex; justify-content: center; align-items: center; gap: 36px; padding: 8px 0; color: var(--accent); font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; text-align: center; }
+.rel-entity { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 10px; min-width: 150px; max-width: 220px; overflow: hidden; flex: 1 1 160px; }
+.rel-entity h4 { margin: 0; padding: 9px 12px; background: var(--accent-subtle); color: var(--accent); font-size: 0.75rem; font-weight: 700; border-bottom: 1px solid var(--border); }
+.rel-entity .rel-fields { list-style: none; margin: 0; padding: 8px 12px; font-size: 0.6875rem; font-family: 'Courier New', monospace; color: var(--text-tertiary); }
+.rel-entity .rel-fields li { margin-bottom: 3px; }
+
+/* Decision flowchart */
+.decision-flow { display: flex; flex-direction: column; align-items: center; margin: 2rem 0; }
+.decision-node { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); text-align: center; max-width: 340px; }
+.decision-flow .flow-arrow-down { color: var(--accent); font-size: 1.25rem; padding: 4px 0; }
+.decision-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.decision-diamond { width: 128px; height: 128px; background: var(--accent-subtle); border: 2px solid var(--accent); transform: rotate(45deg); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.decision-diamond span { transform: rotate(-45deg); font-size: 0.75rem; font-weight: 700; text-align: center; color: var(--text-primary); padding: 10px; line-height: 1.3; }
+.decision-branch-note { background: var(--bg-alt); border: 1px dashed var(--border); border-radius: 8px; padding: 10px 14px; font-size: 0.75rem; color: var(--text-secondary); max-width: 240px; }
+.decision-branch-note strong { color: var(--accent); }
+.decision-end { background: var(--accent); color: #fff; border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 700; text-align: center; max-width: 340px; }
+</style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="nav" role="navigation">
+<div class="nav-inner">
+  <a href="index.html" class="nav-brand">Mostasim Mahmud Tasim</a>
+  <ul class="nav-links">
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="index.html#experience">Experience</a></li>
+    <li><a href="index.html#capabilities">Engineering</a></li>
+    <li><a href="index.html#projects">Projects</a></li>
+    <li><a href="index.html#infrastructure">Infrastructure</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="https://github.com/tasim313" class="nav-ext" target="_blank"><i class="fa-brands fa-github"></i></a>
+    <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" class="nav-ext" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+    <button class="theme-toggle" id="themeToggle"><svg id="sunIcon" style="display:none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg><svg id="moonIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg></button>
+    <button class="mobile-toggle" id="mobileToggle"><span></span><span></span><span></span></button>
+  </div>
+</div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html#about">About</a>
+  <a href="index.html#experience">Experience</a>
+  <a href="index.html#capabilities">Engineering</a>
+  <a href="index.html#projects">Projects</a>
+  <a href="index.html#infrastructure">Infrastructure</a>
+  <a href="blog.html">Blog</a>
+  <a href="index.html#contact">Contact</a>
+</div>
+
+    <!-- Article Header -->
+    <header class="pt-12 pb-8">
+        <div class="article-container">
+            <div class="text-center mb-8">
+                <span class="category-badge">ERPNext &amp; Frappe</span>
+                <span class="reading-time ml-4">🧩 9-Part Course · Part 6: Customization</span>
+            </div>
+
+            <h1>Customizing ERPNext: Fields, Scripts, Workflows &amp; Print Formats</h1>
+
+            <div class="text-center text-gray-600 mb-8">
+                <p class="text-sm">Published: <span class="font-semibold">Aug 30, 2026</span></p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Article Content -->
+    <main class="pb-16">
+        <div class="article-container">
+            <!-- Table of Contents -->
+            <div class="table-of-contents fade-in">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">📋 Table of Contents</h3>
+                <ul class="space-y-2">
+                    <li><a href="#ladder-overview">The Customization Ladder</a></li>
+                    <li><a href="#custom-field-property-setter">Custom Field &amp; Property Setter</a></li>
+                    <li><a href="#client-script">Client Script</a></li>
+                    <li><a href="#server-script">Server Script</a></li>
+                    <li><a href="#workflow-deep-dive">Workflow Engine, In Depth</a></li>
+                    <li><a href="#print-format-report-builder">Print Format, Report Builder &amp; Web Form</a></li>
+                    <li><a href="#advanced-field-concepts">Advanced Field Concepts, Practically Applied</a></li>
+                    <li><a href="#common-mistakes">Common Customization Mistakes</a></li>
+                    <li><a href="#whats-next">What's Next</a></li>
+                </ul>
+            </div>
+
+            <!-- Article Content -->
+            <article class="article-content fade-in">
+
+                <section id="ladder-overview">
+                    <h2>🪜 The Customization Ladder</h2>
+                    <p>Part 1's <a href="erpnext-beginner-to-intermediate.html#customization">Customization Decision Tree</a> introduced the core principle in brief: always reach for the lowest-effort tool that solves the problem, and only climb to the next rung when the current one genuinely can't do the job. This article is that principle worked out in full — every rung on the ladder, with concrete examples, tradeoffs, and the exact conditions under which you should stop customizing no-code and start writing a custom app (covered fully in <a href="erpnext-custom-frappe-app-development.html">Part 7</a>).</p>
+                    <p>The expanded decision tree below adds the branches Part 1 compressed: distinguishing a genuinely new field from a tweak to an existing one, separating UI-only behavior from server-side enforcement, and treating "new business object" as its own rung above "workflow."</p>
+                    <div class="decision-flow">
+                        <div class="decision-row">
+                            <div class="decision-diamond"><span>Need a simple new field?</span></div>
+                            <div class="decision-branch-note"><strong>Yes →</strong> Custom Field / Property Setter</div>
+                        </div>
+                        <div class="flow-arrow-down">↓ No</div>
+                        <div class="decision-row">
+                            <div class="decision-diamond"><span>Need to change field behavior/visibility without a new field?</span></div>
+                            <div class="decision-branch-note"><strong>Yes →</strong> Property Setter alone</div>
+                        </div>
+                        <div class="flow-arrow-down">↓ No</div>
+                        <div class="decision-row">
+                            <div class="decision-diamond"><span>Need UI-only behavior (show/hide, auto-calculate, confirm dialogs)?</span></div>
+                            <div class="decision-branch-note"><strong>Yes →</strong> Client Script</div>
+                        </div>
+                        <div class="flow-arrow-down">↓ No</div>
+                        <div class="decision-row">
+                            <div class="decision-diamond"><span>Need server-side validation or data mutation on save/submit?</span></div>
+                            <div class="decision-branch-note"><strong>Yes →</strong> Server Script (or a custom-app hook if it needs version control)</div>
+                        </div>
+                        <div class="flow-arrow-down">↓ No</div>
+                        <div class="decision-row">
+                            <div class="decision-diamond"><span>Need a multi-step, role-gated approval process?</span></div>
+                            <div class="decision-branch-note"><strong>Yes →</strong> Workflow</div>
+                        </div>
+                        <div class="flow-arrow-down">↓ No</div>
+                        <div class="decision-row">
+                            <div class="decision-diamond"><span>Need a new business object (own table, list view, permissions)?</span></div>
+                            <div class="decision-branch-note"><strong>Yes →</strong> Custom DocType (inside a Custom App)</div>
+                        </div>
+                        <div class="flow-arrow-down">↓ No</div>
+                        <div class="decision-end">Need deep, reusable, or complex integration logic → build a full Custom App with hooks (see Part 7)</div>
+                    </div>
+                </section>
+
+                <section id="custom-field-property-setter">
+                    <h2>🧱 Custom Field &amp; Property Setter</h2>
+                    <p>These are the two lowest, most reversible rungs, and it's easy to conflate them because both are usually created through the same screen — "Customize Form" — but they do fundamentally different things:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th></th><th>Custom Field</th><th>Property Setter</th></tr></thead>
+                        <tbody>
+                            <tr><td>What it does</td><td>Adds a genuinely new column to an existing DocType's table</td><td>Overrides a property of an <em>existing</em> field or of the DocType itself — no new column</td></tr>
+                            <tr><td>Example</td><td><code>warranty_months</code> (Int) added to Item</td><td>Making Sales Order's <code>customer</code> field mandatory earlier than the default, or hiding a field for one print format</td></tr>
+                            <tr><td>Typical trigger</td><td>The data literally doesn't exist yet anywhere on the DocType</td><td>The data exists; only its label, visibility, mandatory-ness, or read-only state needs to change</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>Both are typically created via "Customize Form" in the UI without touching code, and both can be exported as <strong>fixtures</strong> if they're built alongside a custom app — so they travel with version control instead of only existing in one site's database. Part 7 covers fixture export as part of <a href="erpnext-custom-frappe-app-development.html#app-directory-structure">custom app structure</a> in depth; the short version is that a customization made only through the UI on a production site, with no fixture export, effectively doesn't exist anywhere else — see the <a href="#common-mistakes">common mistakes</a> section below.</p>
+                </section>
+
+                <section id="client-script">
+                    <h2>🖱️ Client Script</h2>
+                    <p>A Client Script runs entirely in the browser, in JavaScript, reacting to form-level events: <code>onload</code> (when the form first renders), <code>refresh</code> (whenever the form redraws), <code>validate</code> (right before a client-side save attempt), and per-field change events named after the fieldname itself — e.g. an event named <code>item_code</code> fires when that field changes, including inside a child table row.</p>
+                    <div class="warning-box">
+                        <strong>Illustrative syntax only.</strong> The exact API surface (event names, arguments, available helper methods) has shifted slightly across Frappe versions. Treat the snippet below as a pattern to recognize, not something to paste verbatim — verify against your installed version's documentation before shipping it.
+                    </div>
+                    <pre><code>frappe.ui.form.on('Sales Order', {
+    item_code(frm, cdt, cdn) {
+        // fires when item_code changes on a child table row
+        let row = locals[cdt][cdn];
+        if (row.item_code) {
+            // e.g. auto-set a value pulled from the selected item
+            frappe.model.set_value(cdt, cdn, 'uom', 'Nos');
+        }
+    },
+    validate(frm) {
+        if (!frm.doc.customer) {
+            frappe.msgprint('Please select a customer first.');
+            frappe.validated = false;
+        }
+    }
+});</code></pre>
+                    <p>What a Client Script cannot be trusted for: <strong>security</strong>. A Client Script can hide a field, disable a button, or block a save inside the Desk UI — but a determined user (or a script) can still call the REST API directly and submit data that never passes through that browser code at all. The client is not a trust boundary. Anything that must always be true — a mandatory field, a maximum discount, a status transition rule — needs the equivalent check written server-side, in a <a href="#server-script">Server Script</a> or a custom-app hook. See Part 8's <a href="erpnext-api-deployment-troubleshooting.html#rest-api-deep">REST API deep dive</a> for exactly why an API call bypasses Client Script logic entirely — it never loads the form or its JavaScript at all.</p>
+                </section>
+
+                <section id="server-script">
+                    <h2>🐍 Server Script</h2>
+                    <p>A Server Script runs in Python on the server, entered through the UI without needing a custom app to exist first. It hooks into document lifecycle events — <code>Before Save</code>, <code>After Save</code>, <code>Before Submit</code>, <code>After Submit</code>, <code>Before Cancel</code>, and others — or can run as a scheduled job or an API-callable script independent of any one document.</p>
+                    <div class="warning-box">
+                        <strong>Illustrative pseudocode only.</strong> Server Script's available API (which methods and modules are exposed to it, what's sandboxed) varies by version and by how restrictive the Server Script framework is configured to be on a given site. Verify against your version before relying on this pattern operationally.
+                    </div>
+                    <pre><code># Server Script on Sales Invoice, event: Before Submit
+if doc.grand_total > get_customer_credit_limit(doc.customer):
+    frappe.throw(
+        f"Grand total {doc.grand_total} exceeds the credit limit "
+        f"for customer {doc.customer}."
+    )</code></pre>
+                    <p>The tradeoff against writing the same check in a custom app's <code>doc_events</code> hook (see Part 1's <a href="erpnext-beginner-to-intermediate.html#custom-app">Building a Custom Frappe App</a>) is real and worth naming explicitly:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th></th><th>Server Script</th><th>Custom app hook</th></tr></thead>
+                        <tbody>
+                            <tr><td>Speed to iterate</td><td>Fast — edit and save in the UI, no deploy step</td><td>Slower — edit code, restart/migrate</td></tr>
+                            <tr><td>Where it lives</td><td>Only in that site's database</td><td>In the app's source tree, in version control</td></tr>
+                            <tr><td>Code review / testing</td><td>Hard — no diff, no test harness by default</td><td>Normal software practice — PR review, unit tests</td></tr>
+                            <tr><td>Portability</td><td>Doesn't move between sites unless manually recreated or exported as a fixture</td><td>Installs anywhere the app is installed</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>A reasonable rule of thumb: prototype logic as a Server Script, and once it proves out and the surrounding customizations start accumulating (multiple scripts, multiple DocTypes, real business criticality), migrate it into a proper custom app — the full process is <a href="erpnext-custom-frappe-app-development.html">Part 7</a>.</p>
+                </section>
+
+                <section id="workflow-deep-dive">
+                    <h2>🔄 Workflow Engine, In Depth</h2>
+                    <p>Part 1's <a href="erpnext-beginner-to-intermediate.html#workflow-engine">Workflow Engine</a> section introduced the concept briefly; here are the four building blocks that make it up, in detail:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Building block</th><th>What it is</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Workflow</strong></td><td>Bound to exactly one DocType; defines the whole state machine for documents of that type</td></tr>
+                            <tr><td><strong>Workflow State</strong></td><td>A named status such as Draft, Pending Approval, Approved, Rejected — layered <em>on top of</em> the core <code>docstatus</code> 0/1/2 concept from <a href="erpnext-doctypes-database-relationships.html">Part 4</a>, not a replacement for it. A document can be <code>docstatus=0</code> (not submitted) while its workflow_state is "Pending Approval," for instance</td></tr>
+                            <tr><td><strong>Workflow Action / Transition</strong></td><td>Defines which state a document may move to next, and which button/action triggers that move</td></tr>
+                            <tr><td><strong>Role</strong></td><td>Which Role is permitted to perform a given transition — the gatekeeper on each arrow in the state diagram</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>Walked through as one concrete approval chain — a purchase request that needs manager approval and a separate finance release step:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>State</th><th>Allowed Role</th><th>Action</th><th>Next State</th></tr></thead>
+                        <tbody>
+                            <tr><td>Draft</td><td>Employee</td><td>Submit for Approval</td><td>Pending Approval</td></tr>
+                            <tr><td>Pending Approval</td><td>Department Manager</td><td>Approve</td><td>Approved</td></tr>
+                            <tr><td>Pending Approval</td><td>Department Manager</td><td>Reject</td><td>Rejected</td></tr>
+                            <tr><td>Approved</td><td>Finance</td><td>Release Payment</td><td>Completed</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <div class="flow-diagram">
+                        <div class="flow-step">Draft<small>Employee</small></div><div class="flow-arrow">→</div>
+                        <div class="flow-step">Pending Approval<small>Department Manager</small></div><div class="flow-arrow">→</div>
+                        <div class="flow-step">Approved<small>Finance</small></div><div class="flow-arrow">→</div>
+                        <div class="flow-step">Completed</div>
+                    </div>
+                    <div class="info-box">
+                        <strong>💡 Workflow permissions layer on top of base permissions, they don't replace them.</strong> A user still needs ordinary read/write access to the DocType from the <a href="erpnext-users-permissions.html#permission-manager">Role Permission Manager</a> (Part 2) <em>in addition to</em> holding the role allowed to perform the current-state transition. Being "Department Manager" doesn't grant access to Purchase Request at all if the base Role Permission for Purchase Request never gave that role read/write in the first place — the workflow only decides which of the actions the user is already otherwise allowed to attempt they can trigger from this state.
+                    </div>
+                </section>
+
+                <section id="print-format-report-builder">
+                    <h2>🖨️ Print Format, Report Builder &amp; Web Form</h2>
+                    <h3>Print Format</h3>
+                    <p>A Print Format is a customizable document layout used to render a document — an invoice, an order, a delivery note — as a PDF or printed page. Depending on version, it's built either as an HTML/Jinja template with full control over markup, or through a drag-and-drop builder for simpler layouts. PDF rendering itself is handled by <strong>wkhtmltopdf</strong>, the same rendering engine listed among Part 1's <a href="erpnext-beginner-to-intermediate.html#installation">installation prerequisites</a> — if PDF generation breaks on a server, wkhtmltopdf is usually the first thing to check.</p>
+                    <h3>Report Builder</h3>
+                    <p>Report Builder is a no-code way to create a saved, filtered, grouped, and sorted view over a single DocType's data — pick columns, add filters, group by a field, save it — without writing a Query Report or Script Report. It's the right tool when what's needed is "a specific slice of this DocType's data, saved for reuse," and the wrong tool once the requirement needs joins across DocTypes or computed columns, at which point a Script Report (Python-backed) is the next rung up — reporting architecture generally is touched on further in later parts of this series as it comes up.</p>
+                    <h3>Web Form</h3>
+                    <p>A Web Form is a simplified, public-facing form bound to one DocType, used to let portal users — customers, job applicants, and other non-Desk users — create or edit specific records without ever logging into the Desk interface. This ties directly back to Part 2's discussion of <a href="erpnext-users-permissions.html#user-types">user types</a>: a Website User with no Desk access can still submit a support Issue, apply for a job, or view their own Sales Orders entirely through Web Forms and the portal, while every permission rule from the Role Permission Manager still applies underneath.</p>
+                </section>
+
+                <section id="advanced-field-concepts">
+                    <h2>🔧 Advanced Field Concepts, Practically Applied</h2>
+                    <p>Part 4 introduced <code>fetch_from</code>, <code>read_only</code>, and <code>depends_on</code> alongside <a href="erpnext-doctypes-database-relationships.html#link-vs-dynamic-link">Link vs Dynamic Link</a> fields as schema-level concepts. Here's what they look like as actual customization decisions:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Property</th><th>Example expression</th><th>Effect</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>fetch_from</code></td><td><code>customer.customer_group</code></td><td>Auto-populates a field from the linked Customer's <code>customer_group</code> value the moment a Customer is selected</td></tr>
+                            <tr><td><code>depends_on</code></td><td><code>eval:doc.is_recurring==1</code></td><td>Shows a "Recurrence Frequency" field only when the <code>is_recurring</code> checkbox is ticked; hidden and typically cleared otherwise</td></tr>
+                            <tr><td><code>read_only_depends_on</code></td><td><code>eval:doc.status=="Approved"</code></td><td>Locks a field to read-only once the document reaches a given status, without needing a separate workflow or Property Setter per state</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>All three are set the same way a Custom Field or Property Setter is created — through "Customize Form" — which is why they belong in this article rather than Part 4: they're schema concepts made real through the customization tools, not new theory.</p>
+                </section>
+
+                <section id="common-mistakes">
+                    <h2>⚠️ Common Customization Mistakes</h2>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>#</th><th>Mistake</th><th>Why it bites</th></tr></thead>
+                        <tbody>
+                            <tr><td>1</td><td>Putting business-critical validation only in a Client Script</td><td>Bypassable via direct API calls — see <a href="#client-script">Client Script</a> above; the check simply never runs</td></tr>
+                            <tr><td>2</td><td>Accumulating dozens of ad-hoc Server Scripts instead of consolidating into a custom app</td><td>No version control, no code review, no test coverage, and no easy way to see what logic exists at all once it grows past a handful of scripts</td></tr>
+                            <tr><td>3</td><td>Making too many fields mandatory via Property Setter</td><td>Breaks standard ERPNext workflows and reports that assume those fields stay optional — imports, integrations, and built-in reports can fail silently or reject data</td></tr>
+                            <tr><td>4</td><td>Not exporting customizations as fixtures</td><td>The customization silently doesn't exist on a freshly provisioned staging or production site — it only lived in one site's database</td></tr>
+                            <tr><td>5</td><td>Building a Workflow for what's really just a permission check</td><td>Adds unnecessary state overhead (extra states, transitions, and a workflow_state field to maintain) when a Role Permission or User Permission from <a href="erpnext-users-permissions.html">Part 2</a> would do the same job directly</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="whats-next">
+                    <h2>🗺️ What's Next</h2>
+                    <p>This article expanded Part 1's brief <a href="erpnext-beginner-to-intermediate.html#customization">Customization Decision Tree</a> and <a href="erpnext-beginner-to-intermediate.html#workflow-engine">Workflow Engine</a> sections into the full no-code-to-code customization ladder. Two directions from here:</p>
+                    <ul>
+                        <li>If no-code customization has stopped being enough — you need new DocTypes, real version control, or logic too complex for a Server Script — the next step is <a href="erpnext-custom-frappe-app-development.html">Part 7: Custom Frappe App Development</a>.</li>
+                        <li>If any of the schema concepts here (Link fields, child tables, <code>fetch_from</code>, naming conventions) felt unfamiliar, <a href="erpnext-doctypes-database-relationships.html">Part 4: DocTypes &amp; Database Relationships</a> covers the underlying data model in full.</li>
+                    </ul>
+
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <a href="blog.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold">
+                            ← Back to Blog
+                        </a>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        ↑
+    </div>
+
+    <!-- Footer -->
+<footer class="footer" style="margin-top: 60px;">
+<div class="container">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <strong>Md. Mostasim Mahmud Tasim</strong>
+      <p>Software Engineer</p>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/tasim313" target="_blank">GitHub</a>
+      <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" target="_blank">LinkedIn</a>
+      <a href="mailto:tasim.swe@gmail.com">Email</a>
+    </div>
+  </div>
+  <p class="footer-copy">&copy; 2026 Md. Mostasim Mahmud Tasim. All rights reserved.</p>
+</div>
+</footer>
+<script src="js/main.js"></script>
+<script>
+    document.querySelectorAll('pre').forEach(pre => {
+        pre.addEventListener('click', function() {
+            const code = this.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalBg = this.style.backgroundColor;
+                this.style.backgroundColor = '#059669';
+                setTimeout(() => { this.style.backgroundColor = originalBg; }, 500);
+            });
+        });
+    });
+</script>
+</body>
+</html>

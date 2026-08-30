@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERPNext API, External Integration, Deployment & Troubleshooting | Md. Mostasim Mahmud Tasim</title>
+<meta name="description" content="Connecting an external system (like a Django/Next.js app) to ERPNext over the REST API, securing it in production, backup/recovery strategy, and a practical symptom-to-solution troubleshooting reference.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* Article Specific Styles */
+.article-container { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+.article-content { font-size: 1.0625rem; line-height: 1.8; color: var(--text-secondary); }
+.article-content h2 { font-size: 1.9rem; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); color: var(--text-primary); font-weight: 700; }
+.article-content h3 { font-size: 1.3125rem; margin-top: 2.25rem; margin-bottom: 1rem; color: var(--text-primary); font-weight: 700; }
+.article-content h4 { font-size: 1.0625rem; margin-top: 1.75rem; margin-bottom: 0.75rem; color: var(--text-primary); font-weight: 600; }
+.article-content p { margin-bottom: 1.5rem; }
+.article-content ul, .article-content ol { margin: 1.5rem 0; padding-left: 2rem; }
+.article-content li { margin-bottom: 0.5rem; }
+.article-content pre { background: #1a1a1a; color: #f8f8f2; padding: 1.5rem; border-radius: 8px; overflow-x: auto; margin: 1.5rem 0; font-family: 'Courier New', monospace; font-size: 0.8125rem; line-height: 1.5; cursor: pointer; }
+.article-content code { background: var(--bg-alt); color: var(--text-primary); padding: 0.2rem 0.4rem; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.875rem; }
+.article-content pre code { background: transparent; color: inherit; padding: 0; }
+.article-content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.8125rem; }
+.article-content th, .article-content td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; vertical-align: top; }
+.article-content th { background: var(--bg-alt); color: var(--text-primary); font-weight: 700; }
+.table-wrap { overflow-x: auto; }
+.info-box { background: var(--accent-subtle); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.warning-box { background: #fff7ed; border-left: 4px solid #f97316; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.success-box { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.table-of-contents { background: var(--bg-alt); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 12px 12px 0; }
+.table-of-contents ul { list-style: none; padding-left: 0; columns: 2; column-gap: 24px; }
+.table-of-contents li { margin-bottom: 0.6rem; padding-left: 1.5rem; position: relative; break-inside: avoid; }
+.table-of-contents li:before { content: "→"; position: absolute; left: 0; color: var(--accent); }
+.table-of-contents a { color: var(--accent); text-decoration: none; font-weight: 500; font-size: 0.9375rem; }
+.table-of-contents a:hover { text-decoration: underline; }
+@media (max-width: 640px) { .table-of-contents ul { columns: 1; } }
+header h1 { font-size: 2.25rem; font-weight: 800; color: var(--text-primary); line-height: 1.2; margin-bottom: 1.5rem; margin-top: 2rem; }
+header .category-badge { display: inline-block; background: var(--accent-subtle); color: var(--accent); padding: 6px 16px; border-radius: 20px; font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.reading-time { font-size: 0.875rem; color: var(--text-tertiary); font-weight: 500; }
+header p.text-center { text-align: center; margin-bottom: 1rem; color: var(--text-secondary); }
+
+/* Flow diagram */
+.diagram-scroll { overflow-x: auto; margin: 2rem 0; padding-bottom: 4px; }
+.flow-diagram { display: flex; align-items: stretch; gap: 0; min-width: min-content; }
+.flow-step { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 0.75rem; font-weight: 700; color: var(--text-primary); text-align: center; min-width: 108px; display: flex; flex-direction: column; justify-content: center; text-decoration: none; }
+.flow-step small { display: block; font-weight: 400; color: var(--text-tertiary); font-size: 0.625rem; margin-top: 6px; line-height: 1.4; }
+.flow-arrow { display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 1.1rem; flex: 0 0 auto; padding: 0 8px; }
+.flow-diagram.vertical { flex-direction: column; align-items: center; }
+.flow-diagram.vertical .flow-arrow { padding: 4px 0; }
+.flow-diagram.vertical .flow-step { min-width: 220px; }
+
+/* Relationship / layered diagram */
+.rel-diagram { margin: 2rem 0; }
+.rel-layer { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+.rel-connector { display: flex; justify-content: center; align-items: center; gap: 36px; padding: 8px 0; color: var(--accent); font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; text-align: center; }
+.rel-entity { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 10px; min-width: 150px; max-width: 220px; overflow: hidden; flex: 1 1 160px; }
+.rel-entity h4 { margin: 0; padding: 9px 12px; background: var(--accent-subtle); color: var(--accent); font-size: 0.75rem; font-weight: 700; border-bottom: 1px solid var(--border); }
+.rel-entity .rel-fields { list-style: none; margin: 0; padding: 8px 12px; font-size: 0.6875rem; font-family: 'Courier New', monospace; color: var(--text-tertiary); }
+.rel-entity .rel-fields li { margin-bottom: 3px; }
+
+/* Decision flowchart */
+.decision-flow { display: flex; flex-direction: column; align-items: center; margin: 2rem 0; }
+.decision-node { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); text-align: center; max-width: 340px; }
+.decision-flow .flow-arrow-down { color: var(--accent); font-size: 1.25rem; padding: 4px 0; }
+.decision-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.decision-diamond { width: 128px; height: 128px; background: var(--accent-subtle); border: 2px solid var(--accent); transform: rotate(45deg); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.decision-diamond span { transform: rotate(-45deg); font-size: 0.75rem; font-weight: 700; text-align: center; color: var(--text-primary); padding: 10px; line-height: 1.3; }
+.decision-branch-note { background: var(--bg-alt); border: 1px dashed var(--border); border-radius: 8px; padding: 10px 14px; font-size: 0.75rem; color: var(--text-secondary); max-width: 240px; }
+.decision-branch-note strong { color: var(--accent); }
+.decision-end { background: var(--accent); color: #fff; border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 700; text-align: center; max-width: 340px; }
+</style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="nav" role="navigation">
+<div class="nav-inner">
+  <a href="index.html" class="nav-brand">Mostasim Mahmud Tasim</a>
+  <ul class="nav-links">
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="index.html#experience">Experience</a></li>
+    <li><a href="index.html#capabilities">Engineering</a></li>
+    <li><a href="index.html#projects">Projects</a></li>
+    <li><a href="index.html#infrastructure">Infrastructure</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="https://github.com/tasim313" class="nav-ext" target="_blank"><i class="fa-brands fa-github"></i></a>
+    <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" class="nav-ext" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+    <button class="theme-toggle" id="themeToggle"><svg id="sunIcon" style="display:none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg><svg id="moonIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg></button>
+    <button class="mobile-toggle" id="mobileToggle"><span></span><span></span><span></span></button>
+  </div>
+</div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html#about">About</a>
+  <a href="index.html#experience">Experience</a>
+  <a href="index.html#capabilities">Engineering</a>
+  <a href="index.html#projects">Projects</a>
+  <a href="index.html#infrastructure">Infrastructure</a>
+  <a href="blog.html">Blog</a>
+  <a href="index.html#contact">Contact</a>
+</div>
+
+    <!-- Article Header -->
+    <header class="pt-12 pb-8">
+        <div class="article-container">
+            <div class="text-center mb-8">
+                <span class="category-badge">ERPNext &amp; Frappe</span>
+                <span class="reading-time ml-4">🧩 9-Part Course · Part 8: API, Deployment &amp; Troubleshooting</span>
+            </div>
+
+            <h1>ERPNext API, External Integration, Deployment &amp; Troubleshooting</h1>
+
+            <div class="text-center text-gray-600 mb-8">
+                <p class="text-sm">Published: <span class="font-semibold">Aug 30, 2026</span></p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Article Content -->
+    <main class="pb-16">
+        <div class="article-container">
+            <!-- Table of Contents -->
+            <div class="table-of-contents fade-in">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">📋 Table of Contents</h3>
+                <ul class="space-y-2">
+                    <li><a href="#rest-api-deep">REST API, In Depth</a></li>
+                    <li><a href="#external-integration-architecture">Connecting an External Application</a></li>
+                    <li><a href="#sync-patterns">Common Sync Patterns</a></li>
+                    <li><a href="#security-hardening">Securing the API in Production</a></li>
+                    <li><a href="#backup-recovery">Backup &amp; Recovery Strategy</a></li>
+                    <li><a href="#troubleshooting-expanded">Troubleshooting Reference, Expanded</a></li>
+                    <li><a href="#production-checklist">Production Readiness Checklist</a></li>
+                    <li><a href="#whats-next">What's Next</a></li>
+                </ul>
+            </div>
+
+            <!-- Article Content -->
+            <article class="article-content fade-in">
+
+                <section id="rest-api-deep">
+                    <h2>🌐 REST API, In Depth</h2>
+                    <p>Part 1's <a href="erpnext-beginner-to-intermediate.html#rest-api">REST API Basics</a> established the core, verified pattern: Frappe auto-generates a REST-style endpoint for every DocType at <code>/api/resource/&lt;DocType&gt;</code>, with the standard HTTP verbs mapping onto list/read, create, update, and delete:</p>
+                    <pre><code>GET    /api/resource/Customer                  # list
+GET    /api/resource/Customer/CUST-00001        # read one
+POST   /api/resource/Customer                   # create
+PUT    /api/resource/Customer/CUST-00001        # update
+DELETE /api/resource/Customer/CUST-00001        # delete</code></pre>
+                    <p>This article goes further into how that same list endpoint is actually used in practice: filtering, choosing which fields come back, and paging through large result sets. The exact query-parameter syntax below is illustrative — verify it against the API docs for your installed ERPNext/Frappe version before relying on it operationally.</p>
+                    <pre><code># Filter a list — illustrative query-param syntax, verify per version
+GET /api/resource/Customer?filters=[["customer_group","=","Retail"]]
+
+# Choose which fields come back
+GET /api/resource/Customer?fields=["name","customer_name"]
+
+# Combine filter + field selection
+GET /api/resource/Customer?filters=[["customer_group","=","Retail"]]&fields=["name","customer_name"]
+
+# Pagination
+GET /api/resource/Customer?limit_start=0&limit_page_length=20
+GET /api/resource/Customer?limit_start=20&limit_page_length=20</code></pre>
+                    <p>Beyond the auto-generated per-DocType CRUD, a custom app (see Part 7's <a href="erpnext-custom-frappe-app-development.html">custom Frappe app development</a>) can expose its own server-side functions as <strong>whitelisted methods</strong> — Python functions decorated to be callable over HTTP — reachable at a different URL shape:</p>
+                    <pre><code># Calling a whitelisted custom method
+POST /api/method/my_custom_app.api.approve_lab_report
+
+# Python (requests)
+import requests
+headers = {"Authorization": "token API_KEY:API_SECRET"}
+r = requests.post(
+    "https://site.example.com/api/method/my_custom_app.api.approve_lab_report",
+    headers=headers,
+    json={"lab_report": "LR-2026-00042"}
+)</code></pre>
+                    <p>This is the mechanism that lets a custom app do more than expose its DocTypes as data — it can expose actual business operations (an approval, a calculation, a multi-document transaction) as a single callable endpoint, instead of forcing an external system to reconstruct that logic itself via multiple raw CRUD calls.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Method</th><th>How it works</th><th>When to use</th></tr></thead>
+                        <tbody>
+                            <tr><td>API Key/Secret</td><td>A token pair generated per User, sent as <code>Authorization: token KEY:SECRET</code></td><td>Server-to-server integrations — a backend service calling ERPNext on its own behalf, no human in the loop</td></tr>
+                            <tr><td>Session/cookie auth</td><td>A logged-in session cookie, issued after a normal login</td><td>What the Desk UI itself uses in the browser — not typically what an external server-side integration should use</td></tr>
+                            <tr><td>OAuth2</td><td>A third-party app requests delegated access and acts on behalf of a specific ERPNext user, if OAuth2 is enabled on the site</td><td>A third-party app acting on behalf of a specific user, rather than a trusted backend acting as itself</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="external-integration-architecture">
+                    <h2>🏗️ Connecting an External Application</h2>
+                    <p>Part 1's <a href="erpnext-beginner-to-intermediate.html#connections">Internal vs External Connections</a> diagram sketched the outside world touching ERPNext through the REST API. Here's the concrete shape that takes in a typical setup — a separate customer-facing application (e.g. Next.js frontend + Django backend) sitting in front of ERPNext rather than inside it:</p>
+                    <div class="rel-diagram">
+                        <div class="rel-layer"><div class="rel-entity"><h4>Next.js Frontend</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span></div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>Django Backend</h4><ul class="rel-fields"><li>owns its own users/auth</li></ul></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span>REST API calls</div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>ERPNext REST API</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span></div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>ERPNext / Frappe Framework</h4><ul class="rel-fields"><li>permissions, validation, hooks</li></ul></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span></div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>MariaDB</h4></div></div>
+                    </div>
+                    <p>The pattern this enables: the external Django app owns its own business logic and authentication for its own end users — signup, sessions, app-specific preferences — while treating ERPNext as the <strong>system of record</strong> for the business entities ERPNext already models well: Customers, Items, Sales Orders, Invoices, and Payments. The two systems stay in sync through API calls or webhooks, not a shared database.</p>
+                    <div class="warning-box">
+                        <strong>⚠️ Never connect a second application directly to ERPNext's MariaDB.</strong> A direct database connection bypasses the Frappe permission engine, field validation, and doc-event hooks entirely — writes made that way don't run <code>validate()</code>, don't trigger <code>on_update</code>, and aren't subject to Role/User/Document permissions. Always go through the REST API (or a whitelisted custom method) so every write still passes through the same checks a human user in the Desk would go through.
+                    </div>
+                </section>
+
+                <section id="sync-patterns">
+                    <h2>🔁 Common Sync Patterns</h2>
+                    <p>In this two-system architecture, different entities tend to flow in different directions depending on which system actually owns that data:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>What's synced</th><th>Direction</th><th>Typical trigger</th></tr></thead>
+                        <tbody>
+                            <tr><td>Customer sync</td><td>External app → ERPNext</td><td>On new signup in the external app</td></tr>
+                            <tr><td>Product/Item sync</td><td>ERPNext → External app</td><td>Scheduled or webhook-triggered — ERPNext is usually the source of truth for the catalog</td></tr>
+                            <tr><td>Sales Order sync</td><td>External app → ERPNext</td><td>On checkout</td></tr>
+                            <tr><td>Invoice/Payment status sync</td><td>ERPNext → External app</td><td>Via webhook on Sales Invoice/Payment Entry submit, so the external app can show "paid" without polling</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <div class="warning-box">
+                        <strong>⚠️ Pick one source of truth per entity type, upfront.</strong> Letting both systems write the same field independently — say, a Customer's address editable in both the external app and ERPNext — creates conflicting updates with no clean way to decide which one is correct. Deciding which system owns which entity is a design decision made before the integration is built, not something to patch in after sync conflicts start appearing.
+                    </div>
+                </section>
+
+                <section id="security-hardening">
+                    <h2>🔒 Securing the API in Production</h2>
+                    <p>Part 1's <a href="erpnext-beginner-to-intermediate.html#security-backup">Security, Backup &amp; Troubleshooting</a> section covered the basics — HTTPS, scoped keys, rotation. In a real external integration, each of those needs to be treated as an operational discipline, not a one-time setup step:</p>
+                    <ul>
+                        <li><strong>HTTPS only.</strong> Never send API keys, secrets, or payloads over plain HTTP — a key sent in cleartext is a key that has already leaked.</li>
+                        <li><strong>Dedicated integration user.</strong> Create a separate User specifically for the integration and scope its API key to only the roles it actually needs — see Part 2's <a href="erpnext-users-permissions.html#permission-manager">Role Permission Manager</a> — rather than issuing a key against a System Manager account. If the key leaks, the blast radius is whatever that scoped role can do, not the whole site.</li>
+                        <li><strong>Rotate and revoke through the User record.</strong> If a key is ever exposed — committed to a repo, logged accidentally, shared in a support ticket — regenerate it immediately from that User's API Access section; the old key stops working the moment a new one is generated.</li>
+                        <li><strong>Rate-limit and monitor.</strong> Watch for unusual API call volume from a given key — a sudden spike is either a bug in the integration or a sign the key is being used somewhere it shouldn't be.</li>
+                        <li><strong>Treat inbound webhook payloads as untrusted input.</strong> A webhook receiver on the external app's side should validate and sanitize whatever it receives before writing it back into ERPNext — never assume the payload is well-formed or that it actually originated from ERPNext without verifying it.</li>
+                    </ul>
+                    <p>It's worth restating the layered permission chain from Part 1's <a href="erpnext-beginner-to-intermediate.html#users-roles">Users, Roles &amp; Permission Flow</a>, because it applies identically to API traffic:</p>
+                    <div class="flow-diagram vertical">
+                        <div class="flow-step">API Request<small>with API Key/Secret</small></div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">User<small>the account the key belongs to</small></div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Role</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Role Permission<small>DocType-level: read/write/create/submit/cancel/delete</small></div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">User Permission<small>restricts to specific records, e.g. one Company</small></div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Document Permission<small>share, workflow state, owner rules</small></div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Allowed Action</div>
+                    </div>
+                    <p>An API key does not bypass any of this — a request authenticated with an API key runs through the exact same Role/User/Document permission chain a human clicking through the Desk UI would go through. If the integration user's role can't submit a Sales Invoice, neither can a script calling that user's API key.</p>
+                </section>
+
+                <section id="backup-recovery">
+                    <h2>💾 Backup &amp; Recovery Strategy</h2>
+                    <p>Part 1 sketched backup as a single step in its security diagram. In production, it's really a four-stage discipline, and skipping any stage quietly turns "we have backups" into a false sense of safety:</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram vertical">
+                            <div class="flow-step">Scheduled bench backup<small>database + optional files</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Off-site / offsite storage<small>not just the same server</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Periodic restore test<small>a backup nobody has ever restored is unverified</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Documented recovery runbook<small>who runs it, in what order, how long it takes</small></div>
+                        </div>
+                    </div>
+                    <p>For convenience, the relevant command from Part 1's <a href="erpnext-beginner-to-intermediate.html#cheat-sheet">Developer Command Cheat Sheet</a>:</p>
+                    <pre><code>bench --site SITE backup                # database backup (+ optional files, version-dependent)
+# flags such as --with-files exist to include attachments in the same run —
+# verify the exact flag names against your installed bench version</code></pre>
+                    <div class="warning-box">
+                        <strong>⚠️ Database backup and files backup are separate concerns.</strong> The database backup captures documents, but attachments (uploaded files, generated PDFs, images) live on disk under <code>public/files</code>/<code>private/files</code> and need their own backup step. A restore that only replays the database dump comes back missing every attachment anyone ever uploaded — both are required for a full recovery.
+                    </div>
+                </section>
+
+                <section id="troubleshooting-expanded">
+                    <h2>🧯 Troubleshooting Reference, Expanded</h2>
+                    <p>Part 1's <a href="erpnext-beginner-to-intermediate.html#security-backup">troubleshooting table</a> covered the site-down basics: site doesn't open, MariaDB errors, Redis errors, scheduled jobs not firing, migration failure, build failure, and Nginx 502s. The symptoms below are ones that show up specifically once a site has external integrations, custom apps, and a real deployment pipeline running against it:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Symptom</th><th>Likely cause</th><th>First command/check</th></tr></thead>
+                        <tbody>
+                            <tr><td>Permission error on a document a user swears they should access</td><td>Role Permission and User Permission are two separate layers — one can allow while the other blocks</td><td>Check <strong>both</strong> the Role Permission Manager and User Permission list for that user, not just one</td></tr>
+                            <tr><td>App installation failure (<code>bench get-app</code> / <code>install-app</code> errors)</td><td>Usually a Python/Node version mismatch with what the app's <code>requirements.txt</code>/<code>package.json</code> expects</td><td>Read the traceback for the exact version it's complaining about; compare against the app's stated requirements</td></tr>
+                            <tr><td>Node version problem specifically</td><td>The active Node version (via nvm or another version manager) doesn't match what the bench's <code>package.json</code> expects</td><td><code>node -v</code> vs. the bench's expected Node version; switch with your version manager</td></tr>
+                            <tr><td>Python dependency conflict between two installed apps</td><td>Two apps declare incompatible pinned versions of the same Python package in the same bench environment</td><td>Check <code>env/</code> for the conflicting package; review both apps' <code>requirements.txt</code></td></tr>
+                            <tr><td>SSL/certificate renewal failure</td><td>Certbot renewed the certificate but didn't actually reload Nginx, so the old cert is still being served</td><td>Check Certbot's renewal logs, then manually reload/restart Nginx and re-check the served certificate</td></tr>
+                            <tr><td>"Table doesn't exist" error after adding a Custom Field</td><td>The schema change was defined but never migrated</td><td><code>bench migrate</code></td></tr>
+                            <tr><td>Background job silently never completing</td><td>The job is stuck or failing inside the worker process, not the scheduler</td><td>Check the <strong>worker's log</strong> specifically — not just the scheduler log — for the stuck/failed job</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="production-checklist">
+                    <h2>✅ Production Readiness Checklist</h2>
+                    <p>Extending Part 1's <a href="erpnext-beginner-to-intermediate.html#production">Production Deployment Architecture</a> into a concrete pre-launch checklist:</p>
+                    <div class="success-box">
+                        <ul style="margin-bottom:0;">
+                            <li>Firewall configured — only ports 80, 443, and 22 open to the outside.</li>
+                            <li>HTTPS via Let's Encrypt/Certbot, with auto-renewal actually verified (not just configured) end to end, including the Nginx reload step.</li>
+                            <li>Supervisor managing Gunicorn, background workers, and the scheduler, with auto-restart on crash or reboot.</li>
+                            <li>Scheduled <strong>and tested</strong> backups, stored off-server — see <a href="#backup-recovery">Backup &amp; Recovery Strategy</a> above.</li>
+                            <li>Monitoring/alerting on the site being down or workers stalling, not just manual spot-checks.</li>
+                            <li>A staging environment that mirrors production, used to test every upgrade before it touches production — see Part 7's <a href="erpnext-custom-frappe-app-development.html#versioning-deployment">versioning &amp; deployment</a> practices for custom apps.</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section id="whats-next">
+                    <h2>🗺️ What's Next</h2>
+                    <p>This article is <strong>Part 8 of the 9-part ERPNext series</strong>, going deep on the API integration and production-operations ground that Part 1 only sketched — see its <a href="erpnext-beginner-to-intermediate.html#rest-api">REST API Basics</a> and <a href="erpnext-beginner-to-intermediate.html#production">Production Deployment Architecture</a> sections for where this all started. It also builds on Part 5's <a href="erpnext-module-integration-accounting-stock.html#external-connections">external connections</a> coverage of how Accounting and Stock data reaches the outside world, and on Part 7's custom app development practices for exposing whitelisted methods and managing deployments.</p>
+                    <p><strong>Part 9 — the capstone</strong> — is next: <a href="erpnext-lab-management-capstone-project.html">the full Laboratory Management custom-module project</a>, built end to end. Its Lab Report → Sales Invoice automation, and any patient/customer-facing portal exposure it adds, are built using exactly the API design, security hardening, and deployment practices covered in this article — modules, database design, customization, and custom app development from Parts 3 through 7 all converge there into one working project.</p>
+
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <a href="blog.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold">
+                            ← Back to Blog
+                        </a>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        ↑
+    </div>
+
+    <!-- Footer -->
+<footer class="footer" style="margin-top: 60px;">
+<div class="container">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <strong>Md. Mostasim Mahmud Tasim</strong>
+      <p>Software Engineer</p>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/tasim313" target="_blank">GitHub</a>
+      <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" target="_blank">LinkedIn</a>
+      <a href="mailto:tasim.swe@gmail.com">Email</a>
+    </div>
+  </div>
+  <p class="footer-copy">&copy; 2026 Md. Mostasim Mahmud Tasim. All rights reserved.</p>
+</div>
+</footer>
+<script src="js/main.js"></script>
+<script>
+    document.querySelectorAll('pre').forEach(pre => {
+        pre.addEventListener('click', function() {
+            const code = this.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalBg = this.style.backgroundColor;
+                this.style.backgroundColor = '#059669';
+                setTimeout(() => { this.style.backgroundColor = originalBg; }, 500);
+            });
+        });
+    });
+</script>
+</body>
+</html>

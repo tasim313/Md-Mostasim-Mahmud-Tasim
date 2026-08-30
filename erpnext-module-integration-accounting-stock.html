@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERPNext Module Integration: Accounting & Stock Impact | Md. Mostasim Mahmud Tasim</title>
+<meta name="description" content="Exactly what happens under the hood when an ERPNext transaction posts: GL Entry generation, Stock Ledger Entry updates, the document lifecycle (save/submit/cancel/amend), and the internal vs external connections that tie every module together.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* Article Specific Styles */
+.article-container { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+.article-content { font-size: 1.0625rem; line-height: 1.8; color: var(--text-secondary); }
+.article-content h2 { font-size: 1.9rem; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); color: var(--text-primary); font-weight: 700; }
+.article-content h3 { font-size: 1.3125rem; margin-top: 2.25rem; margin-bottom: 1rem; color: var(--text-primary); font-weight: 700; }
+.article-content h4 { font-size: 1.0625rem; margin-top: 1.75rem; margin-bottom: 0.75rem; color: var(--text-primary); font-weight: 600; }
+.article-content p { margin-bottom: 1.5rem; }
+.article-content ul, .article-content ol { margin: 1.5rem 0; padding-left: 2rem; }
+.article-content li { margin-bottom: 0.5rem; }
+.article-content pre { background: #1a1a1a; color: #f8f8f2; padding: 1.5rem; border-radius: 8px; overflow-x: auto; margin: 1.5rem 0; font-family: 'Courier New', monospace; font-size: 0.8125rem; line-height: 1.5; cursor: pointer; }
+.article-content code { background: var(--bg-alt); color: var(--text-primary); padding: 0.2rem 0.4rem; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.875rem; }
+.article-content pre code { background: transparent; color: inherit; padding: 0; }
+.article-content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.8125rem; }
+.article-content th, .article-content td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; vertical-align: top; }
+.article-content th { background: var(--bg-alt); color: var(--text-primary); font-weight: 700; }
+.table-wrap { overflow-x: auto; }
+.info-box { background: var(--accent-subtle); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.warning-box { background: #fff7ed; border-left: 4px solid #f97316; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.success-box { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.table-of-contents { background: var(--bg-alt); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 12px 12px 0; }
+.table-of-contents ul { list-style: none; padding-left: 0; columns: 2; column-gap: 24px; }
+.table-of-contents li { margin-bottom: 0.6rem; padding-left: 1.5rem; position: relative; break-inside: avoid; }
+.table-of-contents li:before { content: "→"; position: absolute; left: 0; color: var(--accent); }
+.table-of-contents a { color: var(--accent); text-decoration: none; font-weight: 500; font-size: 0.9375rem; }
+.table-of-contents a:hover { text-decoration: underline; }
+@media (max-width: 640px) { .table-of-contents ul { columns: 1; } }
+header h1 { font-size: 2.25rem; font-weight: 800; color: var(--text-primary); line-height: 1.2; margin-bottom: 1.5rem; margin-top: 2rem; }
+header .category-badge { display: inline-block; background: var(--accent-subtle); color: var(--accent); padding: 6px 16px; border-radius: 20px; font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.reading-time { font-size: 0.875rem; color: var(--text-tertiary); font-weight: 500; }
+header p.text-center { text-align: center; margin-bottom: 1rem; color: var(--text-secondary); }
+
+/* Flow diagram */
+.diagram-scroll { overflow-x: auto; margin: 2rem 0; padding-bottom: 4px; }
+.flow-diagram { display: flex; align-items: stretch; gap: 0; min-width: min-content; }
+.flow-step { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 0.75rem; font-weight: 700; color: var(--text-primary); text-align: center; min-width: 108px; display: flex; flex-direction: column; justify-content: center; text-decoration: none; }
+.flow-step small { display: block; font-weight: 400; color: var(--text-tertiary); font-size: 0.625rem; margin-top: 6px; line-height: 1.4; }
+.flow-arrow { display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 1.1rem; flex: 0 0 auto; padding: 0 8px; }
+.flow-diagram.vertical { flex-direction: column; align-items: center; }
+.flow-diagram.vertical .flow-arrow { padding: 4px 0; }
+.flow-diagram.vertical .flow-step { min-width: 220px; }
+
+/* Relationship / layered diagram */
+.rel-diagram { margin: 2rem 0; }
+.rel-layer { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+.rel-connector { display: flex; justify-content: center; align-items: center; gap: 36px; padding: 8px 0; color: var(--accent); font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; text-align: center; }
+.rel-entity { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 10px; min-width: 150px; max-width: 220px; overflow: hidden; flex: 1 1 160px; }
+.rel-entity h4 { margin: 0; padding: 9px 12px; background: var(--accent-subtle); color: var(--accent); font-size: 0.75rem; font-weight: 700; border-bottom: 1px solid var(--border); }
+.rel-entity .rel-fields { list-style: none; margin: 0; padding: 8px 12px; font-size: 0.6875rem; font-family: 'Courier New', monospace; color: var(--text-tertiary); }
+.rel-entity .rel-fields li { margin-bottom: 3px; }
+
+/* Decision flowchart */
+.decision-flow { display: flex; flex-direction: column; align-items: center; margin: 2rem 0; }
+.decision-node { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); text-align: center; max-width: 340px; }
+.decision-flow .flow-arrow-down { color: var(--accent); font-size: 1.25rem; padding: 4px 0; }
+.decision-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.decision-diamond { width: 128px; height: 128px; background: var(--accent-subtle); border: 2px solid var(--accent); transform: rotate(45deg); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.decision-diamond span { transform: rotate(-45deg); font-size: 0.75rem; font-weight: 700; text-align: center; color: var(--text-primary); padding: 10px; line-height: 1.3; }
+.decision-branch-note { background: var(--bg-alt); border: 1px dashed var(--border); border-radius: 8px; padding: 10px 14px; font-size: 0.75rem; color: var(--text-secondary); max-width: 240px; }
+.decision-branch-note strong { color: var(--accent); }
+.decision-end { background: var(--accent); color: #fff; border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 700; text-align: center; max-width: 340px; }
+</style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="nav" role="navigation">
+<div class="nav-inner">
+  <a href="index.html" class="nav-brand">Mostasim Mahmud Tasim</a>
+  <ul class="nav-links">
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="index.html#experience">Experience</a></li>
+    <li><a href="index.html#capabilities">Engineering</a></li>
+    <li><a href="index.html#projects">Projects</a></li>
+    <li><a href="index.html#infrastructure">Infrastructure</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="https://github.com/tasim313" class="nav-ext" target="_blank"><i class="fa-brands fa-github"></i></a>
+    <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" class="nav-ext" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+    <button class="theme-toggle" id="themeToggle"><svg id="sunIcon" style="display:none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg><svg id="moonIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg></button>
+    <button class="mobile-toggle" id="mobileToggle"><span></span><span></span><span></span></button>
+  </div>
+</div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html#about">About</a>
+  <a href="index.html#experience">Experience</a>
+  <a href="index.html#capabilities">Engineering</a>
+  <a href="index.html#projects">Projects</a>
+  <a href="index.html#infrastructure">Infrastructure</a>
+  <a href="blog.html">Blog</a>
+  <a href="index.html#contact">Contact</a>
+</div>
+
+    <!-- Article Header -->
+    <header class="pt-12 pb-8">
+        <div class="article-container">
+            <div class="text-center mb-8">
+                <span class="category-badge">ERPNext &amp; Frappe</span>
+                <span class="reading-time ml-4">🧩 9-Part Course · Part 5: Module Integration</span>
+            </div>
+
+            <h1>ERPNext Module Integration: Accounting &amp; Stock Impact</h1>
+
+            <div class="text-center text-gray-600 mb-8">
+                <p class="text-sm">Published: <span class="font-semibold">Aug 30, 2026</span></p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Article Content -->
+    <main class="pb-16">
+        <div class="article-container">
+            <!-- Table of Contents -->
+            <div class="table-of-contents fade-in">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">📋 Table of Contents</h3>
+                <ul class="space-y-2">
+                    <li><a href="#data-flow-diagram">The Complete Data Flow Diagram</a></li>
+                    <li><a href="#document-lifecycle-internals">Document Lifecycle Internals</a></li>
+                    <li><a href="#gl-entry-generation">How a Sales Invoice Becomes a GL Entry</a></li>
+                    <li><a href="#stock-ledger-entry-generation">How a Delivery Note Becomes a Stock Ledger Entry</a></li>
+                    <li><a href="#internal-connections-table">Internal Connections, Fully Enumerated</a></li>
+                    <li><a href="#external-connections">External Connections in Depth</a></li>
+                    <li><a href="#reconciliation-in-erpnext">Reconciliation, ERPNext-Style</a></li>
+                    <li><a href="#common-mistakes">Common Integration Mistakes</a></li>
+                    <li><a href="#whats-next">What's Next</a></li>
+                </ul>
+            </div>
+
+            <!-- Article Content -->
+            <article class="article-content fade-in">
+
+                <section id="data-flow-diagram">
+                    <h2>🌊 The Complete Data Flow Diagram</h2>
+                    <p>Part 1's <a href="erpnext-beginner-to-intermediate.html#module-interconnection">Module Interconnection Master Diagram</a> and <a href="erpnext-beginner-to-intermediate.html#document-flows">Flagship Document Flows</a> showed <em>which</em> documents feed into which modules. This part goes one layer deeper: what actually happens, step by step, inside the framework, from the moment a user clicks a button to the moment the resulting ledger impact shows up in a report.</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram vertical">
+                            <div class="flow-step">User<small>clicks "Submit" on a form</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">UI<small>the Desk form view</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Form<small>collected field + child table values</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Client Script<small>browser-side JS validation/behavior runs first</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Server<small>request reaches the Frappe backend</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Permission Check<small>Role / User / Document permission layers</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">DocType Controller<small>the Python class for this DocType</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Business Logic<small>validate(), on_submit() — DocType-specific</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Database<small>the document row itself is written</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">GL Entry / Stock Ledger Entry / Communication Log<small>side-effect records created by the business logic step</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Report<small>list view, report view, or dashboard reads it back</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">User<small>sees the updated state</small></div>
+                        </div>
+                    </div>
+                    <p>This exact shape — UI → client script → server → permission check → controller → business logic → database → side-effect records → report — is the same for <em>every</em> module and every DocType in ERPNext. Only two steps ever change: the <strong>Business Logic</strong> step (what a Sales Invoice's controller does is different from what a Leave Application's controller does) and the resulting <strong>side-effect records</strong> (GL Entry and Stock Ledger Entry for transaction DocTypes, but a Communication Log entry for a support Issue, or nothing at all for a pure master record like Customer). Once this one diagram is internalized, tracing any new document type through the system is a matter of asking "what does step 8 do here?" rather than learning a new architecture.</p>
+                </section>
+
+                <section id="document-lifecycle-internals">
+                    <h2>🔁 Document Lifecycle Internals</h2>
+                    <p>Every transaction DocType in ERPNext carries a <code>docstatus</code> field with exactly three possible values — this is <strong>verified core Frappe behavior</strong>, stable across recent versions: <code>0</code> = Draft, <code>1</code> = Submitted, <code>2</code> = Cancelled. What's less obvious from the UI is what actually fires at each transition:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Action</th><th>docstatus</th><th>What happens internally</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Save</strong></td><td>stays <code>0</code></td><td><code>validate()</code> runs (field-level checks, defaults, computed totals), then <code>before_save</code>, then the record is written to its table with <code>docstatus = 0</code>. No GL Entry or Stock Ledger Entry exists yet for a transaction document at this point.</td></tr>
+                            <tr><td><strong>Submit</strong></td><td><code>0 → 1</code></td><td><code>validate()</code> runs again, then <code>before_submit</code>, then <code>docstatus</code> flips to <code>1</code>, then <code>on_submit</code> runs. For transaction DocTypes (Sales Invoice, Delivery Note, Stock Entry, Payment Entry, …), <code>on_submit</code> is typically where the actual GL Entry and/or Stock Ledger Entry rows get created — see <a href="#gl-entry-generation">GL Entry generation</a> and <a href="#stock-ledger-entry-generation">Stock Ledger Entry generation</a> below.</td></tr>
+                            <tr><td><strong>Cancel</strong></td><td><code>1 → 2</code></td><td><code>on_cancel</code> runs, <code>docstatus</code> flips to <code>2</code>, and — this is the important part — the framework auto-cancels/reverses any GL Entries and Stock Ledger Entries that were linked to this document, rather than leaving them as orphaned postings against a now-cancelled voucher. The linkage that makes this possible is the same <code>voucher_type</code> / <code>voucher_no</code> pairing described in <a href="#gl-entry-generation">GL Entry generation</a> below.</td></tr>
+                            <tr><td><strong>Amend</strong></td><td>new doc at <code>0</code></td><td>Amending a cancelled document does not edit it in place. It creates a <em>fresh</em> new document, copied from the cancelled one's field values, linked back to it via the <code>amended_from</code> field. The original cancelled record is preserved untouched as history rather than rewritten.</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <div class="info-box">
+                        <strong>💡 Reverse, don't rewrite history.</strong> Cancel-and-reverse instead of edit-in-place, and amend-as-a-new-linked-document instead of mutating the original, are both instances of the same principle covered in depth for the accounting layer specifically in <a href="erp-invoice-payment-architecture.html#audit-trail">Invoice vs Payment: Audit Trail</a> — ERPNext's document lifecycle is that principle implemented at the framework level, applied to every submittable DocType, not just financial ones.
+                    </div>
+                </section>
+
+                <section id="gl-entry-generation">
+                    <h2>💰 How a Sales Invoice Becomes a GL Entry</h2>
+                    <p>Take a concrete example: a Sales Invoice for a customer with a subtotal of 50,000, VAT of 5,000, and a grand total of 55,000. Conceptually — not claiming to reproduce ERPNext's actual source code line by line — the posting logic on submit does the following: it walks the invoice's line items and tax rows and creates one <code>GL Entry</code> row per side of the transaction that needs to balance.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Account</th><th>Debit</th><th>Credit</th></tr></thead>
+                        <tbody>
+                            <tr><td>Accounts Receivable / Debtors <small>(configured on the Customer or Company)</small></td><td>55,000</td><td>—</td></tr>
+                            <tr><td>Sales / Income account <small>(configured per invoice line item)</small></td><td>—</td><td>50,000</td></tr>
+                            <tr><td>Tax Payable account <small>(configured per tax line)</small></td><td>—</td><td>5,000</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>Two categories of claim in that table are worth separating clearly:</p>
+                    <ul>
+                        <li><strong>Verified structural behavior:</strong> every <code>GL Entry</code> row carries an <code>account</code>, a <code>debit</code> amount, a <code>credit</code> amount, a <code>voucher_type</code> (e.g. "Sales Invoice"), a <code>voucher_no</code> (the specific invoice's name), and an <code>against_voucher</code> field used later for reconciliation — this shape is stable across versions and is what makes the ledger queryable and cancellable at all.</li>
+                        <li><strong>Configuration-dependent:</strong> which specific account names get used (the Receivable account, the Income account, the Tax account) depends entirely on the Customer, Item Group, Company, and Tax Template setup on the specific site — verify the actual accounts on any real installation rather than assuming the names above.</li>
+                    </ul>
+                    <p>The full theory behind why debits and credits, journal entries, and the double-entry rule work this way at all is covered independently of ERPNext in <a href="erp-invoice-payment-architecture.html#double-entry">Double-Entry Bookkeeping</a> and <a href="erp-invoice-payment-architecture.html#journal-entries">Journal Entries</a> — this section is that theory's concrete ERPNext implementation.</p>
+                </section>
+
+                <section id="stock-ledger-entry-generation">
+                    <h2>📦 How a Delivery Note Becomes a Stock Ledger Entry</h2>
+                    <p>The stock side follows the same pattern with a different table. Take a Delivery Note moving 10 units of an item out of Warehouse A. On submit, a <code>Stock Ledger Entry</code> row is created carrying: <code>item_code</code>, <code>warehouse</code>, <code>posting_date</code>/<code>posting_time</code>, <code>actual_qty</code> (<code>-10</code> — negative because this is an outward movement), <code>qty_after_transaction</code>, <code>valuation_rate</code>, and <code>stock_value_difference</code>. Immediately after, the <code>Bin</code> record for that Item + Warehouse combination is updated to reflect the new on-hand quantity.</p>
+                    <p>That last step is the distinction worth being precise about: <code>Stock Ledger Entry</code> is the append-only movement history (every stock-affecting transaction ever posted for that item/warehouse), while <code>Bin</code> is a derived, current-snapshot cache of quantity and valuation kept in sync as ledger entries post. Part 4 covers this relationship in schema terms in <a href="erpnext-doctypes-database-relationships.html#er-item">the Item ER diagram's Bin vs Stock Ledger Entry distinction</a>.</p>
+                    <div class="warning-box">
+                        <strong>⚠️ Configuration-dependent:</strong> if the item's Item Group/Company is set up for <strong>perpetual inventory accounting</strong>, a matching <code>GL Entry</code> is also typically created alongside the sale — a debit to Cost of Goods Sold and a credit to the Inventory/Stock asset account — connecting this Delivery Note's stock movement to the Sales Invoice's revenue posting from the previous section. Whether this fires, and which accounts it hits, depends entirely on that site's accounting settings; do not assume it is universally on.
+                    </div>
+                </section>
+
+                <section id="internal-connections-table">
+                    <h2>🕸️ Internal Connections, Fully Enumerated</h2>
+                    <p>Part 3's module tour listed which modules connect to which. Here's the same pairing with a third column added: exactly what record gets created when the connection actually fires.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Module pair</th><th>Trigger</th><th>What actually gets created</th></tr></thead>
+                        <tbody>
+                            <tr><td>Selling ↔ Stock</td><td>Delivery Note submit</td><td>Stock Ledger Entry (outward) + Bin update</td></tr>
+                            <tr><td>Selling ↔ Accounting</td><td>Sales Invoice submit</td><td>GL Entry (Receivable / Revenue / Tax)</td></tr>
+                            <tr><td>Buying ↔ Stock</td><td>Purchase Receipt submit</td><td>Stock Ledger Entry (inward) + Bin update</td></tr>
+                            <tr><td>Buying ↔ Accounting</td><td>Purchase Invoice submit</td><td>GL Entry (Payable / Expense-or-Inventory / Tax)</td></tr>
+                            <tr><td>Manufacturing ↔ Stock</td><td>Work Order + Job Card → Stock Entry</td><td>Stock Ledger Entry (material transfer out + finished goods receipt in)</td></tr>
+                            <tr><td>Manufacturing ↔ Accounting</td><td>Manufacture Stock Entry submit</td><td>GL Entry (WIP / Inventory) — where perpetual inventory accounting is enabled</td></tr>
+                            <tr><td>HR ↔ Payroll</td><td>Attendance + Salary Structure</td><td>Salary Slip</td></tr>
+                            <tr><td>Payroll ↔ Accounting</td><td>Payroll Entry submit</td><td>GL Entry (Salary Payable / Expense)</td></tr>
+                            <tr><td>Projects ↔ Accounting</td><td>Timesheet → billed via Sales Invoice</td><td>GL Entry (Receivable / Revenue)</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>The pattern from Part 1 holds under this closer look too: almost every row's "what gets created" column ends in either <code>GL Entry</code> or <code>Stock Ledger Entry</code> — those two tables really are the settlement layer every module ultimately writes to.</p>
+                </section>
+
+                <section id="external-connections">
+                    <h2>🔌 External Connections in Depth</h2>
+                    <p>Part 1's <a href="erpnext-beginner-to-intermediate.html#connections">Internal vs External Connections</a> section sketched the external side in one line. Here's the fuller picture of how ERPNext talks to systems outside its own database:</p>
+                    <div class="rel-diagram">
+                        <div class="rel-layer"><div class="rel-entity"><h4>ERPNext</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span>exposes / calls out via</div>
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>REST API</h4><ul class="rel-fields"><li>/api/resource/&lt;DocType&gt;</li></ul></div>
+                            <div class="rel-entity"><h4>Webhooks</h4><ul class="rel-fields"><li>HTTP POST on doc event</li></ul></div>
+                            <div class="rel-entity"><h4>OAuth</h4><ul class="rel-fields"><li>provider or consumer</li></ul></div>
+                        </div>
+                        <div class="rel-connector"><span class="arrow">↓</span>reaches</div>
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>E-commerce</h4></div>
+                            <div class="rel-entity"><h4>Payment Gateways</h4></div>
+                            <div class="rel-entity"><h4>SMS / Email Providers</h4></div>
+                            <div class="rel-entity"><h4>Other ERPs</h4></div>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Mechanism</th><th>What it does</th></tr></thead>
+                        <tbody>
+                            <tr><td>REST API</td><td>The framework-generated <code>/api/resource/&lt;DocType&gt;</code> surface covered in Part 1; full deployment, auth, and troubleshooting depth is in <a href="erpnext-api-deployment-troubleshooting.html">Part 8</a>.</td></tr>
+                            <tr><td>Webhooks</td><td>Fire an HTTP POST to an external URL when a chosen DocType event happens — e.g. "on Sales Invoice submit, notify our Next.js app" — configured per DocType and event without writing a custom app.</td></tr>
+                            <tr><td>OAuth</td><td>Lets ERPNext act as either an OAuth <em>provider</em> (issuing tokens so a third-party app can act on a user's behalf) or an OAuth <em>consumer</em> (logging into ERPNext via an external identity provider).</td></tr>
+                            <tr><td>Integration Request</td><td>A logging DocType some integrations use to record outbound/inbound API call attempts — payload, response, status — purely for debugging failed integrations after the fact.</td></tr>
+                            <tr><td>Typical external systems</td><td>Payment gateways, e-commerce platforms, SMS/email providers, and other ERPs/systems are the most common consumers of the mechanisms above.</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="reconciliation-in-erpnext">
+                    <h2>🧮 Reconciliation, ERPNext-Style</h2>
+                    <p>This series has stayed mostly framework-specific; the accounting series covers the theory framework-agnostically. Here's where they connect directly: ERPNext's <strong>Payment Reconciliation Tool</strong>, and the <code>against_voucher</code> field on <code>GL Entry</code> plus the <code>Payment Entry Reference</code> child table, are the concrete implementation of the abstract <a href="erp-invoice-payment-architecture.html#allocation">Payment Allocation</a> and <a href="erp-invoice-payment-architecture.html#reconciliation">Reconciliation</a> concepts described there.</p>
+                    <p>A short worked example, mirroring the "one payment settles many invoices" scenario from <a href="erp-invoice-payment-architecture.html#scenario-playbook">that article's scenario playbook</a>: a single Payment Entry of 100,000 comes in from a customer. Rather than being tied to one invoice, it's allocated across two open Sales Invoices — 40,000 against the first, 60,000 against the second — via two rows in the Payment Entry's <code>Payment Entry Reference</code> child table, each row pointing at its invoice through <code>against_voucher</code>. Both invoices move from "Unpaid" to "Paid" without a single GL Entry needing to guess which invoice a given rupee/dollar/taka belongs to — the reference rows carry that mapping explicitly.</p>
+                </section>
+
+                <section id="common-mistakes">
+                    <h2>🚧 Common Integration Mistakes</h2>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Mistake</th><th>Why it breaks things</th></tr></thead>
+                        <tbody>
+                            <tr><td>Manually creating GL Entry or Stock Ledger Entry records via script</td><td>Bypasses the validation, permission checks, and voucher linkage that submitting the proper transaction document provides — and breaks the audit trail, since the "reversal" record on cancel won't know these rows exist</td></tr>
+                            <tr><td>Disabling perpetual inventory accounting mid-year</td><td>Creates a valuation gap between transactions posted before and after the switch, since stock value was being tracked in the GL for one period and not the other</td></tr>
+                            <tr><td>Reading Bin for "current stock" in a hot path without understanding its role</td><td>Bin is a derived cache updated from Stock Ledger Entry, not the source of truth itself — code that needs a guaranteed-accurate, point-in-time quantity should reason from Stock Ledger Entry directly</td></tr>
+                            <tr><td>Manually reversing GL/Stock entries after cancelling a document</td><td>Cancel already auto-reverses linked GL Entries and Stock Ledger Entries — reversing them again creates duplicate offsetting postings</td></tr>
+                            <tr><td>Not setting up default accounts per Item Group/Warehouse/Company</td><td>Postings silently fall back to whatever default account is configured at a higher level, which is rarely the account anyone actually wanted for that transaction</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="whats-next">
+                    <h2>🗺️ What's Next</h2>
+                    <p>This part assumed the module tour from <a href="erpnext-modules-business-workflows.html">Part 3</a> and the schema/table background from <a href="erpnext-doctypes-database-relationships.html">Part 4</a> as prerequisites — if either felt unfamiliar while reading this, they're the right place to go back to first. From here, <a href="erpnext-customization-guide.html">Part 6</a> covers how to safely extend the posting logic described above with your own Custom Fields, Client/Server Scripts, and hooks, without ever touching ERPNext core.</p>
+
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <a href="blog.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold">
+                            ← Back to Blog
+                        </a>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        ↑
+    </div>
+
+    <!-- Footer -->
+<footer class="footer" style="margin-top: 60px;">
+<div class="container">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <strong>Md. Mostasim Mahmud Tasim</strong>
+      <p>Software Engineer</p>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/tasim313" target="_blank">GitHub</a>
+      <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" target="_blank">LinkedIn</a>
+      <a href="mailto:tasim.swe@gmail.com">Email</a>
+    </div>
+  </div>
+  <p class="footer-copy">&copy; 2026 Md. Mostasim Mahmud Tasim. All rights reserved.</p>
+</div>
+</footer>
+<script src="js/main.js"></script>
+<script>
+    document.querySelectorAll('pre').forEach(pre => {
+        pre.addEventListener('click', function() {
+            const code = this.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalBg = this.style.backgroundColor;
+                this.style.backgroundColor = '#059669';
+                setTimeout(() => { this.style.backgroundColor = originalBg; }, 500);
+            });
+        });
+    });
+</script>
+</body>
+</html>

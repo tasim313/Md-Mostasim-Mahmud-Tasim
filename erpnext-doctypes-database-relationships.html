@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERPNext DocTypes & Database Relationships | Md. Mostasim Mahmud Tasim</title>
+<meta name="description" content="How ERPNext's DocTypes become MariaDB tables — master vs transaction vs child tables, naming conventions, link fields, and the ER relationships behind Customer, Item, and Accounting data.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* Article Specific Styles */
+.article-container { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+.article-content { font-size: 1.0625rem; line-height: 1.8; color: var(--text-secondary); }
+.article-content h2 { font-size: 1.9rem; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); color: var(--text-primary); font-weight: 700; }
+.article-content h3 { font-size: 1.3125rem; margin-top: 2.25rem; margin-bottom: 1rem; color: var(--text-primary); font-weight: 700; }
+.article-content h4 { font-size: 1.0625rem; margin-top: 1.75rem; margin-bottom: 0.75rem; color: var(--text-primary); font-weight: 600; }
+.article-content p { margin-bottom: 1.5rem; }
+.article-content ul, .article-content ol { margin: 1.5rem 0; padding-left: 2rem; }
+.article-content li { margin-bottom: 0.5rem; }
+.article-content pre { background: #1a1a1a; color: #f8f8f2; padding: 1.5rem; border-radius: 8px; overflow-x: auto; margin: 1.5rem 0; font-family: 'Courier New', monospace; font-size: 0.8125rem; line-height: 1.5; cursor: pointer; }
+.article-content code { background: var(--bg-alt); color: var(--text-primary); padding: 0.2rem 0.4rem; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.875rem; }
+.article-content pre code { background: transparent; color: inherit; padding: 0; }
+.article-content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.8125rem; }
+.article-content th, .article-content td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; vertical-align: top; }
+.article-content th { background: var(--bg-alt); color: var(--text-primary); font-weight: 700; }
+.table-wrap { overflow-x: auto; }
+.info-box { background: var(--accent-subtle); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.warning-box { background: #fff7ed; border-left: 4px solid #f97316; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.success-box { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.table-of-contents { background: var(--bg-alt); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 12px 12px 0; }
+.table-of-contents ul { list-style: none; padding-left: 0; columns: 2; column-gap: 24px; }
+.table-of-contents li { margin-bottom: 0.6rem; padding-left: 1.5rem; position: relative; break-inside: avoid; }
+.table-of-contents li:before { content: "→"; position: absolute; left: 0; color: var(--accent); }
+.table-of-contents a { color: var(--accent); text-decoration: none; font-weight: 500; font-size: 0.9375rem; }
+.table-of-contents a:hover { text-decoration: underline; }
+@media (max-width: 640px) { .table-of-contents ul { columns: 1; } }
+header h1 { font-size: 2.25rem; font-weight: 800; color: var(--text-primary); line-height: 1.2; margin-bottom: 1.5rem; margin-top: 2rem; }
+header .category-badge { display: inline-block; background: var(--accent-subtle); color: var(--accent); padding: 6px 16px; border-radius: 20px; font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.reading-time { font-size: 0.875rem; color: var(--text-tertiary); font-weight: 500; }
+header p.text-center { text-align: center; margin-bottom: 1rem; color: var(--text-secondary); }
+
+/* Flow diagram */
+.diagram-scroll { overflow-x: auto; margin: 2rem 0; padding-bottom: 4px; }
+.flow-diagram { display: flex; align-items: stretch; gap: 0; min-width: min-content; }
+.flow-step { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 0.75rem; font-weight: 700; color: var(--text-primary); text-align: center; min-width: 108px; display: flex; flex-direction: column; justify-content: center; text-decoration: none; }
+.flow-step small { display: block; font-weight: 400; color: var(--text-tertiary); font-size: 0.625rem; margin-top: 6px; line-height: 1.4; }
+.flow-arrow { display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 1.1rem; flex: 0 0 auto; padding: 0 8px; }
+.flow-diagram.vertical { flex-direction: column; align-items: center; }
+.flow-diagram.vertical .flow-arrow { padding: 4px 0; }
+.flow-diagram.vertical .flow-step { min-width: 220px; }
+
+/* Relationship / layered diagram */
+.rel-diagram { margin: 2rem 0; }
+.rel-layer { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+.rel-connector { display: flex; justify-content: center; align-items: center; gap: 36px; padding: 8px 0; color: var(--accent); font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; text-align: center; }
+.rel-entity { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 10px; min-width: 150px; max-width: 220px; overflow: hidden; flex: 1 1 160px; }
+.rel-entity h4 { margin: 0; padding: 9px 12px; background: var(--accent-subtle); color: var(--accent); font-size: 0.75rem; font-weight: 700; border-bottom: 1px solid var(--border); }
+.rel-entity .rel-fields { list-style: none; margin: 0; padding: 8px 12px; font-size: 0.6875rem; font-family: 'Courier New', monospace; color: var(--text-tertiary); }
+.rel-entity .rel-fields li { margin-bottom: 3px; }
+
+/* Decision flowchart */
+.decision-flow { display: flex; flex-direction: column; align-items: center; margin: 2rem 0; }
+.decision-node { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); text-align: center; max-width: 340px; }
+.decision-flow .flow-arrow-down { color: var(--accent); font-size: 1.25rem; padding: 4px 0; }
+.decision-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.decision-diamond { width: 128px; height: 128px; background: var(--accent-subtle); border: 2px solid var(--accent); transform: rotate(45deg); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.decision-diamond span { transform: rotate(-45deg); font-size: 0.75rem; font-weight: 700; text-align: center; color: var(--text-primary); padding: 10px; line-height: 1.3; }
+.decision-branch-note { background: var(--bg-alt); border: 1px dashed var(--border); border-radius: 8px; padding: 10px 14px; font-size: 0.75rem; color: var(--text-secondary); max-width: 240px; }
+.decision-branch-note strong { color: var(--accent); }
+.decision-end { background: var(--accent); color: #fff; border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 700; text-align: center; max-width: 340px; }
+</style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="nav" role="navigation">
+<div class="nav-inner">
+  <a href="index.html" class="nav-brand">Mostasim Mahmud Tasim</a>
+  <ul class="nav-links">
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="index.html#experience">Experience</a></li>
+    <li><a href="index.html#capabilities">Engineering</a></li>
+    <li><a href="index.html#projects">Projects</a></li>
+    <li><a href="index.html#infrastructure">Infrastructure</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="https://github.com/tasim313" class="nav-ext" target="_blank"><i class="fa-brands fa-github"></i></a>
+    <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" class="nav-ext" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+    <button class="theme-toggle" id="themeToggle"><svg id="sunIcon" style="display:none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg><svg id="moonIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg></button>
+    <button class="mobile-toggle" id="mobileToggle"><span></span><span></span><span></span></button>
+  </div>
+</div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html#about">About</a>
+  <a href="index.html#experience">Experience</a>
+  <a href="index.html#capabilities">Engineering</a>
+  <a href="index.html#projects">Projects</a>
+  <a href="index.html#infrastructure">Infrastructure</a>
+  <a href="blog.html">Blog</a>
+  <a href="index.html#contact">Contact</a>
+</div>
+
+    <!-- Article Header -->
+    <header class="pt-12 pb-8">
+        <div class="article-container">
+            <div class="text-center mb-8">
+                <span class="category-badge">ERPNext &amp; Frappe</span>
+                <span class="reading-time ml-4">🧩 9-Part Course · Part 4: DocTypes &amp; Database</span>
+            </div>
+
+            <h1>ERPNext DocTypes &amp; Database Relationships</h1>
+
+            <div class="text-center text-gray-600 mb-8">
+                <p class="text-sm">Published: <span class="font-semibold">Aug 30, 2026</span></p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Article Content -->
+    <main class="pb-16">
+        <div class="article-container">
+            <!-- Table of Contents -->
+            <div class="table-of-contents fade-in">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">📋 Table of Contents</h3>
+                <ul class="space-y-2">
+                    <li><a href="#doctype-vs-table">DocType vs Database Table vs Document</a></li>
+                    <li><a href="#naming-convention">The tab&lt;DocType&gt; Naming Convention</a></li>
+                    <li><a href="#master-vs-transaction">Master Tables vs Transaction Tables (Expanded)</a></li>
+                    <li><a href="#child-tables-deep">Child Tables in Depth</a></li>
+                    <li><a href="#table-map-expanded">Expanded Table Map by Module</a></li>
+                    <li><a href="#link-vs-dynamic-link">Link vs Dynamic Link vs Table vs Table MultiSelect</a></li>
+                    <li><a href="#er-customer">ER Diagram: Customer (Expanded)</a></li>
+                    <li><a href="#er-item">ER Diagram: Item (Expanded)</a></li>
+                    <li><a href="#er-accounting">ER Diagram: Accounting (Expanded)</a></li>
+                    <li><a href="#document-flow-linking">Document Flow &amp; Linked Documents</a></li>
+                    <li><a href="#common-mistakes">Common Database-Design Mistakes</a></li>
+                    <li><a href="#whats-next">What's Next</a></li>
+                </ul>
+            </div>
+
+            <!-- Article Content -->
+            <article class="article-content fade-in">
+
+                <section id="doctype-vs-table">
+                    <h2>🗄️ DocType vs Database Table vs Document</h2>
+                    <p>Part 1's <a href="erpnext-beginner-to-intermediate.html#database-architecture">Database Architecture section</a> introduced the core chain — a DocType is metadata, the framework generates a MariaDB table from it, and each saved record is one row. This article assumes that chain and goes underneath it: not just <em>that</em> DocTypes become tables, but exactly how, and what "metadata-driven" means literally rather than as a slogan.</p>
+                    <div class="flow-diagram vertical">
+                        <div class="flow-step">DocType<small>defined via the DocType editor / Customize Form</small></div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">tabDocType row + tabDocField rows<small>the definition is itself stored as documents</small></div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Generated MariaDB table<small>tab&lt;DocType Name&gt;, one column per field</small></div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Document Record<small>one row = one saved document</small></div>
+                    </div>
+                    <p>The phrase "the schema is data" in Frappe is not a metaphor — it is a literal description of the storage model. A DocType's own definition (its name, module, permissions, and settings) is one row in <code>tabDocType</code>, and every field it has — label, fieldtype, options, mandatory flag, and so on — is a row in <code>tabDocField</code> with <code>parent</code> pointing back at that DocType. In other words, <code>tabDocType</code> and <code>tabDocField</code> are themselves ordinary Frappe tables generated from a DocType (<code>DocType</code> is a DocType), which is why a fresh Frappe install can bootstrap its own schema system from nothing but a handful of seed JSON files.</p>
+                    <p>This has a concrete, mechanical consequence when you add a field through <strong>Customize Form</strong> in the UI:</p>
+                    <div class="flow-diagram vertical">
+                        <div class="flow-step">Add field in Customize Form</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Property Setter or Custom Field record written<small>stored in the database, not in source code</small></div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Framework recalculates the DocType's effective schema</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Next migrate/refresh: ALTER TABLE<small>the underlying tab&lt;DocType&gt; table gains the column</small></div>
+                    </div>
+                    <p>A brand-new field added to an existing DocType typically writes a <strong>Custom Field</strong> record; a change to an existing field's label, mandatory flag, or read-only state typically writes a <strong>Property Setter</strong> record. Either way, on the next site migration (or an immediate refresh in developer mode) the framework compares the DocType's full field list against the live table structure and issues the necessary <code>ALTER TABLE ... ADD COLUMN</code> statements — you never hand-write SQL to add a column that a DocType field already describes.</p>
+                    <div class="info-box">
+                        <strong>💡 Verified vs illustrative in this article.</strong> Following the same convention as Part 1's <a href="erpnext-beginner-to-intermediate.html#accuracy-note">Version &amp; Accuracy Note</a>: the naming rule, the DocType/DocField storage model, and the Property Setter/migrate mechanism described here are stable, long-standing Frappe behavior. Specific table lists and diagrams are illustrative teaching aids — verify exact names against your installed version.
+                    </div>
+                </section>
+
+                <section id="naming-convention">
+                    <h2>🏷️ The tab&lt;DocType&gt; Naming Convention</h2>
+                    <p>This is <strong>verified, stable Frappe behavior</strong>, unchanged across recent versions: every non-child, non-virtual DocType's table name is the literal string <code>tab</code> concatenated with the DocType's name — spaces preserved, not converted to underscores or camelCase.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>DocType name</th><th>Generated table name</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Customer</code></td><td><code>tabCustomer</code></td></tr>
+                            <tr><td><code>Item</code></td><td><code>tabItem</code></td></tr>
+                            <tr><td><code>Sales Order</code></td><td><code>tabSales Order</code></td></tr>
+                            <tr><td><code>Sales Invoice</code></td><td><code>tabSales Invoice</code></td></tr>
+                            <tr><td><code>GL Entry</code></td><td><code>tabGL Entry</code></td></tr>
+                            <tr><td><code>Stock Ledger Entry</code></td><td><code>tabStock Ledger Entry</code></td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>Because MariaDB identifiers with spaces require backtick-quoting, raw SQL against these tables looks like <code>SELECT * FROM \`tabSales Invoice\` WHERE customer = 'CUST-00001'</code> — one more reason the Frappe ORM (<code>frappe.get_all</code>, <code>frappe.get_doc</code>) is preferred over hand-written queries, beyond the permission and validation concerns covered in <a href="#common-mistakes">Common Database-Design Mistakes</a> below.</p>
+                    <h3>Naming Series &amp; autoname: how the primary key is generated</h3>
+                    <p>Every Frappe document's primary key is its <code>name</code> field — not an auto-incrementing integer id. How that <code>name</code> value is produced is controlled by the DocType's <strong>autoname</strong> setting, which takes one of a few forms:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>autoname style</th><th>How the name is built</th><th>Example</th></tr></thead>
+                        <tbody>
+                            <tr><td>Naming series</td><td>A pattern with a counter and optional date tokens, chosen at save time if more than one series is configured</td><td><code>SAL-ORD-.YYYY.-.#####</code> → <code>SAL-ORD-2026-00042</code></td></tr>
+                            <tr><td>Field value</td><td><code>field:fieldname</code> — the name is copied straight from another field on the same document</td><td><code>field:item_code</code> for Item</td></tr>
+                            <tr><td>Prompt</td><td>The user types the name directly when creating the document</td><td>used for some master/setup DocTypes</td></tr>
+                            <tr><td>Custom hook</td><td>An <code>autoname()</code> method on the DocType's controller class computes the name in code</td><td>composite or business-rule-derived names</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>This matters beyond cosmetics: whatever value ends up in <code>name</code> is exactly what every <strong>Link field</strong> pointing at that DocType stores as its foreign key. A <code>Sales Order Item.parent</code> value of <code>"SAL-ORD-2026-00042"</code>, or a <code>Sales Invoice.customer</code> value of <code>"CUST-00001"</code>, is not a numeric surrogate key looked up through a separate id column — it <em>is</em> the primary key, and it is a human-readable string by design.</p>
+                </section>
+
+                <section id="master-vs-transaction">
+                    <h2>📚 Master Tables vs Transaction Tables (Expanded)</h2>
+                    <p>Part 1's <a href="erpnext-beginner-to-intermediate.html#table-map">table map section</a> introduced this split briefly; here is the fuller comparison, plus the "why" behind it.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Master DocType</th><th>Type</th><th>Typical lifecycle</th></tr></thead>
+                        <tbody>
+                            <tr><td>Customer</td><td>Master</td><td>Created once, edited occasionally, disabled rather than deleted once referenced by transactions</td></tr>
+                            <tr><td>Supplier</td><td>Master</td><td>Created once, edited occasionally, disabled not deleted</td></tr>
+                            <tr><td>Item</td><td>Master</td><td>Created once per SKU, price/attributes updated over time, disabled when discontinued</td></tr>
+                            <tr><td>Warehouse</td><td>Master</td><td>Created per physical/logical stock location, rarely changes once in use</td></tr>
+                            <tr><td>Account</td><td>Master</td><td>Set up as part of the Chart of Accounts, structurally stable, "frozen" rather than deleted</td></tr>
+                            <tr><td>Employee</td><td>Master</td><td>Created at hire, updated through employment, marked "Left" rather than deleted</td></tr>
+                            <tr><td>Cost Center</td><td>Master</td><td>Set up per department/company, edited rarely</td></tr>
+                            <tr><td>Price List</td><td>Master</td><td>Created per price tier/currency, items and rates updated periodically</td></tr>
+                            <tr><td>UOM</td><td>Master</td><td>Set up once (Nos, Kg, Box…), essentially static</td></tr>
+                            <tr><td>Territory</td><td>Master</td><td>Set up as part of sales geography, rarely changes</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Transaction DocType</th><th>Type</th><th>Typical lifecycle</th></tr></thead>
+                        <tbody>
+                            <tr><td>Sales Order</td><td>Transaction</td><td>Draft → Submit → possibly Cancel/Amend; rarely edited after submit</td></tr>
+                            <tr><td>Purchase Order</td><td>Transaction</td><td>Draft → Submit → possibly Cancel/Amend</td></tr>
+                            <tr><td>Sales Invoice</td><td>Transaction</td><td>Draft → Submit → paid/returned; posts to GL Entry on submit</td></tr>
+                            <tr><td>Purchase Invoice</td><td>Transaction</td><td>Draft → Submit → paid; posts to GL Entry on submit</td></tr>
+                            <tr><td>Delivery Note</td><td>Transaction</td><td>Draft → Submit; posts Stock Ledger Entry movements</td></tr>
+                            <tr><td>Purchase Receipt</td><td>Transaction</td><td>Draft → Submit; posts Stock Ledger Entry movements</td></tr>
+                            <tr><td>Payment Entry</td><td>Transaction</td><td>Draft → Submit; settles outstanding invoice amounts</td></tr>
+                            <tr><td>Journal Entry</td><td>Transaction</td><td>Draft → Submit; direct GL posting for non-invoice accounting events</td></tr>
+                            <tr><td>Stock Entry</td><td>Transaction</td><td>Draft → Submit; manual/internal stock movement</td></tr>
+                            <tr><td>Work Order</td><td>Transaction</td><td>Draft → Submit → In Process → Completed; drives manufacturing Stock Entries</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>Master data exists so that a fact is stored exactly once and every transaction merely <em>references</em> it via a Link field, rather than copying it. A customer's territory, for example, lives once on the <code>Customer</code> record — thousands of Sales Orders reference it by <code>customer</code> Link rather than each carrying its own copy of the territory string. This is the normalized-database version of "don't duplicate the fact, reference it," and it's why correcting a customer's address once instantly reflects correctly everywhere that customer is referenced, instead of requiring a bulk update across every historical transaction.</p>
+                </section>
+
+                <section id="child-tables-deep">
+                    <h2>🧬 Child Tables in Depth</h2>
+                    <p>Part 1's <a href="erpnext-beginner-to-intermediate.html#child-tables">Child Tables Explained</a> section covered the four framework-managed fields — <code>parent</code>, <code>parenttype</code>, <code>parentfield</code>, <code>idx</code> — using a Sales Order / Sales Order Item example. The mechanism is identical everywhere it's used; here's a different concrete instance, Purchase Invoice and its line items, to make the pattern recognizable rather than memorized from one example:</p>
+                    <pre><code>tabPurchase Invoice
+       │
+       │ parent (1) ──── (N) rows
+       ▼
+tabPurchase Invoice Item
+  parent      = "ACC-PINV-2026-00017"
+  parenttype  = "Purchase Invoice"
+  parentfield = "items"
+  idx         = 1
+  item_code   = "RM-CTRL-BOARD"
+  qty         = 50
+  rate        = 12.40</code></pre>
+                    <p>Three properties of child tables are worth stating explicitly, because they don't hold for normal DocTypes:</p>
+                    <ul>
+                        <li><strong>"Is Child Table" is a checkbox on the DocType definition itself.</strong> It changes how the framework treats every document of that DocType — it has no independent List View in the Desk UI, because a child row without its parent's context isn't a meaningful unit to browse.</li>
+                        <li><strong>Child rows are saved as one batch with the parent, not as separate document saves.</strong> When a Purchase Invoice with 50 line items is saved, the framework issues one coordinated INSERT/UPDATE/DELETE batch against <code>tabPurchase Invoice Item</code> alongside the single write to <code>tabPurchase Invoice</code> — it is not 50 independent document-save transactions.</li>
+                        <li><strong>This is why child table edits don't appear as separately-numbered documents in version history.</strong> The parent document's version log records the whole document's state at each save, including its child rows, rather than treating each child row as its own versioned entity with its own history.</li>
+                    </ul>
+                </section>
+
+                <section id="table-map-expanded">
+                    <h2>🗺️ Expanded Table Map by Module</h2>
+                    <p>As in Part 1's <a href="erpnext-beginner-to-intermediate.html#table-map">Illustrative Table Map</a>, these are representative, long-stable core DocTypes grouped by module — not an exhaustive schema dump. Exact table names, and which of these exist at all, can vary by ERPNext version and by which apps are installed on a site; confirm against your installed site (<code>bench --site SITE console</code>, or the DocType list in Developer Mode) before relying on them in code.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Module</th><th>Representative tables</th></tr></thead>
+                        <tbody>
+                            <tr><td>Core</td><td><code>tabUser</code>, <code>tabRole</code>, <code>tabDocType</code>, <code>tabDocField</code>, <code>tabWorkflow</code>, <code>tabFile</code>, <code>tabCommunication</code>, <code>tabToDo</code>, <code>tabProperty Setter</code>, <code>tabCustom Field</code></td></tr>
+                            <tr><td>CRM / Selling</td><td><code>tabLead</code>, <code>tabOpportunity</code>, <code>tabCustomer</code>, <code>tabQuotation</code>, <code>tabSales Order</code>, <code>tabSales Order Item</code>, <code>tabDelivery Note</code>, <code>tabSales Invoice</code>, <code>tabSales Invoice Item</code></td></tr>
+                            <tr><td>Buying</td><td><code>tabSupplier</code>, <code>tabMaterial Request</code>, <code>tabPurchase Order</code>, <code>tabPurchase Order Item</code>, <code>tabPurchase Receipt</code>, <code>tabPurchase Invoice</code>, <code>tabPurchase Invoice Item</code></td></tr>
+                            <tr><td>Stock</td><td><code>tabItem</code>, <code>tabItem Group</code>, <code>tabWarehouse</code>, <code>tabBin</code>, <code>tabStock Entry</code>, <code>tabStock Ledger Entry</code>, <code>tabSerial No</code>, <code>tabBatch</code>, <code>tabStock Reconciliation</code>, <code>tabItem Price</code></td></tr>
+                            <tr><td>Accounting</td><td><code>tabAccount</code>, <code>tabGL Entry</code>, <code>tabPayment Entry</code>, <code>tabPayment Entry Reference</code>, <code>tabJournal Entry</code>, <code>tabJournal Entry Account</code>, <code>tabCost Center</code>, <code>tabCompany</code>, <code>tabAccounting Dimension</code></td></tr>
+                            <tr><td>Manufacturing</td><td><code>tabBOM</code>, <code>tabBOM Item</code>, <code>tabWork Order</code>, <code>tabJob Card</code></td></tr>
+                            <tr><td>HR / Payroll</td><td><code>tabEmployee</code>, <code>tabDepartment</code>, <code>tabAttendance</code>, <code>tabLeave Application</code>, <code>tabLeave Allocation</code>, <code>tabExpense Claim</code>, <code>tabSalary Slip</code>, <code>tabPayroll Entry</code></td></tr>
+                            <tr><td>Assets</td><td><code>tabAsset</code>, <code>tabAsset Category</code>, <code>tabAsset Movement</code></td></tr>
+                            <tr><td>Quality</td><td><code>tabQuality Inspection</code>, <code>tabQuality Procedure</code>, <code>tabQuality Goal</code></td></tr>
+                            <tr><td>Support</td><td><code>tabIssue</code>, <code>tabService Level Agreement</code></td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="link-vs-dynamic-link">
+                    <h2>🔗 Link vs Dynamic Link vs Table vs Table MultiSelect</h2>
+                    <p>These four field types are how DocTypes reference other DocTypes — each solves a different relationship shape:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Field type</th><th>What it stores</th><th>Example</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Link</strong></td><td>A foreign-key-style reference to one fixed target DocType, stored as that document's <code>name</code></td><td><code>Sales Order Item.item_code</code> → <code>Item</code></td></tr>
+                            <tr><td><strong>Dynamic Link</strong></td><td>A reference whose target DocType is chosen by a sibling field, rather than being fixed at field-definition time (polymorphic reference)</td><td><code>Address.link_doctype</code> + <code>link_name</code> can point at a <code>Customer</code>, a <code>Supplier</code>, or any other DocType</td></tr>
+                            <tr><td><strong>Table</strong></td><td>Embeds the rows of one child DocType directly inside the parent document</td><td><code>Sales Order.items</code> → <code>Sales Order Item</code></td></tr>
+                            <tr><td><strong>Table MultiSelect</strong></td><td>A many-to-many-style multi-select of another DocType's existing records, without embedding new independent rows the way a child table does</td><td>tagging a document with multiple Sales Persons</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>Two related, UI-level field behaviors are easy to mistake for database constraints, so it's worth being precise about them: <code>fetch_from</code> auto-populates one field's value from a field on the linked document the moment the Link is set (e.g. a Sales Invoice's <code>customer_name</code> field can be configured to fetch from the linked Customer's <code>customer_name</code> field) — it's a convenience copy made at data-entry time, not a live join, so it can go stale if the source document changes afterward. <code>read_only</code> and <code>depends_on</code> similarly control how a field behaves in the form (whether it's editable, whether it's shown at all) purely at the UI layer — neither adds or removes an actual database constraint on the underlying column.</p>
+                </section>
+
+                <section id="er-customer">
+                    <h2>🔀 ER Diagram: Customer (Expanded)</h2>
+                    <p>Part 1's <a href="erpnext-beginner-to-intermediate.html#er-diagrams">ER Diagrams section</a> showed this relationship as a single collapsed row. Expanded, each referencing DocType carries its own illustrative fields:</p>
+                    <div class="rel-diagram">
+                        <div class="rel-layer"><div class="rel-entity"><h4>Customer</h4><ul class="rel-fields"><li>name (PK)</li><li>customer_name</li><li>territory</li></ul></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span>referenced by (1 : N)</div>
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>Contact</h4><ul class="rel-fields"><li>link_doctype</li><li>link_name</li></ul></div>
+                            <div class="rel-entity"><h4>Address</h4><ul class="rel-fields"><li>link_doctype</li><li>link_name</li></ul></div>
+                            <div class="rel-entity"><h4>Opportunity</h4><ul class="rel-fields"><li>party_name (Link)</li></ul></div>
+                            <div class="rel-entity"><h4>Quotation</h4><ul class="rel-fields"><li>party_name (Link)</li></ul></div>
+                            <div class="rel-entity"><h4>Sales Order</h4><ul class="rel-fields"><li>customer (Link)</li></ul></div>
+                            <div class="rel-entity"><h4>Delivery Note</h4><ul class="rel-fields"><li>customer (Link)</li></ul></div>
+                            <div class="rel-entity"><h4>Sales Invoice</h4><ul class="rel-fields"><li>customer (Link)</li><li>grand_total</li></ul></div>
+                        </div>
+                    </div>
+                    <p>Contact and Address deserve a specific callout as the <em>canonical</em> real-world example of Dynamic Link introduced above: they are not linked to Customer via a plain fixed Link field. A single Contact or Address DocType instance can belong to a Customer, a Supplier, an Employee, or any other party-like DocType — which one is decided per-record by the <code>link_doctype</code> field, with <code>link_name</code> then holding that target's <code>name</code>. This is precisely why Frappe needs the Dynamic Link field type at all: an ordinary Link can only ever point at one hardcoded target DocType, and a shared "address book" concept spanning several unrelated party types can't be modeled with a fixed Link.</p>
+                </section>
+
+                <section id="er-item">
+                    <h2>🔀 ER Diagram: Item (Expanded)</h2>
+                    <div class="rel-diagram">
+                        <div class="rel-layer"><div class="rel-entity"><h4>Item</h4><ul class="rel-fields"><li>name (PK)</li><li>item_group</li><li>stock_uom</li></ul></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span>referenced by</div>
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>Item Group</h4></div>
+                            <div class="rel-entity"><h4>Price List</h4></div>
+                            <div class="rel-entity"><h4>Warehouse<small></small></h4><ul class="rel-fields"><li>via Bin</li></ul></div>
+                            <div class="rel-entity"><h4>BOM</h4></div>
+                            <div class="rel-entity"><h4>Sales Order Item</h4></div>
+                            <div class="rel-entity"><h4>Purchase Order Item</h4></div>
+                            <div class="rel-entity"><h4>Delivery Note Item</h4></div>
+                            <div class="rel-entity"><h4>Purchase Receipt Item</h4></div>
+                            <div class="rel-entity"><h4>Stock Ledger Entry</h4></div>
+                        </div>
+                    </div>
+                    <p><strong>Bin</strong> is the table worth understanding specifically here: it holds the current on-hand quantity (and reserved/ordered/planned quantities) for one Item in one Warehouse, kept in sync as a derived cache from every posting to <code>Stock Ledger Entry</code>. The relationship is the same "current balance vs full ledger" distinction covered generally for financial balances in the accounting curriculum's <a href="accounting-erp-curriculum.html#level-4">reconciliation-flavored level</a>: <code>Bin</code> is a fast-to-read snapshot of current state (one row per Item × Warehouse), while <code>Stock Ledger Entry</code> is the full, append-only movement history that snapshot is derived from — if the two ever disagree, the Stock Ledger Entry history is the source of truth and Bin gets recalculated (a Stock Reconciliation), not the other way around.</p>
+                </section>
+
+                <section id="er-accounting">
+                    <h2>🔀 ER Diagram: Accounting (Expanded)</h2>
+                    <div class="rel-diagram">
+                        <div class="rel-layer"><div class="rel-entity"><h4>Company</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span>owns</div>
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>Account</h4></div>
+                            <div class="rel-entity"><h4>Cost Center</h4></div>
+                            <div class="rel-entity"><h4>Journal Entry</h4></div>
+                            <div class="rel-entity"><h4>Payment Entry</h4></div>
+                        </div>
+                        <div class="rel-connector"><span class="arrow">↓ ↓ ↓ ↓</span>all post to</div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>GL Entry</h4><ul class="rel-fields"><li>account (Link)</li><li>debit / credit</li><li>voucher_type</li><li>voucher_no</li></ul></div></div>
+                    </div>
+                    <p><code>GL Entry</code> is ERPNext's concrete implementation of the abstract "General Ledger" concept described more generally in <a href="erp-invoice-payment-architecture.html">Invoice vs Payment: The Complete ERP Accounting Architecture</a>'s relationship map. Every GL Entry row carries separate <code>debit</code> and <code>credit</code> amount columns — following standard double-entry convention rather than a single signed amount — and links back to whichever document generated it via a <code>voucher_type</code> / <code>voucher_no</code> pair (e.g. <code>voucher_type = "Sales Invoice"</code>, <code>voucher_no = "ACC-SINV-2026-00088"</code>). That pair is the direct ERPNext equivalent of the generic <code>source_type</code> / <code>source_id</code> columns described in that article's <a href="erp-invoice-payment-architecture.html#schema">journal_entry schema</a> — a polymorphic pointer back to whatever business document was the cause of this ledger posting, expressed with real Frappe field names instead of a generic schema sketch.</p>
+                </section>
+
+                <section id="document-flow-linking">
+                    <h2>🧭 Document Flow &amp; Linked Documents</h2>
+                    <p>ERPNext documents chain together through ordinary reference fields — a Sales Invoice stores which Sales Order and which Delivery Note it was raised against, a Payment Entry stores which invoice(s) it settles. Because Frappe tracks Link fields generically, opening any document also renders a <strong>Connections</strong> panel showing every other document that links to it, in both directions — you don't have to know in advance which DocTypes reference a given record to find them.</p>
+                    <div class="flow-diagram">
+                        <div class="flow-step">Sales Order</div><div class="flow-arrow">→</div>
+                        <div class="flow-step">Delivery Note<small>references Sales Order</small></div><div class="flow-arrow">→</div>
+                        <div class="flow-step">Sales Invoice<small>references both</small></div><div class="flow-arrow">→</div>
+                        <div class="flow-step">Payment Entry<small>references Sales Invoice</small></div>
+                    </div>
+                    <p>Two status mechanisms are worth calling out precisely, because they're easy to conflate:</p>
+                    <ul>
+                        <li><strong>outstanding_amount</strong> — a computed field on Sales Invoice (and similarly on Purchase Invoice) that tracks the unpaid balance as Payment Entries are submitted against it. This is the ERPNext-specific implementation of the generic "Outstanding Balance" formula described in <a href="erp-invoice-payment-architecture.html#lifecycle">the invoice lifecycle article</a> — invoice total minus allocated payments minus credit notes, kept current as a stored, recalculated field rather than computed fresh on every read.</li>
+                        <li><strong>docstatus vs status</strong> — <code>docstatus</code> is a core, verified Frappe convention present on every submittable DocType: <code>0 = Draft</code>, <code>1 = Submitted</code>, <code>2 = Cancelled</code>, and nothing else. Layered on top of it, most transactional DocTypes also carry a separate, human-readable <strong>status</strong> field — values like "Overdue", "Paid", or "Return" — that is computed from <code>docstatus</code> plus business logic (due dates, outstanding amount, linked return documents), not stored as the source of truth itself. This mirrors the multi-dimensional status modeling idea from <a href="erp-invoice-payment-architecture.html#status-matrix">the ERP accounting status matrix</a>: one raw lifecycle flag plus several derived, human-facing labels layered on top, rather than one field trying to capture every dimension of a document's state at once.</li>
+                    </ul>
+                </section>
+
+                <section id="common-mistakes">
+                    <h2>⚠️ Common Database-Design Mistakes When Extending ERPNext</h2>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Mistake</th><th>Why it causes problems</th><th>Do this instead</th></tr></thead>
+                        <tbody>
+                            <tr><td>Storing a denormalized copy of a linked document's field by hand</td><td>The copy silently goes stale when the source document changes, and nothing keeps the two in sync</td><td>Use <code>fetch_from</code> for point-in-time convenience copies, or follow the Link and read the live value at query time when currency matters</td></tr>
+                            <tr><td>Making a DocType a child table when it needs its own List View and lifecycle</td><td>Child tables have no independent List View, no independent version history, and can't be submitted/cancelled on their own</td><td>Make it a normal DocType with a Link field back to the "parent" instead of a Table field</td></tr>
+                            <tr><td>Ignoring naming series collisions across companies/fiscal years</td><td>Two records can silently receive the same generated name if the series pattern doesn't include enough distinguishing tokens</td><td>Include company/fiscal-year tokens in the naming series pattern, and reset counters deliberately rather than by accident</td></tr>
+                            <tr><td>Querying tab* tables directly with raw SQL instead of the Frappe ORM</td><td>Bypasses permission checks, validation hooks, and doc-event triggers that would otherwise run</td><td>Use <code>frappe.get_all</code> / <code>frappe.get_doc</code> / <code>frappe.qb</code> so permissions and hooks still apply</td></tr>
+                            <tr><td>Not indexing custom Link fields used heavily in filters/reports</td><td>Every list/report filter on that field falls back to a full table scan as data volume grows</td><td>Mark the custom field as "In Standard Filter" / set it indexed, or add a database index explicitly for high-volume lookups</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="whats-next">
+                    <h2>🗺️ What's Next</h2>
+                    <p>This article expanded on Part 1's <a href="erpnext-beginner-to-intermediate.html#database-architecture">Database Architecture</a>, <a href="erpnext-beginner-to-intermediate.html#child-tables">Child Tables</a>, <a href="erpnext-beginner-to-intermediate.html#table-map">Table Map</a>, and <a href="erpnext-beginner-to-intermediate.html#er-diagrams">ER Diagrams</a> sections — the same underlying model, in the depth needed to design real customizations against it safely.</p>
+                    <p>From here, <strong>Part 5</strong> (<a href="erpnext-module-integration-accounting-stock.html">Module Integration: Accounting &amp; Stock</a>) shows how these same tables interact live during a real transaction — what actually gets written to GL Entry and Stock Ledger Entry the moment a Sales Invoice is submitted. <strong>Part 6</strong> (<a href="erpnext-customization-guide.html">The Customization Guide</a>) covers how to safely add fields and DocTypes of your own on top of everything described here, without hitting the mistakes listed above.</p>
+
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <a href="blog.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold">
+                            ← Back to Blog
+                        </a>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        ↑
+    </div>
+
+    <!-- Footer -->
+<footer class="footer" style="margin-top: 60px;">
+<div class="container">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <strong>Md. Mostasim Mahmud Tasim</strong>
+      <p>Software Engineer</p>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/tasim313" target="_blank">GitHub</a>
+      <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" target="_blank">LinkedIn</a>
+      <a href="mailto:tasim.swe@gmail.com">Email</a>
+    </div>
+  </div>
+  <p class="footer-copy">&copy; 2026 Md. Mostasim Mahmud Tasim. All rights reserved.</p>
+</div>
+</footer>
+<script src="js/main.js"></script>
+<script>
+    document.querySelectorAll('pre').forEach(pre => {
+        pre.addEventListener('click', function() {
+            const code = this.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalBg = this.style.backgroundColor;
+                this.style.backgroundColor = '#059669';
+                setTimeout(() => { this.style.backgroundColor = originalBg; }, 500);
+            });
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERPNext Modules & Business Workflows | Md. Mostasim Mahmud Tasim</title>
+<meta name="description" content="A module-by-module tour of ERPNext — Accounting, Selling, Buying, Stock, Manufacturing, CRM, Projects, HR & Payroll, Assets, Quality, and Support — with master data, document flow, and accounting/stock impact for each.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* Article Specific Styles */
+.article-container { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+.article-content { font-size: 1.0625rem; line-height: 1.8; color: var(--text-secondary); }
+.article-content h2 { font-size: 1.9rem; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); color: var(--text-primary); font-weight: 700; }
+.article-content h3 { font-size: 1.3125rem; margin-top: 2.25rem; margin-bottom: 1rem; color: var(--text-primary); font-weight: 700; }
+.article-content h4 { font-size: 1.0625rem; margin-top: 1.75rem; margin-bottom: 0.75rem; color: var(--text-primary); font-weight: 600; }
+.article-content p { margin-bottom: 1.5rem; }
+.article-content ul, .article-content ol { margin: 1.5rem 0; padding-left: 2rem; }
+.article-content li { margin-bottom: 0.5rem; }
+.article-content pre { background: #1a1a1a; color: #f8f8f2; padding: 1.5rem; border-radius: 8px; overflow-x: auto; margin: 1.5rem 0; font-family: 'Courier New', monospace; font-size: 0.8125rem; line-height: 1.5; cursor: pointer; }
+.article-content code { background: var(--bg-alt); color: var(--text-primary); padding: 0.2rem 0.4rem; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.875rem; }
+.article-content pre code { background: transparent; color: inherit; padding: 0; }
+.article-content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.8125rem; }
+.article-content th, .article-content td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; vertical-align: top; }
+.article-content th { background: var(--bg-alt); color: var(--text-primary); font-weight: 700; }
+.table-wrap { overflow-x: auto; }
+.info-box { background: var(--accent-subtle); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.warning-box { background: #fff7ed; border-left: 4px solid #f97316; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.success-box { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.table-of-contents { background: var(--bg-alt); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 12px 12px 0; }
+.table-of-contents ul { list-style: none; padding-left: 0; columns: 2; column-gap: 24px; }
+.table-of-contents li { margin-bottom: 0.6rem; padding-left: 1.5rem; position: relative; break-inside: avoid; }
+.table-of-contents li:before { content: "→"; position: absolute; left: 0; color: var(--accent); }
+.table-of-contents a { color: var(--accent); text-decoration: none; font-weight: 500; font-size: 0.9375rem; }
+.table-of-contents a:hover { text-decoration: underline; }
+@media (max-width: 640px) { .table-of-contents ul { columns: 1; } }
+header h1 { font-size: 2.25rem; font-weight: 800; color: var(--text-primary); line-height: 1.2; margin-bottom: 1.5rem; margin-top: 2rem; }
+header .category-badge { display: inline-block; background: var(--accent-subtle); color: var(--accent); padding: 6px 16px; border-radius: 20px; font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.reading-time { font-size: 0.875rem; color: var(--text-tertiary); font-weight: 500; }
+header p.text-center { text-align: center; margin-bottom: 1rem; color: var(--text-secondary); }
+
+/* Flow diagram */
+.diagram-scroll { overflow-x: auto; margin: 2rem 0; padding-bottom: 4px; }
+.flow-diagram { display: flex; align-items: stretch; gap: 0; min-width: min-content; }
+.flow-step { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 0.75rem; font-weight: 700; color: var(--text-primary); text-align: center; min-width: 108px; display: flex; flex-direction: column; justify-content: center; text-decoration: none; }
+.flow-step small { display: block; font-weight: 400; color: var(--text-tertiary); font-size: 0.625rem; margin-top: 6px; line-height: 1.4; }
+.flow-arrow { display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 1.1rem; flex: 0 0 auto; padding: 0 8px; }
+.flow-diagram.vertical { flex-direction: column; align-items: center; }
+.flow-diagram.vertical .flow-arrow { padding: 4px 0; }
+.flow-diagram.vertical .flow-step { min-width: 220px; }
+
+/* Relationship / layered diagram */
+.rel-diagram { margin: 2rem 0; }
+.rel-layer { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+.rel-connector { display: flex; justify-content: center; align-items: center; gap: 36px; padding: 8px 0; color: var(--accent); font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; text-align: center; }
+.rel-entity { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 10px; min-width: 150px; max-width: 220px; overflow: hidden; flex: 1 1 160px; }
+.rel-entity h4 { margin: 0; padding: 9px 12px; background: var(--accent-subtle); color: var(--accent); font-size: 0.75rem; font-weight: 700; border-bottom: 1px solid var(--border); }
+.rel-entity .rel-fields { list-style: none; margin: 0; padding: 8px 12px; font-size: 0.6875rem; font-family: 'Courier New', monospace; color: var(--text-tertiary); }
+.rel-entity .rel-fields li { margin-bottom: 3px; }
+
+/* Decision flowchart */
+.decision-flow { display: flex; flex-direction: column; align-items: center; margin: 2rem 0; }
+.decision-node { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); text-align: center; max-width: 340px; }
+.decision-flow .flow-arrow-down { color: var(--accent); font-size: 1.25rem; padding: 4px 0; }
+.decision-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.decision-diamond { width: 128px; height: 128px; background: var(--accent-subtle); border: 2px solid var(--accent); transform: rotate(45deg); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.decision-diamond span { transform: rotate(-45deg); font-size: 0.75rem; font-weight: 700; text-align: center; color: var(--text-primary); padding: 10px; line-height: 1.3; }
+.decision-branch-note { background: var(--bg-alt); border: 1px dashed var(--border); border-radius: 8px; padding: 10px 14px; font-size: 0.75rem; color: var(--text-secondary); max-width: 240px; }
+.decision-branch-note strong { color: var(--accent); }
+.decision-end { background: var(--accent); color: #fff; border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 700; text-align: center; max-width: 340px; }
+</style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="nav" role="navigation">
+<div class="nav-inner">
+  <a href="index.html" class="nav-brand">Mostasim Mahmud Tasim</a>
+  <ul class="nav-links">
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="index.html#experience">Experience</a></li>
+    <li><a href="index.html#capabilities">Engineering</a></li>
+    <li><a href="index.html#projects">Projects</a></li>
+    <li><a href="index.html#infrastructure">Infrastructure</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="https://github.com/tasim313" class="nav-ext" target="_blank"><i class="fa-brands fa-github"></i></a>
+    <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" class="nav-ext" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+    <button class="theme-toggle" id="themeToggle"><svg id="sunIcon" style="display:none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg><svg id="moonIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg></button>
+    <button class="mobile-toggle" id="mobileToggle"><span></span><span></span><span></span></button>
+  </div>
+</div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html#about">About</a>
+  <a href="index.html#experience">Experience</a>
+  <a href="index.html#capabilities">Engineering</a>
+  <a href="index.html#projects">Projects</a>
+  <a href="index.html#infrastructure">Infrastructure</a>
+  <a href="blog.html">Blog</a>
+  <a href="index.html#contact">Contact</a>
+</div>
+
+    <!-- Article Header -->
+    <header class="pt-12 pb-8">
+        <div class="article-container">
+            <div class="text-center mb-8">
+                <span class="category-badge">ERPNext &amp; Frappe</span>
+                <span class="reading-time ml-4">🧩 9-Part Course · Part 3: Modules &amp; Workflows</span>
+            </div>
+
+            <h1>ERPNext Modules &amp; Business Workflows</h1>
+
+            <div class="text-center text-gray-600 mb-8">
+                <p class="text-sm">Published: <span class="font-semibold">Aug 30, 2026</span></p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Article Content -->
+    <main class="pb-16">
+        <div class="article-container">
+            <!-- Table of Contents -->
+            <div class="table-of-contents fade-in">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">📋 Table of Contents</h3>
+                <ul class="space-y-2">
+                    <li><a href="#accounting-module">Accounting Module</a></li>
+                    <li><a href="#selling-module">Selling Module</a></li>
+                    <li><a href="#buying-module">Buying Module</a></li>
+                    <li><a href="#stock-module">Stock Module</a></li>
+                    <li><a href="#manufacturing-module">Manufacturing Module</a></li>
+                    <li><a href="#crm-module">CRM Module</a></li>
+                    <li><a href="#projects-module">Projects Module</a></li>
+                    <li><a href="#hr-payroll-module">HR &amp; Payroll Module</a></li>
+                    <li><a href="#asset-module">Asset Module</a></li>
+                    <li><a href="#quality-module">Quality Module</a></li>
+                    <li><a href="#support-module">Support Module</a></li>
+                    <li><a href="#module-interconnection">Complete Module Interconnection</a></li>
+                    <li><a href="#whats-next">What's Next</a></li>
+                </ul>
+            </div>
+
+            <!-- Article Content -->
+            <article class="article-content fade-in">
+
+                <p>Part 1 of this series introduced ERPNext's <a href="erpnext-beginner-to-intermediate.html#core-modules">Core Modules at a Glance</a> table and a handful of <a href="erpnext-beginner-to-intermediate.html#document-flows">flagship document flows</a> in compressed form. This article is the deep-dive companion: every module gets its own section with full master data, document flow, child tables, and its accounting/stock impact — the level of detail you need before customizing or integrating against any of them.</p>
+
+                <section id="accounting-module">
+                    <h2>💰 Accounting Module</h2>
+                    <p><strong>Purpose:</strong> Accounting is the books of record for the entire ERPNext installation — every other module's transactions eventually translate into a posting here, so it's the one module every implementer needs to understand even if they never touch a Sales Order.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Master documents</th><th>Transaction documents</th></tr></thead>
+                        <tbody>
+                            <tr><td>Company</td><td>Sales Invoice</td></tr>
+                            <tr><td>Account</td><td>Purchase Invoice</td></tr>
+                            <tr><td>Cost Center</td><td>Payment Entry</td></tr>
+                            <tr><td>Accounting Dimension</td><td>Journal Entry</td></tr>
+                            <tr><td>Fiscal Year</td><td>Expense Claim</td></tr>
+                            <tr><td>Mode of Payment</td><td>Bank Transaction</td></tr>
+                            <tr><td>Currency</td><td>—</td></tr>
+                            <tr><td>Tax Template</td><td>—</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <h3>Sales side: Order to Cash</h3>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Sales Order</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Delivery Note</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Sales Invoice</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Payment Entry</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">GL Entry</div>
+                        </div>
+                    </div>
+                    <h3>Purchase side: Procure to Pay</h3>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Purchase Order</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Purchase Receipt</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Purchase Invoice</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Payment Entry</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">GL Entry</div>
+                        </div>
+                    </div>
+                    <p>Key child tables: <code>Sales Invoice Item</code>, <code>Purchase Invoice Item</code>, <code>Journal Entry Account</code>, <code>Payment Entry Reference</code> — the last of these is what links a Payment Entry back to the specific invoice(s) it settles.</p>
+                    <p><strong>Accounting/stock impact:</strong> this module <em>is</em> the accounting impact — every submitted Sales Invoice, Purchase Invoice, Payment Entry, and Journal Entry writes one or more balanced debit/credit rows to <code>GL Entry</code>.</p>
+                    <p><strong>Connects to:</strong> every other module in this article eventually posts here — see <a href="#selling-module">Selling</a>, <a href="#buying-module">Buying</a>, <a href="#manufacturing-module">Manufacturing</a>, <a href="#hr-payroll-module">HR &amp; Payroll</a>, and <a href="#asset-module">Assets</a> below, and the full picture in <a href="#module-interconnection">Complete Module Interconnection</a>.</p>
+                    <div class="info-box">
+                        <strong>💡 Why GL Entry is the single most important transaction table:</strong> Sales Invoices, Purchase Invoices, Payment Entries, Journal Entries, Payroll Entries, and Asset Depreciation all eventually write to the same <code>GL Entry</code> table — it's the one place every module's financial impact becomes comparable in one ledger, regardless of which document or module produced it. For the full accounting theory behind why invoices and payments are deliberately kept as separate records, and how allocation and reconciliation work, see <a href="erp-invoice-payment-architecture.html#core-concept">the core concept</a> and <a href="erp-invoice-payment-architecture.html#reconciliation">reconciliation</a> sections of <em>Invoice vs Payment: The Complete ERP Accounting Architecture</em>.
+                    </div>
+                </section>
+
+                <section id="selling-module">
+                    <h2>🛒 Selling Module</h2>
+                    <p><strong>Purpose:</strong> Selling covers everything from a qualified opportunity to a paid invoice — the quote-to-cash cycle for customers.</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Lead</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Opportunity</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Quotation</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Sales Order</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Delivery Note</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Sales Invoice</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Payment Entry</div>
+                        </div>
+                    </div>
+                    <p>Master data: Customer, Customer Group, Territory, Sales Person, Item, Price List, Sales Taxes and Charges Template.</p>
+                    <p>Key child tables: <code>Quotation Item</code>, <code>Sales Order Item</code>, <code>Delivery Note Item</code>, <code>Sales Invoice Item</code> — each new document typically pulls its rows from the previous one so item, price, and quantity stay traceable end to end.</p>
+                    <p><strong>Accounting/stock impact:</strong> Delivery Note reduces stock quantity and posts a stock-value GL entry; Sales Invoice posts revenue and receivable GL entries.</p>
+                    <p><strong>Connects to:</strong> <a href="#stock-module">Stock</a> (Delivery Note), <a href="#accounting-module">Accounting</a> (Sales Invoice, Payment Entry), and <a href="#crm-module">CRM</a> (Lead, Opportunity).</p>
+                </section>
+
+                <section id="buying-module">
+                    <h2>📦 Buying Module</h2>
+                    <p><strong>Purpose:</strong> Buying is the procure-to-pay cycle — sourcing, ordering, receiving, and paying suppliers.</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Material Request</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Request for Quotation</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Supplier Quotation</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Purchase Order</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Purchase Receipt</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Purchase Invoice</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Payment Entry</div>
+                        </div>
+                    </div>
+                    <p>Master data: Supplier, Supplier Group, Item, Buying Price List.</p>
+                    <p>Key child tables: <code>Material Request Item</code>, <code>Purchase Order Item</code>, <code>Purchase Receipt Item</code>, <code>Purchase Invoice Item</code>.</p>
+                    <p><strong>Accounting/stock impact:</strong> Purchase Receipt increases stock quantity and posts a stock-value GL entry; Purchase Invoice posts expense/asset and payable GL entries.</p>
+                    <p><strong>Connects to:</strong> <a href="#stock-module">Stock</a> (Purchase Receipt raises quantity via a <code>Stock Ledger Entry</code>), <a href="#accounting-module">Accounting</a> (Purchase Invoice, Payment Entry), plus its own Supplier and Item master data shared with every other module.</p>
+                </section>
+
+                <section id="stock-module">
+                    <h2>📊 Stock Module</h2>
+                    <p><strong>Purpose:</strong> Stock tracks inventory quantity and valuation across every warehouse, and is the single source of truth every Selling, Buying, and Manufacturing document ultimately updates.</p>
+                    <p>Key documents: Item, Item Group, Warehouse, Stock Entry, Stock Reconciliation, Delivery Note, Purchase Receipt, Serial Number, Batch, Bin, Stock Ledger Entry.</p>
+                    <div class="rel-diagram">
+                        <div class="rel-layer"><div class="rel-entity"><h4>Item</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span>tracked via</div>
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>Warehouse</h4></div>
+                            <div class="rel-entity"><h4>Batch</h4></div>
+                            <div class="rel-entity"><h4>Serial Number</h4></div>
+                            <div class="rel-entity"><h4>Stock Ledger Entry</h4></div>
+                        </div>
+                    </div>
+                    <p>Key child tables: <code>Stock Entry Detail</code>, <code>Purchase Receipt Item</code>, <code>Delivery Note Item</code>, <code>Stock Reconciliation Item</code>.</p>
+                    <p><strong>Stock Ledger Entry</strong> is the append-only movement log every stock-affecting document writes to — one row per item/warehouse movement, in quantity and value, forward in time. Current on-hand quantity in <code>Bin</code> and every valuation report are <em>derived</em> from summing this log, not stored independently — the same "log first, derive state" pattern the ledger itself follows on the accounting side. The exact mechanics of how Stock Ledger Entry and GL Entry stay in sync are covered in <a href="erpnext-module-integration-accounting-stock.html#stock-ledger-entry-generation">Part 5's Stock Ledger deep dive</a>.</p>
+                    <p><strong>Accounting/stock impact:</strong> Stock <em>is</em> the quantity/valuation record; its value movements post matching GL entries whenever a stock account is involved (perpetual inventory).</p>
+                    <p><strong>Connects to:</strong> <a href="#selling-module">Selling</a>, <a href="#buying-module">Buying</a>, <a href="#manufacturing-module">Manufacturing</a>, and <a href="#accounting-module">Accounting</a>.</p>
+                </section>
+
+                <section id="manufacturing-module">
+                    <h2>🏭 Manufacturing Module</h2>
+                    <p><strong>Purpose:</strong> Manufacturing converts raw materials into finished goods through a defined recipe and shop-floor process.</p>
+                    <p>Key documents: Item, BOM, Workstation, Operation, Routing, Work Order, Job Card, Material Request, Stock Entry.</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Item</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">BOM</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Work Order</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Material Transfer</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Job Card</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Manufacturing</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Finished Goods</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Stock Entry</div>
+                        </div>
+                    </div>
+                    <p>A BOM's recipe lines live in its child table, <code>BOM Item</code> — one row per raw material/component with quantity, rate, and operation. Other key child tables: <code>Work Order Item</code>, <code>Job Card Time Log</code>.</p>
+                    <p>A <strong>multi-level BOM</strong> happens when a <code>BOM Item</code> row itself references an Item that has its own BOM — manufacturing the top-level finished item can then cascade into manufacturing its sub-assemblies first, each with its own Work Order and Job Card chain.</p>
+                    <p><strong>Accounting/stock impact:</strong> raw material consumption and finished-goods receipt both post <code>Stock Entry</code> movements that carry matching GL entries when a perpetual-inventory Company is used.</p>
+                    <p><strong>Connects to:</strong> <a href="#stock-module">Stock</a> (every material transfer and finished-goods receipt) and <a href="#accounting-module">Accounting</a> (work-in-progress and finished-goods valuation).</p>
+                </section>
+
+                <section id="crm-module">
+                    <h2>🤝 CRM Module</h2>
+                    <p><strong>Purpose:</strong> CRM manages the pre-sales relationship — capturing interest and qualifying it before it becomes a Selling transaction.</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Lead</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Opportunity</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Quotation</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Customer</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Sales Order</div>
+                        </div>
+                    </div>
+                    <p>Key documents: Lead, Opportunity, Customer, Contact, Address, Communication, Activity.</p>
+                    <p>Key child tables: <code>Opportunity Item</code>, <code>Contact Email</code>, <code>Contact Phone</code>, <code>Dynamic Link</code> (used on Contact/Address to attach to a Lead, Customer, or Supplier interchangeably).</p>
+                    <p><strong>Accounting/stock impact:</strong> none directly — CRM documents don't post GL or stock entries; they exist entirely upstream of the first billable transaction.</p>
+                    <p><strong>Connects to:</strong> <a href="#selling-module">Selling</a> — an Opportunity converts into a Quotation and a Lead converts into a Customer, handing off into the quote-to-cash flow.</p>
+                </section>
+
+                <section id="projects-module">
+                    <h2>📋 Projects Module</h2>
+                    <p><strong>Purpose:</strong> Projects tracks billable and internal work as tasks and logged time, connecting labor to both cost centers and customer billing.</p>
+                    <p>Key documents: Project, Task, Timesheet, Activity Type, Employee, Cost Center, Sales Invoice.</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Project</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Task</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Timesheet</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Employee</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Billing</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Sales Invoice</div>
+                        </div>
+                    </div>
+                    <p>Key child tables: <code>Timesheet Detail</code> (one row per logged time block, linked to a Task and Activity Type), <code>Project Task</code>.</p>
+                    <p><strong>Accounting/stock impact:</strong> none directly from Project/Task/Timesheet themselves; impact arrives only once billable hours are pulled into a Sales Invoice, which then posts normal revenue GL entries.</p>
+                    <p><strong>Connects to:</strong> <a href="#hr-payroll-module">HR &amp; Payroll</a> (Timesheet references Employee) and <a href="#accounting-module">Accounting</a> (via billing).</p>
+                </section>
+
+                <section id="hr-payroll-module">
+                    <h2>🧑‍💼 HR &amp; Payroll Module</h2>
+                    <p><strong>Purpose:</strong> HR &amp; Payroll manages the employee lifecycle — attendance, leave, and ultimately calculating and posting salary.</p>
+                    <p>Key documents: Employee, Department, Designation, Employee Grade, Attendance, Leave Application, Leave Allocation, Salary Structure, Salary Slip, Payroll Entry, Expense Claim.</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Employee</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Attendance</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Leave</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Salary Structure</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Salary Slip</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Payroll Entry</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Accounting</div>
+                        </div>
+                    </div>
+                    <p>Key child tables: <code>Salary Detail</code> (earnings/deductions rows on both Salary Structure and Salary Slip), <code>Leave Allocation</code> ledger rows, <code>Expense Claim Detail</code>.</p>
+                    <p><strong>Accounting/stock impact:</strong> a submitted Payroll Entry posts salary expense and payable/bank GL entries in bulk across every included Salary Slip.</p>
+                    <p><strong>Connects to:</strong> <a href="#projects-module">Projects</a> (Timesheet references Employee) and <a href="#accounting-module">Accounting</a> (Payroll Entry, Expense Claim).</p>
+                </section>
+
+                <section id="asset-module">
+                    <h2>🏗️ Asset Module</h2>
+                    <p><strong>Purpose:</strong> Assets manages the fixed-asset lifecycle from acquisition through depreciation to eventual movement or disposal.</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Asset Category</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Asset</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Purchase Invoice</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Depreciation</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Asset Movement</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Asset Disposal</div>
+                        </div>
+                    </div>
+                    <p>Master data: Asset Category, Asset. Key child tables: <code>Asset Finance Book</code> (depreciation method/rate per book), <code>Asset Depreciation Schedule</code>.</p>
+                    <p><strong>Accounting/stock impact:</strong> each scheduled depreciation run posts a Journal Entry that debits Depreciation Expense and credits Accumulated Depreciation for that period, gradually reducing the asset's net book value on the balance sheet without any cash movement.</p>
+                    <p><strong>Connects to:</strong> <a href="#accounting-module">Accounting</a> — Assets is one of the modules whose entire financial impact is periodic, scheduled GL postings rather than transaction-triggered ones.</p>
+                </section>
+
+                <section id="quality-module">
+                    <h2>🔍 Quality Module</h2>
+                    <p><strong>Purpose:</strong> Quality gates whether goods moving in or out, or produced on the shop floor, meet defined conformance criteria before the surrounding transaction is allowed to proceed.</p>
+                    <p>Key documents: Quality Inspection, Quality Goal, Quality Procedure, Non Conformance, Quality Action.</p>
+                    <p>Key child tables: <code>Quality Inspection Reading</code> (one row per parameter measured against a specification), <code>Quality Procedure Process</code>.</p>
+                    <p>A <strong>Quality Inspection</strong> can be configured as mandatory before a <a href="#buying-module">Purchase Receipt</a> is submitted (incoming inspection) or before a <a href="#selling-module">Delivery Note</a> is submitted (outgoing inspection), and can equally gate a <a href="#manufacturing-module">Manufacturing</a> Job Card's finished-goods step — in each case the transaction simply cannot be submitted until a linked, passed Quality Inspection exists.</p>
+                    <p><strong>Accounting/stock impact:</strong> none directly — Quality Inspection itself posts no GL or stock entries; its effect is procedural, blocking or permitting the stock-moving document it's attached to.</p>
+                    <p><strong>Connects to:</strong> <a href="#stock-module">Stock</a>, <a href="#buying-module">Buying</a>, <a href="#selling-module">Selling</a>, and <a href="#manufacturing-module">Manufacturing</a>.</p>
+                </section>
+
+                <section id="support-module">
+                    <h2>🎧 Support Module</h2>
+                    <p><strong>Purpose:</strong> Support handles post-sales customer service — logging, assigning, and resolving issues raised by existing customers.</p>
+                    <p>Key documents: Issue, Customer, Contact, Communication, Service Level Agreement, Assignment, Support Ticket.</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Customer</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Issue</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Assignment</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Communication</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Resolution</div>
+                        </div>
+                    </div>
+                    <p>Key child tables: <code>ToDo</code> rows created per assignment, <code>Communication</code> link rows tying emails/notes back to the Issue.</p>
+                    <p><strong>Accounting/stock impact:</strong> none directly — Support is a service-tracking layer with no GL or stock postings of its own.</p>
+                    <p><strong>Connects to:</strong> <a href="#crm-module">CRM</a> and <a href="#selling-module">Selling</a> — every Issue links back to the same Customer master record those modules also reference.</p>
+                </section>
+
+                <section id="module-interconnection">
+                    <h2>🕸️ Complete Module Interconnection</h2>
+                    <p>Zooming out from each module's individual flow, the same shape repeats everywhere: a pre-sales or planning module feeds a transaction module, and every transaction module eventually drains into Stock and/or Accounting.</p>
+                    <div class="rel-diagram">
+                        <div class="rel-layer"><div class="rel-entity"><h4>CRM</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span></div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>Selling</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span></div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>Sales Order</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓ ↓</span>splits into</div>
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>Stock</h4><ul class="rel-fields"><li>Delivery Note</li></ul></div>
+                            <div class="rel-entity"><h4>Accounting</h4><ul class="rel-fields"><li>GL Entry</li></ul></div>
+                        </div>
+                        <div class="rel-connector"><span class="arrow">↓ ↓</span>both feed</div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>Payment</h4></div></div>
+                    </div>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Source module</th><th>Feeds into</th></tr></thead>
+                        <tbody>
+                            <tr><td>Buying</td><td>Stock</td></tr>
+                            <tr><td>Buying</td><td>Accounting</td></tr>
+                            <tr><td>Manufacturing</td><td>Stock</td></tr>
+                            <tr><td>Manufacturing</td><td>Accounting</td></tr>
+                            <tr><td>HR</td><td>Payroll</td></tr>
+                            <tr><td>Payroll</td><td>Accounting</td></tr>
+                            <tr><td>Projects</td><td>Timesheet</td></tr>
+                            <tr><td>Projects</td><td>Billing</td></tr>
+                            <tr><td>Billing</td><td>Accounting</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <div class="info-box">
+                        <strong>💡 The pattern:</strong> almost every module in this article is a source that eventually drains into <strong>Stock</strong> and/or <strong>Accounting</strong> — those two are the shared settlement layer every other module's transactions converge on. Exactly how those postings work — which document triggers which GL and Stock Ledger rows, and how the two stay reconciled — is the entire subject of <a href="erpnext-module-integration-accounting-stock.html">Part 5: Module Integration — Accounting &amp; Stock</a>.
+                    </div>
+                </section>
+
+                <section id="whats-next">
+                    <h2>🗺️ What's Next</h2>
+                    <p>This article expanded Part 1's compressed <a href="erpnext-beginner-to-intermediate.html#core-modules">Core Modules at a Glance</a> table and <a href="erpnext-beginner-to-intermediate.html#document-flows">flagship document flows</a> into a full module-by-module reference — master data, document flow, child tables, and accounting/stock impact for all eleven modules. From here, <strong>Part 4: DocTypes &amp; Database Relationships</strong> (<a href="erpnext-doctypes-database-relationships.html">erpnext-doctypes-database-relationships.html</a>) goes underneath these documents to the actual database structure — how a DocType becomes a table, how child tables relate to their parents, and how every Link field shown here as an arrow is really a foreign-key-style reference in MariaDB.</p>
+
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <a href="blog.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold">
+                            ← Back to Blog
+                        </a>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        ↑
+    </div>
+
+    <!-- Footer -->
+<footer class="footer" style="margin-top: 60px;">
+<div class="container">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <strong>Md. Mostasim Mahmud Tasim</strong>
+      <p>Software Engineer</p>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/tasim313" target="_blank">GitHub</a>
+      <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" target="_blank">LinkedIn</a>
+      <a href="mailto:tasim.swe@gmail.com">Email</a>
+    </div>
+  </div>
+  <p class="footer-copy">&copy; 2026 Md. Mostasim Mahmud Tasim. All rights reserved.</p>
+</div>
+</footer>
+<script src="js/main.js"></script>
+<script>
+    document.querySelectorAll('pre').forEach(pre => {
+        pre.addEventListener('click', function() {
+            const code = this.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalBg = this.style.backgroundColor;
+                this.style.backgroundColor = '#059669';
+                setTimeout(() => { this.style.backgroundColor = originalBg; }, 500);
+            });
+        });
+    });
+</script>
+</body>
+</html>

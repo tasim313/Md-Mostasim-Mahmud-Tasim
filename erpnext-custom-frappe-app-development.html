@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Building a Custom Frappe App: From bench new-app to Production | Md. Mostasim Mahmud Tasim</title>
+<meta name="description" content="How to extend ERPNext properly — scaffolding a custom Frappe app, hooks and doc events, creating custom DocTypes, and integrating a new module into ERPNext's UI, data, and business logic without touching core.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* Article Specific Styles */
+.article-container { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+.article-content { font-size: 1.0625rem; line-height: 1.8; color: var(--text-secondary); }
+.article-content h2 { font-size: 1.9rem; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); color: var(--text-primary); font-weight: 700; }
+.article-content h3 { font-size: 1.3125rem; margin-top: 2.25rem; margin-bottom: 1rem; color: var(--text-primary); font-weight: 700; }
+.article-content h4 { font-size: 1.0625rem; margin-top: 1.75rem; margin-bottom: 0.75rem; color: var(--text-primary); font-weight: 600; }
+.article-content p { margin-bottom: 1.5rem; }
+.article-content ul, .article-content ol { margin: 1.5rem 0; padding-left: 2rem; }
+.article-content li { margin-bottom: 0.5rem; }
+.article-content pre { background: #1a1a1a; color: #f8f8f2; padding: 1.5rem; border-radius: 8px; overflow-x: auto; margin: 1.5rem 0; font-family: 'Courier New', monospace; font-size: 0.8125rem; line-height: 1.5; cursor: pointer; }
+.article-content code { background: var(--bg-alt); color: var(--text-primary); padding: 0.2rem 0.4rem; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.875rem; }
+.article-content pre code { background: transparent; color: inherit; padding: 0; }
+.article-content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.8125rem; }
+.article-content th, .article-content td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; vertical-align: top; }
+.article-content th { background: var(--bg-alt); color: var(--text-primary); font-weight: 700; }
+.table-wrap { overflow-x: auto; }
+.info-box { background: var(--accent-subtle); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.warning-box { background: #fff7ed; border-left: 4px solid #f97316; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.success-box { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.table-of-contents { background: var(--bg-alt); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 12px 12px 0; }
+.table-of-contents ul { list-style: none; padding-left: 0; columns: 2; column-gap: 24px; }
+.table-of-contents li { margin-bottom: 0.6rem; padding-left: 1.5rem; position: relative; break-inside: avoid; }
+.table-of-contents li:before { content: "→"; position: absolute; left: 0; color: var(--accent); }
+.table-of-contents a { color: var(--accent); text-decoration: none; font-weight: 500; font-size: 0.9375rem; }
+.table-of-contents a:hover { text-decoration: underline; }
+@media (max-width: 640px) { .table-of-contents ul { columns: 1; } }
+header h1 { font-size: 2.25rem; font-weight: 800; color: var(--text-primary); line-height: 1.2; margin-bottom: 1.5rem; margin-top: 2rem; }
+header .category-badge { display: inline-block; background: var(--accent-subtle); color: var(--accent); padding: 6px 16px; border-radius: 20px; font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.reading-time { font-size: 0.875rem; color: var(--text-tertiary); font-weight: 500; }
+header p.text-center { text-align: center; margin-bottom: 1rem; color: var(--text-secondary); }
+
+/* Flow diagram */
+.diagram-scroll { overflow-x: auto; margin: 2rem 0; padding-bottom: 4px; }
+.flow-diagram { display: flex; align-items: stretch; gap: 0; min-width: min-content; }
+.flow-step { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 0.75rem; font-weight: 700; color: var(--text-primary); text-align: center; min-width: 108px; display: flex; flex-direction: column; justify-content: center; text-decoration: none; }
+.flow-step small { display: block; font-weight: 400; color: var(--text-tertiary); font-size: 0.625rem; margin-top: 6px; line-height: 1.4; }
+.flow-arrow { display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 1.1rem; flex: 0 0 auto; padding: 0 8px; }
+.flow-diagram.vertical { flex-direction: column; align-items: center; }
+.flow-diagram.vertical .flow-arrow { padding: 4px 0; }
+.flow-diagram.vertical .flow-step { min-width: 220px; }
+
+/* Relationship / layered diagram */
+.rel-diagram { margin: 2rem 0; }
+.rel-layer { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+.rel-connector { display: flex; justify-content: center; align-items: center; gap: 36px; padding: 8px 0; color: var(--accent); font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; text-align: center; }
+.rel-entity { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 10px; min-width: 150px; max-width: 220px; overflow: hidden; flex: 1 1 160px; }
+.rel-entity h4 { margin: 0; padding: 9px 12px; background: var(--accent-subtle); color: var(--accent); font-size: 0.75rem; font-weight: 700; border-bottom: 1px solid var(--border); }
+.rel-entity .rel-fields { list-style: none; margin: 0; padding: 8px 12px; font-size: 0.6875rem; font-family: 'Courier New', monospace; color: var(--text-tertiary); }
+.rel-entity .rel-fields li { margin-bottom: 3px; }
+
+/* Decision flowchart */
+.decision-flow { display: flex; flex-direction: column; align-items: center; margin: 2rem 0; }
+.decision-node { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); text-align: center; max-width: 340px; }
+.decision-flow .flow-arrow-down { color: var(--accent); font-size: 1.25rem; padding: 4px 0; }
+.decision-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.decision-diamond { width: 128px; height: 128px; background: var(--accent-subtle); border: 2px solid var(--accent); transform: rotate(45deg); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.decision-diamond span { transform: rotate(-45deg); font-size: 0.75rem; font-weight: 700; text-align: center; color: var(--text-primary); padding: 10px; line-height: 1.3; }
+.decision-branch-note { background: var(--bg-alt); border: 1px dashed var(--border); border-radius: 8px; padding: 10px 14px; font-size: 0.75rem; color: var(--text-secondary); max-width: 240px; }
+.decision-branch-note strong { color: var(--accent); }
+.decision-end { background: var(--accent); color: #fff; border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 700; text-align: center; max-width: 340px; }
+</style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="nav" role="navigation">
+<div class="nav-inner">
+  <a href="index.html" class="nav-brand">Mostasim Mahmud Tasim</a>
+  <ul class="nav-links">
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="index.html#experience">Experience</a></li>
+    <li><a href="index.html#capabilities">Engineering</a></li>
+    <li><a href="index.html#projects">Projects</a></li>
+    <li><a href="index.html#infrastructure">Infrastructure</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="https://github.com/tasim313" class="nav-ext" target="_blank"><i class="fa-brands fa-github"></i></a>
+    <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" class="nav-ext" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+    <button class="theme-toggle" id="themeToggle"><svg id="sunIcon" style="display:none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg><svg id="moonIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg></button>
+    <button class="mobile-toggle" id="mobileToggle"><span></span><span></span><span></span></button>
+  </div>
+</div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html#about">About</a>
+  <a href="index.html#experience">Experience</a>
+  <a href="index.html#capabilities">Engineering</a>
+  <a href="index.html#projects">Projects</a>
+  <a href="index.html#infrastructure">Infrastructure</a>
+  <a href="blog.html">Blog</a>
+  <a href="index.html#contact">Contact</a>
+</div>
+
+    <!-- Article Header -->
+    <header class="pt-12 pb-8">
+        <div class="article-container">
+            <div class="text-center mb-8">
+                <span class="category-badge">ERPNext &amp; Frappe</span>
+                <span class="reading-time ml-4">🧩 9-Part Course · Part 7: Custom App Development</span>
+            </div>
+
+            <h1>Building a Custom Frappe App: From bench new-app to Production</h1>
+
+            <div class="text-center text-gray-600 mb-8">
+                <p class="text-sm">Published: <span class="font-semibold">Aug 30, 2026</span></p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Article Content -->
+    <main class="pb-16">
+        <div class="article-container">
+            <!-- Table of Contents -->
+            <div class="table-of-contents fade-in">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">📋 Table of Contents</h3>
+                <ul class="space-y-2">
+                    <li><a href="#why-custom-app">Why a Custom App, Not Core Edits</a></li>
+                    <li><a href="#scaffolding">Scaffolding the App</a></li>
+                    <li><a href="#app-directory-structure">App Directory Structure</a></li>
+                    <li><a href="#hooks-events-deep">Hooks &amp; Events, In Depth</a></li>
+                    <li><a href="#creating-custom-doctype">Creating a Custom DocType</a></li>
+                    <li><a href="#linking-into-core">Linking a Custom DocType Into ERPNext Core</a></li>
+                    <li><a href="#three-integration-levels">Three Levels of Integration</a></li>
+                    <li><a href="#versioning-deployment">Versioning &amp; Safe Deployment</a></li>
+                    <li><a href="#common-mistakes">Common Custom App Mistakes</a></li>
+                    <li><a href="#whats-next">What's Next</a></li>
+                </ul>
+            </div>
+
+            <!-- Article Content -->
+            <article class="article-content fade-in">
+
+                <section id="why-custom-app">
+                    <h2>🧱 Why a Custom App, Not Core Edits</h2>
+                    <p><a href="erpnext-beginner-to-intermediate.html#best-practices">Part 1's best practices</a> already state the rule once: never modify ERPNext (or Frappe) core source. This article is about actually living by that rule while still building something real. The reason is mechanical, not philosophical — <code>apps/erpnext/</code> and <code>apps/frappe/</code> are git checkouts that <code>bench update</code> pulls fresh code into. Any line you hand-edit there either gets silently overwritten on the next update, or causes a merge conflict that halts the update entirely. Either outcome destroys the one thing an ERP system depends on most: a safe, repeatable upgrade path. This is the same discipline as the "don't silently edit history" principle behind <a href="erp-invoice-payment-architecture.html#audit-trail">immutable audit trails in ERP accounting</a> — a core file you quietly patched is functionally the same problem as a ledger entry quietly changed after the fact: nobody downstream can trust what they're looking at anymore.</p>
+                    <p>The alternative is to treat ERPNext core as a fixed, versioned dependency and build everything domain-specific as a separate, installable app that talks to core only through its public surface — Link fields, hooks, and the REST API. That target architecture is a straight line:</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Custom App</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Hooks</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Custom DocTypes</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Custom Fields</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Workflows</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">APIs</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">ERPNext Core<small>integrates with, never edits</small></div>
+                        </div>
+                    </div>
+                    <p>This is deliberately the same end state as <a href="erpnext-beginner-to-intermediate.html#customization">Part 1's customization decision tree</a>: "need new DocTypes, deep integration, or reusable logic → build a Custom App." Everything below is what actually happens once you reach that end node.</p>
+                </section>
+
+                <section id="scaffolding">
+                    <h2>🏗️ Scaffolding the App</h2>
+                    <p>Two bench commands take you from nothing to an installed, runnable custom app:</p>
+                    <pre><code>bench new-app my_custom_app
+bench --site site1.local install-app my_custom_app</code></pre>
+                    <p><code>bench new-app</code> generates the app's skeleton directory (see the next section) and registers its name in the bench's <code>apps.txt</code>, so the bench knows this app exists alongside <code>frappe</code> and <code>erpnext</code>. It does not touch any site's database. <code>bench --site SITE install-app</code> is the separate step that actually activates the app for one specific site: it runs the app's install hooks and applies any pending migrations (new DocType tables, patches) against that site's database. This mirrors the <code>get-app</code> vs <code>install-app</code> split covered in <a href="erpnext-beginner-to-intermediate.html#installation">Part 1's installation section</a> — fetching/creating an app's code is one action, enabling it for a given site is another, and one bench can have a custom app installed on some sites and not others.</p>
+                </section>
+
+                <section id="app-directory-structure">
+                    <h2>📁 App Directory Structure</h2>
+                    <pre><code>my_custom_app/
+├── hooks.py
+├── modules.txt
+├── patches.txt
+├── public/
+├── templates/
+└── my_custom_app/
+    └── my_module/
+        ├── doctype/
+        ├── report/
+        └── page/</code></pre>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Entry</th><th>What it's for</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>hooks.py</code></td><td>App configuration — <code>doc_events</code>, <code>scheduler_events</code>, includes, fixtures, and more. Arguably the single most important file in the whole app; it's the declarative wiring between your code and Frappe's lifecycle.</td></tr>
+                            <tr><td><code>modules.txt</code></td><td>Declares which Module Def(s) this app owns — the grouping that makes the custom DocTypes show up under a named module in the Desk.</td></tr>
+                            <tr><td><code>patches.txt</code></td><td>Lists data-migration patch scripts, run in order, whenever <code>bench migrate</code> runs against a site with this app installed.</td></tr>
+                            <tr><td><code>public/</code></td><td>JS, CSS, and image assets served to the browser.</td></tr>
+                            <tr><td><code>templates/</code></td><td>Jinja templates for web pages, emails, and print formats.</td></tr>
+                            <tr><td><code>doctype/</code></td><td>One folder per custom DocType, each holding its <code>.json</code> definition, <code>.py</code> controller, and <code>.js</code> client script.</td></tr>
+                            <tr><td><code>report/</code></td><td>Custom Query Reports and Script Reports.</td></tr>
+                            <tr><td><code>page/</code></td><td>Custom Desk pages and dashboards that aren't a standard DocType list/form.</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <div class="warning-box">
+                        <strong>⚠️ Layout can shift between Frappe versions.</strong> This is a conceptually stable, long-standing layout, but treat exact filenames and generated boilerplate as something to verify against the Frappe version you're actually running — the same caution <a href="erpnext-beginner-to-intermediate.html#accuracy-note">Part 1's accuracy note</a> applies to table names applies here to scaffold structure.
+                    </div>
+                </section>
+
+                <section id="hooks-events-deep">
+                    <h2>🪝 Hooks &amp; Events, In Depth</h2>
+                    <p><a href="erpnext-beginner-to-intermediate.html#custom-app">Part 1</a> listed the hook categories briefly. Here's what each one is actually for:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Hook</th><th>Purpose</th><th>Example use</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>doc_events</code></td><td>React to a DocType's lifecycle events</td><td><code>on_submit</code> of Sales Invoice triggers custom logic</td></tr>
+                            <tr><td><code>scheduler_events</code></td><td>Cron-like background jobs</td><td>A nightly job emails overdue-invoice reminders</td></tr>
+                            <tr><td><code>app_include_js</code> / <code>app_include_css</code></td><td>Load custom JS/CSS globally across the Desk</td><td>A shared UI helper available on every screen</td></tr>
+                            <tr><td><code>fixtures</code></td><td>Export specific records as JSON so they reinstall automatically on a fresh site</td><td>Custom Field, Role, and Workflow definitions shipped with the app</td></tr>
+                            <tr><td><code>permission_query_conditions</code></td><td>Inject an extra SQL WHERE-style condition into list queries</td><td>Row-level security beyond standard Role/User Permissions</td></tr>
+                            <tr><td><code>has_permission</code></td><td>A Python function controlling document-level access programmatically</td><td>Custom rule: only the assigned collector may edit a Lab Sample</td></tr>
+                            <tr><td><code>override_doctype_class</code></td><td>Replace a standard DocType's controller class with your own subclass</td><td>Add/override methods on Sales Invoice without touching its source file</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>The document-save lifecycle those <code>doc_events</code> hooks tap into is covered in full, including where accounting/stock side-effects fire, in <a href="erpnext-module-integration-accounting-stock.html#document-lifecycle-internals">Part 5's document lifecycle internals</a> — rather than re-deriving that diagram here, the point to take from it is this: <strong><code>doc_events</code> hooks are how your custom app taps into <code>validate</code> / <code>before_save</code> / <code>on_update</code> / <code>after_save</code> / <code>on_submit</code> / <code>on_cancel</code> for ANY DocType, including ERPNext's own, without editing that DocType's source file.</strong> This is the mechanism that makes "integrate, don't edit core" actually practical rather than just a rule on paper.</p>
+                </section>
+
+                <section id="creating-custom-doctype">
+                    <h2>🧬 Creating a Custom DocType</h2>
+                    <p>To make the rest of this article concrete, walk through one real example: <strong>Lab Sample</strong> — the same DocType briefly foreshadowed in <a href="erpnext-beginner-to-intermediate.html#custom-module">Part 1's Lab Management case study</a>, and the one <a href="erpnext-lab-management-capstone-project.html">Part 9's capstone</a> builds out fully.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>sample_id</code></td><td>Data</td><td>Set via a naming series, e.g. <code>LAB-SAMPLE-.YYYY.-.#####</code></td></tr>
+                            <tr><td><code>patient</code></td><td>Link → Patient</td><td>Patient is itself a custom DocType this same app defines</td></tr>
+                            <tr><td><code>sample_type</code></td><td>Select</td><td>Options like Blood / Urine / Tissue</td></tr>
+                            <tr><td><code>collection_date</code></td><td>Date</td><td>&nbsp;</td></tr>
+                            <tr><td><code>status</code></td><td>Select</td><td>Draft / Collected / In Lab / Reported</td></tr>
+                            <tr><td><code>collector</code></td><td>Link → Employee</td><td>Reuses ERPNext's own Employee master directly</td></tr>
+                            <tr><td><code>tests</code></td><td>Table → Lab Sample Test</td><td>Child DocType holding the individual tests ordered on this sample</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>"Lab Sample Test" is a child DocType: its "Is Child Table" flag is checked, and every row it stores carries the same four framework-managed fields — <code>parent</code>, <code>parenttype</code>, <code>parentfield</code>, <code>idx</code> — covered in full in <a href="erpnext-doctypes-database-relationships.html#child-tables-deep">Part 4's child tables deep-dive</a>. Nothing about a custom app's child tables works differently from ERPNext's own; that's exactly the point — a custom DocType is a first-class citizen of the same framework, not a bolted-on approximation of one.</p>
+                </section>
+
+                <section id="linking-into-core">
+                    <h2>🔗 Linking a Custom DocType Into ERPNext Core</h2>
+                    <p>The technique that actually makes a custom app "integrate" rather than just "coexist" is ordinary Link fields pointed at core DocTypes:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Field on custom DocType</th><th>Link target</th><th>Why</th></tr></thead>
+                        <tbody>
+                            <tr><td>Lab Sample.<code>patient</code></td><td>Patient (custom) → <code>patient.customer</code> → Customer</td><td>So a lab bill can be raised through the standard Sales Invoice flow, against a real Customer record</td></tr>
+                            <tr><td>Lab Sample.<code>company</code></td><td>Company</td><td>Every billable/accounting-adjacent document needs a Company, same as core transactions</td></tr>
+                            <tr><td>Lab Sample Test.<code>item</code></td><td>Item</td><td>Each lab test maps to a billable Item, so pricing and invoicing reuse ERPNext's existing Item/Price List machinery</td></tr>
+                            <tr><td>Lab Sample.<code>collector</code></td><td>Employee</td><td>Reuses the existing HR master instead of a custom "staff" list</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <div class="rel-diagram">
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>Customer</h4></div>
+                            <div class="rel-entity"><h4>Item</h4></div>
+                            <div class="rel-entity"><h4>Company</h4></div>
+                            <div class="rel-entity"><h4>Employee</h4></div>
+                        </div>
+                        <div class="rel-connector"><span class="arrow">↑</span>referenced by (Link fields)</div>
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>Patient</h4></div>
+                            <div class="rel-entity"><h4>Sample</h4></div>
+                            <div class="rel-entity"><h4>Test</h4></div>
+                        </div>
+                    </div>
+                    <p style="text-align:center; margin-top:-1rem; font-size:0.875rem; color:var(--text-tertiary);">ERPNext Core (top) · Custom App (bottom)</p>
+                    <p>Every one of these is a plain foreign-key-style Link field, exactly as described in <a href="erpnext-beginner-to-intermediate.html#database-architecture">Part 1's DocType → Table architecture</a>. Nothing about linking into core requires touching core's schema — the custom DocType's own JSON definition simply names the target DocType, and the framework generates the column and the UI picker for you.</p>
+                </section>
+
+                <section id="three-integration-levels">
+                    <h2>🪜 Three Levels of Integration</h2>
+                    <p><a href="erpnext-beginner-to-intermediate.html#custom-module">Part 1's custom-module section</a> introduced three integration levels in brief. Each one has a concrete action behind it:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Level</th><th>Concrete action</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Level 1 — UI</strong></td><td>Add a Workspace/module icon and dashboard shortcuts so Lab Sample, Patient, and the rest appear in the sidebar like a native module, not a hidden feature only power users can find</td></tr>
+                            <tr><td><strong>Level 2 — Data</strong></td><td>The Link-field wiring from the previous section, plus a Dynamic Link wherever a custom DocType needs a polymorphic reference (e.g. an Address that could belong to either a Patient or a Supplier)</td></tr>
+                            <tr><td><strong>Level 3 — Business Logic</strong></td><td>A <code>doc_events</code> hook — e.g. on Lab Report's <code>on_submit</code> — that programmatically creates a Sales Invoice against the linked Customer and Item. This is the actual payoff of doing Level 2 wiring correctly: the business logic has real records to act on</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram vertical">
+                            <div class="flow-step">Custom Module</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">UI</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Database</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Business Logic</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Events</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">API</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">ERPNext Core</div>
+                        </div>
+                    </div>
+                    <p>A custom app that only does Level 2 works technically but feels bolted-on; skipping Level 1 is common enough that it gets its own line in <a href="#common-mistakes">Common Custom App Mistakes</a> below.</p>
+                </section>
+
+                <section id="versioning-deployment">
+                    <h2>🚚 Versioning &amp; Safe Deployment</h2>
+                    <p>A custom app is a git repository like any other, and it should be treated as one from the first commit. Moving customizations between dev, staging, and production should always go through <strong>fixtures and patches</strong>, never through manually editing the production database directly — the same discipline <a href="erpnext-beginner-to-intermediate.html#best-practices">Part 1's best practices</a> already lays out for the whole ERPNext stack. Every <code>bench update</code> or <code>bench migrate</code> should be run and verified in staging before it ever touches production.</p>
+                    <p>Three commands cover the full lifecycle of applying a custom app to a site — the same ones from <a href="erpnext-beginner-to-intermediate.html#cheat-sheet">Part 1's cheat sheet</a>, used together:</p>
+                    <pre><code>bench new-app my_custom_app                        # scaffold, once
+bench --site SITE install-app my_custom_app        # activate on a site
+bench --site SITE migrate                          # apply pending patches (every deploy)</code></pre>
+                    <p>Full depth on exposing this app through the API, packaging it for deployment, and the troubleshooting playbook for when a migration or update goes wrong is <a href="erpnext-api-deployment-troubleshooting.html">Part 8's</a> subject — this section is deliberately just the checklist, not the mechanics.</p>
+                </section>
+
+                <section id="common-mistakes">
+                    <h2>🚧 Common Custom App Mistakes</h2>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Mistake</th><th>Why it hurts</th></tr></thead>
+                        <tbody>
+                            <tr><td>Naming a custom DocType the same as (or too close to) a core ERPNext DocType</td><td>Causes confusion for every developer after you, and risks a collision on a future ERPNext upgrade that introduces a similarly named core DocType</td></tr>
+                            <tr><td>Putting business logic in Client Script when it belongs in a <code>doc_events</code> hook</td><td>Client Script only runs in the browser — it's bypassable via the API, as covered in <a href="erpnext-customization-guide.html">Part 6's customization guide</a>; anything that must always happen belongs server-side</td></tr>
+                            <tr><td>Forgetting to add fixtures for Custom Fields, Roles, or Workflows created via the UI</td><td>Those changes live only in that site's database — they don't ship with the app, so a fresh install is silently missing them</td></tr>
+                            <tr><td>Tightly coupling a custom DocType's controller to ERPNext internals that aren't part of a stable public API</td><td>Breaks quietly on the next ERPNext upgrade, for the same underlying reason core source edits break — you're depending on something not guaranteed to stay the same</td></tr>
+                            <tr><td>Skipping Level 1 UI integration entirely</td><td>Leaves a technically-working module that users can't discover — see <a href="#three-integration-levels">Three Levels of Integration</a> above</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="whats-next">
+                    <h2>🗺️ What's Next</h2>
+                    <p>This article is <strong>Part 7 of the 9-part ERPNext course</strong>, going far deeper than the brief <a href="erpnext-beginner-to-intermediate.html#custom-app">#custom-app</a> and <a href="erpnext-beginner-to-intermediate.html#custom-module">#custom-module</a> sections in Part 1 — everything from directory structure to hook categories to the full Lab Sample integration example lives here instead. It's also the destination Part 1's customization ladder points to once you outgrow the no-code tools covered in <a href="erpnext-customization-guide.html">Part 6</a>.</p>
+                    <p>From here: <a href="erpnext-api-deployment-troubleshooting.html">Part 8</a> covers exposing this app through the REST API and deploying it safely — the full version of the checklist in <a href="#versioning-deployment">Versioning &amp; Safe Deployment</a> above. <a href="erpnext-lab-management-capstone-project.html">Part 9 builds the full Laboratory Management app using exactly this structure</a> — the same Lab Sample DocType, the same Level 1/2/3 integration, taken from example to complete capstone project.</p>
+
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <a href="blog.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold">
+                            ← Back to Blog
+                        </a>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        ↑
+    </div>
+
+    <!-- Footer -->
+<footer class="footer" style="margin-top: 60px;">
+<div class="container">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <strong>Md. Mostasim Mahmud Tasim</strong>
+      <p>Software Engineer</p>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/tasim313" target="_blank">GitHub</a>
+      <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" target="_blank">LinkedIn</a>
+      <a href="mailto:tasim.swe@gmail.com">Email</a>
+    </div>
+  </div>
+  <p class="footer-copy">&copy; 2026 Md. Mostasim Mahmud Tasim. All rights reserved.</p>
+</div>
+</footer>
+<script src="js/main.js"></script>
+<script>
+    document.querySelectorAll('pre').forEach(pre => {
+        pre.addEventListener('click', function() {
+            const code = this.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalBg = this.style.backgroundColor;
+                this.style.backgroundColor = '#059669';
+                setTimeout(() => { this.style.backgroundColor = originalBg; }, 500);
+            });
+        });
+    });
+</script>
+</body>
+</html>
