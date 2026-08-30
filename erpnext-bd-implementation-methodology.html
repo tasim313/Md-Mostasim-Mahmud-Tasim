@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERPNext Bangladesh Case Study: Implementation Methodology | Md. Mostasim Mahmud Tasim</title>
+<meta name="description" content="How to actually run an ERPNext implementation project in Bangladesh — the configure/customize/custom-module decision framework, version discipline, dev/staging/production pipeline, and the Bangladesh business context, using two fictional companies as the running case study.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* Article Specific Styles */
+.article-container { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+.article-content { font-size: 1.0625rem; line-height: 1.8; color: var(--text-secondary); }
+.article-content h2 { font-size: 1.9rem; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); color: var(--text-primary); font-weight: 700; }
+.article-content h3 { font-size: 1.3125rem; margin-top: 2.25rem; margin-bottom: 1rem; color: var(--text-primary); font-weight: 700; }
+.article-content h4 { font-size: 1.0625rem; margin-top: 1.75rem; margin-bottom: 0.75rem; color: var(--text-primary); font-weight: 600; }
+.article-content p { margin-bottom: 1.5rem; }
+.article-content ul, .article-content ol { margin: 1.5rem 0; padding-left: 2rem; }
+.article-content li { margin-bottom: 0.5rem; }
+.article-content pre { background: #1a1a1a; color: #f8f8f2; padding: 1.5rem; border-radius: 8px; overflow-x: auto; margin: 1.5rem 0; font-family: 'Courier New', monospace; font-size: 0.8125rem; line-height: 1.5; cursor: pointer; }
+.article-content code { background: var(--bg-alt); color: var(--text-primary); padding: 0.2rem 0.4rem; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.875rem; }
+.article-content pre code { background: transparent; color: inherit; padding: 0; }
+.article-content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.8125rem; }
+.article-content th, .article-content td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; vertical-align: top; }
+.article-content th { background: var(--bg-alt); color: var(--text-primary); font-weight: 700; }
+.table-wrap { overflow-x: auto; }
+.info-box { background: var(--accent-subtle); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.warning-box { background: #fff7ed; border-left: 4px solid #f97316; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.success-box { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.table-of-contents { background: var(--bg-alt); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 12px 12px 0; }
+.table-of-contents ul { list-style: none; padding-left: 0; columns: 2; column-gap: 24px; }
+.table-of-contents li { margin-bottom: 0.6rem; padding-left: 1.5rem; position: relative; break-inside: avoid; }
+.table-of-contents li:before { content: "→"; position: absolute; left: 0; color: var(--accent); }
+.table-of-contents a { color: var(--accent); text-decoration: none; font-weight: 500; font-size: 0.9375rem; }
+.table-of-contents a:hover { text-decoration: underline; }
+@media (max-width: 640px) { .table-of-contents ul { columns: 1; } }
+header h1 { font-size: 2.25rem; font-weight: 800; color: var(--text-primary); line-height: 1.2; margin-bottom: 1.5rem; margin-top: 2rem; }
+header .category-badge { display: inline-block; background: var(--accent-subtle); color: var(--accent); padding: 6px 16px; border-radius: 20px; font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.reading-time { font-size: 0.875rem; color: var(--text-tertiary); font-weight: 500; }
+header p.text-center { text-align: center; margin-bottom: 1rem; color: var(--text-secondary); }
+
+/* Flow diagram */
+.diagram-scroll { overflow-x: auto; margin: 2rem 0; padding-bottom: 4px; }
+.flow-diagram { display: flex; align-items: stretch; gap: 0; min-width: min-content; }
+.flow-step { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 0.75rem; font-weight: 700; color: var(--text-primary); text-align: center; min-width: 108px; display: flex; flex-direction: column; justify-content: center; text-decoration: none; }
+.flow-step small { display: block; font-weight: 400; color: var(--text-tertiary); font-size: 0.625rem; margin-top: 6px; line-height: 1.4; }
+.flow-arrow { display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 1.1rem; flex: 0 0 auto; padding: 0 8px; }
+.flow-diagram.vertical { flex-direction: column; align-items: center; }
+.flow-diagram.vertical .flow-arrow { padding: 4px 0; }
+.flow-diagram.vertical .flow-step { min-width: 220px; }
+
+/* Relationship / layered diagram */
+.rel-diagram { margin: 2rem 0; }
+.rel-layer { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+.rel-connector { display: flex; justify-content: center; align-items: center; gap: 36px; padding: 8px 0; color: var(--accent); font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; text-align: center; }
+.rel-entity { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 10px; min-width: 150px; max-width: 220px; overflow: hidden; flex: 1 1 160px; }
+.rel-entity h4 { margin: 0; padding: 9px 12px; background: var(--accent-subtle); color: var(--accent); font-size: 0.75rem; font-weight: 700; border-bottom: 1px solid var(--border); }
+.rel-entity .rel-fields { list-style: none; margin: 0; padding: 8px 12px; font-size: 0.6875rem; font-family: 'Courier New', monospace; color: var(--text-tertiary); }
+.rel-entity .rel-fields li { margin-bottom: 3px; }
+
+/* Decision flowchart */
+.decision-flow { display: flex; flex-direction: column; align-items: center; margin: 2rem 0; }
+.decision-node { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); text-align: center; max-width: 340px; }
+.decision-flow .flow-arrow-down { color: var(--accent); font-size: 1.25rem; padding: 4px 0; }
+.decision-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.decision-diamond { width: 128px; height: 128px; background: var(--accent-subtle); border: 2px solid var(--accent); transform: rotate(45deg); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.decision-diamond span { transform: rotate(-45deg); font-size: 0.75rem; font-weight: 700; text-align: center; color: var(--text-primary); padding: 10px; line-height: 1.3; }
+.decision-branch-note { background: var(--bg-alt); border: 1px dashed var(--border); border-radius: 8px; padding: 10px 14px; font-size: 0.75rem; color: var(--text-secondary); max-width: 240px; }
+.decision-branch-note strong { color: var(--accent); }
+.decision-end { background: var(--accent); color: #fff; border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 700; text-align: center; max-width: 340px; }
+</style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="nav" role="navigation">
+<div class="nav-inner">
+  <a href="index.html" class="nav-brand">Mostasim Mahmud Tasim</a>
+  <ul class="nav-links">
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="index.html#experience">Experience</a></li>
+    <li><a href="index.html#capabilities">Engineering</a></li>
+    <li><a href="index.html#projects">Projects</a></li>
+    <li><a href="index.html#infrastructure">Infrastructure</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="https://github.com/tasim313" class="nav-ext" target="_blank"><i class="fa-brands fa-github"></i></a>
+    <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" class="nav-ext" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+    <button class="theme-toggle" id="themeToggle"><svg id="sunIcon" style="display:none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg><svg id="moonIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg></button>
+    <button class="mobile-toggle" id="mobileToggle"><span></span><span></span><span></span></button>
+  </div>
+</div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html#about">About</a>
+  <a href="index.html#experience">Experience</a>
+  <a href="index.html#capabilities">Engineering</a>
+  <a href="index.html#projects">Projects</a>
+  <a href="index.html#infrastructure">Infrastructure</a>
+  <a href="blog.html">Blog</a>
+  <a href="index.html#contact">Contact</a>
+</div>
+
+    <!-- Article Header -->
+    <header class="pt-12 pb-8">
+        <div class="article-container">
+            <div class="text-center mb-8">
+                <span class="category-badge">ERPNext &amp; Frappe</span>
+                <span class="reading-time ml-4">🇧🇩 BD Case Study · Part 1: Methodology</span>
+            </div>
+
+            <h1>ERPNext Bangladesh Case Study: Implementation Methodology</h1>
+
+            <div class="text-center text-gray-600 mb-8">
+                <p class="text-sm">Published: <span class="font-semibold">Aug 30, 2026</span></p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Article Content -->
+    <main class="pb-16">
+        <div class="article-container">
+            <!-- Table of Contents -->
+            <div class="table-of-contents fade-in">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">📋 Table of Contents</h3>
+                <ul class="space-y-2">
+                    <li><a href="#series-intro">What This Case Study Series Is</a></li>
+                    <li><a href="#companies">The Two Companies</a></li>
+                    <li><a href="#implementation-mindset">The Implementation Mindset</a></li>
+                    <li><a href="#version-matrix">Version &amp; Environment Matrix</a></li>
+                    <li><a href="#dev-staging-prod">Development → Staging → Production Pipeline</a></li>
+                    <li><a href="#six-questions">The Six-Question Training Framework</a></li>
+                    <li><a href="#field-level-training">Field-Level Training Methodology</a></li>
+                    <li><a href="#base-modules-recap">Which ERPNext Base Modules Both Companies Share</a></li>
+                    <li><a href="#decision-framework">Configure vs Customize vs Custom Module vs Integration</a></li>
+                    <li><a href="#bangladesh-context">The Bangladesh Business Context</a></li>
+                    <li><a href="#whats-next">What's Next</a></li>
+                </ul>
+            </div>
+
+            <!-- Article Content -->
+            <article class="article-content fade-in">
+
+                <section id="series-intro">
+                    <h2>🇧🇩 What This Case Study Series Is</h2>
+                    <p>This is Part 1 of a <strong>4-part Bangladesh implementation case study</strong>, built as a practical companion to the existing <a href="erpnext-beginner-to-intermediate.html">9-part ERPNext Beginner to Intermediate course</a>. That course teaches the architecture, modules, database design, permissions, and customization mechanics of ERPNext in general. This series takes those concepts and runs them through a realistic, end-to-end implementation for two fictional Bangladeshi companies — a hospital and a real estate/construction firm — so every concept is grounded in a concrete requirement instead of an abstract example.</p>
+                    <p>Where the beginner course explains <em>how ERPNext works</em>, this series explains <em>how to run the project of making ERPNext work for a specific business</em>: gathering requirements, deciding what to configure versus build, structuring the environment pipeline, training users, and — in Parts 2 and 3 — walking through the actual hospital and real estate workflows in detail.</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <a href="erpnext-bd-implementation-methodology.html" class="flow-step">Part 1<small>Methodology</small></a><div class="flow-arrow">→</div>
+                            <a href="erpnext-bd-hospital-management.html" class="flow-step">Part 2<small>Hospital Management</small></a><div class="flow-arrow">→</div>
+                            <a href="erpnext-bd-real-estate-construction.html" class="flow-step">Part 3<small>Real Estate &amp; Construction</small></a><div class="flow-arrow">→</div>
+                            <a href="erpnext-bd-custom-dev-devops-production.html" class="flow-step">Part 4<small>Custom Dev, DevOps &amp; Production</small></a>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="companies">
+                    <h2>🏢 The Two Companies</h2>
+                    <div class="info-box">
+                        <strong>Fictional companies, real methodology.</strong> Dhaka Care Medical &amp; Hospital Ltd. and Dhaka Skyline Properties &amp; Construction Ltd. are both invented for this teaching series. Any resemblance to a real organization is coincidental — the goal is a realistic Bangladesh business context to hang the ERPNext methodology on, not a documented real deployment.
+                    </div>
+                    <h3>Dhaka Care Medical &amp; Hospital Ltd.</h3>
+                    <div class="table-wrap">
+                    <table>
+                        <tbody>
+                            <tr><td><strong>Location</strong></td><td>Dhaka, Bangladesh</td></tr>
+                            <tr><td><strong>Type</strong></td><td>Private hospital and diagnostic center</td></tr>
+                            <tr><td><strong>Departments</strong></td><td>OPD, Emergency, IPD, ICU, CCU, OT, Pharmacy, Laboratory, Radiology, Blood Bank, Ambulance, Nursing</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <h3>Dhaka Skyline Properties &amp; Construction Ltd.</h3>
+                    <div class="table-wrap">
+                    <table>
+                        <tbody>
+                            <tr><td><strong>Location</strong></td><td>Dhaka, Bangladesh</td></tr>
+                            <tr><td><strong>Type</strong></td><td>Real estate development and construction</td></tr>
+                            <tr><td><strong>Business lines</strong></td><td>Land acquisition, apartment/commercial development, construction, subcontracting, apartment sales and installment collection</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="implementation-mindset">
+                    <h2>🧠 The Implementation Mindset</h2>
+                    <p>The single biggest mistake in an ERP implementation is starting from the database — opening the DocType list and asking "which of these tables do we need?" A real implementation starts from the business process, walks it end to end with the people who actually do the work, and only then asks which ERPNext module, DocType, or customization maps onto each step. For Dhaka Care Medical &amp; Hospital, the actual starting point of requirements gathering is a hospital's <strong>admission process</strong> — who decides a patient needs a bed, who allocates it, what has to be true before billing can start — not the fields on a Patient DocType. For Dhaka Skyline Properties &amp; Construction, it's the <strong>apartment booking-to-handover process</strong> — how a buyer reserves a unit, pays a down payment, and enters an installment schedule — not the fields on a Sales Order. The DocType is where the requirement eventually lands; it is never where the requirement starts.</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram vertical">
+                            <div class="flow-step">Business</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Business Process</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">ERP Requirement</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">ERPNext Base Module</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Configuration</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Customization</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Custom Module</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Integration</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Testing</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Deployment</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Training</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Production</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Maintenance</div>
+                        </div>
+                    </div>
+                    <p>This chain is the backbone of the entire series: every workflow described in Parts 2 and 3 is walked through in exactly this order — business process first, ERPNext mapping last.</p>
+                </section>
+
+                <section id="version-matrix">
+                    <h2>⚠️ Version &amp; Environment Matrix</h2>
+                    <div class="warning-box">
+                        <strong>Read this before anything else in this series.</strong> Nothing in this article, or in Parts 2–4, should be read as asserting a specific ERPNext/Frappe version's exact behavior, schema, or command syntax. Every version cell below is deliberately filled with "confirm before use" rather than a number, because ERPNext/Frappe versions change DocType schemas, bench commands, and dependency requirements between releases — the same caution the beginner course establishes in its <a href="erpnext-beginner-to-intermediate.html#accuracy-note">Version &amp; Accuracy Note</a>.
+                        <div class="table-wrap" style="margin-top:1rem;">
+                        <table>
+                            <thead><tr><th>Item</th><th>Value</th><th>Note</th></tr></thead>
+                            <tbody>
+                                <tr><td>ERPNext Version</td><td>Set explicitly per project</td><td>Do not assume — confirm against the actual target environment before implementation; ERPNext/Frappe versions change schemas, commands, and dependencies.</td></tr>
+                                <tr><td>Frappe Version</td><td>Set explicitly per project</td><td>Do not assume — confirm against the actual target environment before implementation; ERPNext/Frappe versions change schemas, commands, and dependencies.</td></tr>
+                                <tr><td>Python Version</td><td>Set explicitly per project</td><td>Do not assume — confirm against the actual target environment before implementation; ERPNext/Frappe versions change schemas, commands, and dependencies.</td></tr>
+                                <tr><td>Node.js Version</td><td>Set explicitly per project</td><td>Do not assume — confirm against the actual target environment before implementation; ERPNext/Frappe versions change schemas, commands, and dependencies.</td></tr>
+                                <tr><td>Database</td><td>Set explicitly per project</td><td>Do not assume — confirm against the actual target environment before implementation; ERPNext/Frappe versions change schemas, commands, and dependencies.</td></tr>
+                                <tr><td>Redis Version</td><td>Set explicitly per project</td><td>Do not assume — confirm against the actual target environment before implementation; ERPNext/Frappe versions change schemas, commands, and dependencies.</td></tr>
+                                <tr><td>OS</td><td>Set explicitly per project</td><td>Do not assume — confirm against the actual target environment before implementation; ERPNext/Frappe versions change schemas, commands, and dependencies.</td></tr>
+                                <tr><td>Deployment Target</td><td>Set explicitly per project</td><td>Do not assume — confirm against the actual target environment before implementation; ERPNext/Frappe versions change schemas, commands, and dependencies.</td></tr>
+                            </tbody>
+                        </table>
+                        </div>
+                    </div>
+                    <p>Note the "Database" row deliberately does not name MariaDB or PostgreSQL as a fixed answer here — which database engine is actually supported, and how it behaves, is itself version-dependent and must be verified against the target ERPNext/Frappe release rather than assumed from this series.</p>
+                </section>
+
+                <section id="dev-staging-prod">
+                    <h2>🔀 Development → Staging → Production Pipeline</h2>
+                    <p>Both companies' custom work — hospital DocTypes, real estate/construction DocTypes, and any integrations — should move through the same disciplined pipeline rather than being edited directly on a live site:</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Developer</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Git</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Development</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">CI</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Testing</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Staging</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">UAT</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Approval</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Production</div>
+                        </div>
+                    </div>
+                    <ul>
+                        <li><strong>Developer</strong> — writes and tests changes locally against a development site.</li>
+                        <li><strong>Git</strong> — every change to a custom app is a tracked, reviewable commit, never an unversioned live edit.</li>
+                        <li><strong>Development</strong> — a shared dev site where changes are integrated and sanity-checked.</li>
+                        <li><strong>CI</strong> — automated checks run on every push (linting, basic test execution) before a change is considered mergeable.</li>
+                        <li><strong>Testing</strong> — scripted and manual tests validate the specific business logic changed.</li>
+                        <li><strong>Staging</strong> — a production-like environment, seeded with realistic (not real) data.</li>
+                        <li><strong>UAT</strong> — actual hospital or real estate staff verify the change against their real workflow.</li>
+                        <li><strong>Approval</strong> — a named sign-off gate before anything reaches production.</li>
+                        <li><strong>Production</strong> — the live site, changed only through this pipeline.</li>
+                    </ul>
+                    <p>The hospital and real estate custom logic should each live in their <strong>own separate Frappe app</strong> (e.g. a "hospital" app and a "realestate" app) rather than inside ERPNext core, for the same reason any framework discourages editing vendor code directly: core upgrades would silently overwrite or conflict with in-place changes, custom logic wouldn't be independently versioned or deployable, and one company's customization could accidentally affect the other. Part 4, <a href="erpnext-bd-custom-dev-devops-production.html">Custom Development, DevOps &amp; Production</a>, covers the full mechanics of building, packaging, and deploying these two apps; the general pattern it builds on is documented in the beginner course's <a href="erpnext-custom-frappe-app-development.html">Building a Custom Frappe App</a>.</p>
+                </section>
+
+                <section id="six-questions">
+                    <h2>❓ The Six-Question Training Framework</h2>
+                    <p>Every major feature in Parts 2 and 3 — every screen a hospital receptionist or a real estate sales officer will actually touch — is introduced using the same six questions. Asking all six, in order, is what turns a feature walkthrough into something a non-technical user can actually learn from:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Question</th><th>What it establishes</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>WHO</strong></td><td>Who uses it — the role or job function that touches this feature</td></tr>
+                            <tr><td><strong>WHAT</strong></td><td>What the feature/document actually is</td></tr>
+                            <tr><td><strong>WHY</strong></td><td>Why the business needs it — what breaks or goes untracked without it</td></tr>
+                            <tr><td><strong>WHEN</strong></td><td>At what point in the process it gets used</td></tr>
+                            <tr><td><strong>WHERE</strong></td><td>Where it's found in ERPNext — module, workspace, or custom app</td></tr>
+                            <tr><td><strong>HOW</strong></td><td>How it's configured or used, step by step</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>Applied to one concrete example from each company:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Question</th><th>Admission (hospital)</th><th>Property Booking (real estate)</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>WHO</strong></td><td>Receptionist / Ward Nurse</td><td>Sales Officer</td></tr>
+                            <tr><td><strong>WHAT</strong></td><td>The Admission document</td><td>The Property Booking document</td></tr>
+                            <tr><td><strong>WHY</strong></td><td>Formally starts inpatient billing and bed allocation</td><td>Reserves a specific unit and formally starts the buyer's payment/installment obligation</td></tr>
+                            <tr><td><strong>WHEN</strong></td><td>After a doctor decides IPD care is needed</td><td>After a buyer confirms interest and pays a booking amount</td></tr>
+                            <tr><td><strong>WHERE</strong></td><td>Hospital custom module, linked from the Patient/Appointment record</td><td>Real Estate custom module, linked from the Property/Unit record</td></tr>
+                            <tr><td><strong>HOW</strong></td><td>Created against a Patient, assigns a Bed/Ward, and is later linked to Discharge and Billing</td><td>Created against a Unit and a Customer, records the booking amount, and is later linked to the Installment Schedule and Sales Invoice</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>This exact six-question pattern is reused for <strong>every major feature</strong> introduced in Part 2 (Hospital Management) and Part 3 (Real Estate &amp; Construction) — once it's familiar here, every later walkthrough in the series follows the same shape.</p>
+                </section>
+
+                <section id="field-level-training">
+                    <h2>📝 Field-Level Training Methodology</h2>
+                    <p>Below the feature level, the series documents individual fields using a second consistent table shape: <code>Field | Type | Required? | Who enters? | When? | Why? | Example | Related DocType</code>. This is the format Parts 2 and 3 use for every hospital and real estate DocType field they walk through.</p>
+                    <p>As a worked, generic example using core ERPNext's <strong>Customer</strong> DocType — illustrative field names and Bangladesh-context example values, not a guarantee of the exact field list on any specific installed version (Customer's fields, like any DocType's, are subject to change between releases and should be confirmed via Customize Form on the actual target site):</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Field</th><th>Type</th><th>Required?</th><th>Who enters?</th><th>When?</th><th>Why?</th><th>Example</th><th>Related DocType</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>customer_name</code></td><td>Data</td><td>Yes</td><td>Sales/Front-office staff</td><td>At first record creation</td><td>Primary identifier for every downstream transaction</td><td>Rahman Traders</td><td>Customer</td></tr>
+                            <tr><td><code>customer_group</code></td><td>Link</td><td>Yes</td><td>Sales staff, per company policy</td><td>At creation</td><td>Drives pricing rules and reporting segmentation</td><td>Corporate</td><td>Customer Group</td></tr>
+                            <tr><td><code>territory</code></td><td>Link</td><td>Yes</td><td>Sales staff</td><td>At creation</td><td>Used for territory-based sales reporting and targets</td><td>Dhaka</td><td>Territory</td></tr>
+                            <tr><td><code>customer_type</code></td><td>Select</td><td>Yes</td><td>Sales staff</td><td>At creation</td><td>Distinguishes Company vs Individual for compliance and reporting</td><td>Company</td><td>Customer</td></tr>
+                            <tr><td><code>tax_category</code></td><td>Link</td><td>No (as applicable)</td><td>Accounts staff</td><td>Before the first taxable invoice</td><td>Determines which tax template applies at billing time</td><td>Registered (example placeholder)</td><td>Tax Category</td></tr>
+                            <tr><td><code>default_currency</code></td><td>Link</td><td>No</td><td>Accounts staff</td><td>At creation, if not BDT</td><td>Overrides the company's base currency for this customer's transactions</td><td>BDT</td><td>Currency</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>Parts 2 and 3 apply this exact table shape to hospital DocTypes (Patient, Admission, Lab Order, …) and real estate DocTypes (Property, Unit, Booking, Installment Schedule, …).</p>
+                </section>
+
+                <section id="base-modules-recap">
+                    <h2>🧩 Which ERPNext Base Modules Both Companies Share</h2>
+                    <p>Before either company needs a single line of custom code, a large share of their requirements are met by ERPNext's existing base modules — full detail on each module's purpose, master data, and document flow is in the beginner course's <a href="erpnext-modules-business-workflows.html">module-by-module tour</a>. This table summarizes how much of each module each company actually uses:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Module</th><th>Used by Hospital</th><th>Used by Real Estate</th></tr></thead>
+                        <tbody>
+                            <tr><td>Accounting</td><td>Yes</td><td>Yes</td></tr>
+                            <tr><td>Selling</td><td>Partial (patient billing, not classic quote-to-cash)</td><td>Yes</td></tr>
+                            <tr><td>Buying</td><td>Yes (pharmacy/medical supplies procurement)</td><td>Yes (construction materials procurement)</td></tr>
+                            <tr><td>Stock</td><td>Yes (pharmacy, lab consumables, blood bank)</td><td>Partial (construction materials, not retail-style inventory)</td></tr>
+                            <tr><td>CRM</td><td>No (usually)</td><td>Yes (lead-to-booking)</td></tr>
+                            <tr><td>Projects</td><td>Partial (facility/equipment projects)</td><td>Yes (construction project tracking)</td></tr>
+                            <tr><td>Assets</td><td>Yes (medical equipment)</td><td>Yes (heavy equipment, vehicles)</td></tr>
+                            <tr><td>HR</td><td>Yes</td><td>Yes</td></tr>
+                            <tr><td>Payroll</td><td>Yes</td><td>Yes</td></tr>
+                            <tr><td>Quality</td><td>Partial (lab/diagnostic quality checks)</td><td>Partial (construction quality inspection)</td></tr>
+                            <tr><td>Support</td><td>Partial (patient complaints)</td><td>Partial (post-handover buyer support)</td></tr>
+                            <tr><td>Manufacturing</td><td>No</td><td>No (unless the reader's real project needs it)</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="decision-framework">
+                    <h2>🧭 Configure vs Customize vs Custom Module vs Integration</h2>
+                    <p>This decision tree is the single tool used throughout the rest of the series whenever a hospital or real estate requirement needs to be evaluated. Every requirement in Parts 2 and 3 is run through it before deciding how to implement it:</p>
+                    <div class="decision-flow">
+                        <div class="decision-row">
+                            <div class="decision-diamond"><span>Does an existing ERPNext feature already do this?</span></div>
+                            <div class="decision-branch-note"><strong>Yes →</strong> Configure (Setup/master data, no code)</div>
+                        </div>
+                        <div class="flow-arrow-down">↓ No</div>
+                        <div class="decision-row">
+                            <div class="decision-diamond"><span>Can a Custom Field or Workflow solve it?</span></div>
+                            <div class="decision-branch-note"><strong>Yes →</strong> Customize (Custom Field, Property Setter, Workflow)</div>
+                        </div>
+                        <div class="flow-arrow-down">↓ No</div>
+                        <div class="decision-row">
+                            <div class="decision-diamond"><span>Does it need a genuinely new business object (its own table, list view, permissions)?</span></div>
+                            <div class="decision-branch-note"><strong>Yes →</strong> Custom Module (Custom DocType in a custom app)</div>
+                        </div>
+                        <div class="flow-arrow-down">↓ No</div>
+                        <div class="decision-row">
+                            <div class="decision-diamond"><span>Does it need to talk to a system outside ERPNext?</span></div>
+                            <div class="decision-branch-note"><strong>Yes →</strong> API / Webhook Integration</div>
+                        </div>
+                        <div class="flow-arrow-down">↓ No</div>
+                        <div class="decision-end">Reconsider whether this belongs in ERPNext at all — it may be a New Business Application</div>
+                    </div>
+                </section>
+
+                <section id="bangladesh-context">
+                    <h2>🇧🇩 The Bangladesh Business Context</h2>
+                    <p><strong>Currency.</strong> Both companies operate in BDT (৳) — every illustrative amount in this series is shown in Taka, and Currency/exchange-rate configuration should be set up per company accordingly.</p>
+                    <p><strong>Fiscal year.</strong> Bangladesh's government fiscal year commonly runs July–June. This is a general convention, not a guarantee — the specific fiscal year configured in ERPNext for a given company must be confirmed, since a private company's accounting fiscal year can differ from the national government fiscal year.</p>
+                    <p><strong>Addressing.</strong> Realistic Address records for both companies should follow Bangladesh's District/Division-based structure — e.g. Dhaka District, Dhaka Division — rather than a generic city/state/zip layout, since that's the address shape staff and customers actually expect to see and search by.</p>
+                    <p><strong>Local banking and mobile financial services.</strong> bKash, Nagad, and Rocket are payment channels commonly used in Bangladesh for customer and vendor payments. Any specific integration with one of these providers must be verified against that provider's current API and whatever connector, if any, is actually available or supported for the target ERPNext/Frappe version — this series does not claim a specific built-in ERPNext integration exists for any of them.</p>
+                    <p><strong>Customer types.</strong> Corporate, government, and individual customers are modeled through ERPNext's existing <code>Customer Type</code> and <code>Customer Group</code> configuration — not through new DocTypes. A government hospital contract and an individual walk-in patient's guardian are both just differently-configured Customer records.</p>
+                    <div class="warning-box">
+                        <strong>⚠️ This series will never state a specific Bangladesh VAT/tax rate as fact.</strong> Every VAT/tax percentage shown anywhere in this 4-part series — including Parts 2 and 3 — is an explicit example/configuration placeholder, never a claim about the actual current rate. Actual VAT/tax configuration must be validated against current Bangladesh NBR (National Board of Revenue) rules and the company's own VAT registration/BIN status before any production deployment.
+                    </div>
+                </section>
+
+                <section id="whats-next">
+                    <h2>➡️ What's Next</h2>
+                    <p>With the methodology, environment discipline, and decision framework established, the next two parts apply this exact approach to each company in turn:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Part</th><th>Focus</th></tr></thead>
+                        <tbody>
+                            <tr><td>2</td><td><a href="erpnext-bd-hospital-management.html">Bangladesh Hospital Management</a> — Dhaka Care Medical &amp; Hospital Ltd.'s full ERPNext implementation, department by department</td></tr>
+                            <tr><td>3</td><td><a href="erpnext-bd-real-estate-construction.html">Bangladesh Real Estate &amp; Construction</a> — Dhaka Skyline Properties &amp; Construction Ltd.'s full ERPNext implementation, from land acquisition to installment collection</td></tr>
+                            <tr><td>4</td><td><a href="erpnext-bd-custom-dev-devops-production.html">Custom Development, DevOps &amp; Production</a> — the technical/DevOps layer underneath both companies' custom apps</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>For the general Frappe/ERPNext architecture, installation, and accuracy conventions this series assumes throughout, see the <a href="erpnext-beginner-to-intermediate.html">ERPNext Beginner to Intermediate</a> course, particularly its <a href="erpnext-beginner-to-intermediate.html#architecture">architecture</a> and <a href="erpnext-beginner-to-intermediate.html#installation">installation</a> sections. For permissions in depth, see <a href="erpnext-users-permissions.html#permission-manager">Role Permission Manager vs User Permission Manager</a>. For the accounting theory underneath every invoice and payment referenced in this series, see <a href="erp-invoice-payment-architecture.html">Invoice vs Payment: The Complete ERP Accounting Architecture</a> and the <a href="accounting-erp-curriculum.html">Accounting to ERP curriculum</a>.</p>
+
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <a href="blog.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold">
+                            ← Back to Blog
+                        </a>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        ↑
+    </div>
+
+    <!-- Footer -->
+<footer class="footer" style="margin-top: 60px;">
+<div class="container">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <strong>Md. Mostasim Mahmud Tasim</strong>
+      <p>Software Engineer</p>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/tasim313" target="_blank">GitHub</a>
+      <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" target="_blank">LinkedIn</a>
+      <a href="mailto:tasim.swe@gmail.com">Email</a>
+    </div>
+  </div>
+  <p class="footer-copy">&copy; 2026 Md. Mostasim Mahmud Tasim. All rights reserved.</p>
+</div>
+</footer>
+<script src="js/main.js"></script>
+<script>
+    document.querySelectorAll('pre').forEach(pre => {
+        pre.addEventListener('click', function() {
+            const code = this.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalBg = this.style.backgroundColor;
+                this.style.backgroundColor = '#059669';
+                setTimeout(() => { this.style.backgroundColor = originalBg; }, 500);
+            });
+        });
+    });
+</script>
+</body>
+</html>
