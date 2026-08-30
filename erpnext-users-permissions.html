@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERPNext Users, Roles & Permissions | Md. Mostasim Mahmud Tasim</title>
+<meta name="description" content="How ERPNext resolves who can do what: user types, roles, role permissions, user permissions, document sharing, and workflow-state permissions, with an annotated tour of the Desk UI.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* Article Specific Styles */
+.article-container { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+.article-content { font-size: 1.0625rem; line-height: 1.8; color: var(--text-secondary); }
+.article-content h2 { font-size: 1.9rem; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); color: var(--text-primary); font-weight: 700; }
+.article-content h3 { font-size: 1.3125rem; margin-top: 2.25rem; margin-bottom: 1rem; color: var(--text-primary); font-weight: 700; }
+.article-content h4 { font-size: 1.0625rem; margin-top: 1.75rem; margin-bottom: 0.75rem; color: var(--text-primary); font-weight: 600; }
+.article-content p { margin-bottom: 1.5rem; }
+.article-content ul, .article-content ol { margin: 1.5rem 0; padding-left: 2rem; }
+.article-content li { margin-bottom: 0.5rem; }
+.article-content pre { background: #1a1a1a; color: #f8f8f2; padding: 1.5rem; border-radius: 8px; overflow-x: auto; margin: 1.5rem 0; font-family: 'Courier New', monospace; font-size: 0.8125rem; line-height: 1.5; cursor: pointer; }
+.article-content code { background: var(--bg-alt); color: var(--text-primary); padding: 0.2rem 0.4rem; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.875rem; }
+.article-content pre code { background: transparent; color: inherit; padding: 0; }
+.article-content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.8125rem; }
+.article-content th, .article-content td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; vertical-align: top; }
+.article-content th { background: var(--bg-alt); color: var(--text-primary); font-weight: 700; }
+.table-wrap { overflow-x: auto; }
+.info-box { background: var(--accent-subtle); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.warning-box { background: #fff7ed; border-left: 4px solid #f97316; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.success-box { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.table-of-contents { background: var(--bg-alt); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 12px 12px 0; }
+.table-of-contents ul { list-style: none; padding-left: 0; columns: 2; column-gap: 24px; }
+.table-of-contents li { margin-bottom: 0.6rem; padding-left: 1.5rem; position: relative; break-inside: avoid; }
+.table-of-contents li:before { content: "→"; position: absolute; left: 0; color: var(--accent); }
+.table-of-contents a { color: var(--accent); text-decoration: none; font-weight: 500; font-size: 0.9375rem; }
+.table-of-contents a:hover { text-decoration: underline; }
+@media (max-width: 640px) { .table-of-contents ul { columns: 1; } }
+header h1 { font-size: 2.25rem; font-weight: 800; color: var(--text-primary); line-height: 1.2; margin-bottom: 1.5rem; margin-top: 2rem; }
+header .category-badge { display: inline-block; background: var(--accent-subtle); color: var(--accent); padding: 6px 16px; border-radius: 20px; font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.reading-time { font-size: 0.875rem; color: var(--text-tertiary); font-weight: 500; }
+header p.text-center { text-align: center; margin-bottom: 1rem; color: var(--text-secondary); }
+
+/* Flow diagram */
+.diagram-scroll { overflow-x: auto; margin: 2rem 0; padding-bottom: 4px; }
+.flow-diagram { display: flex; align-items: stretch; gap: 0; min-width: min-content; }
+.flow-step { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 0.75rem; font-weight: 700; color: var(--text-primary); text-align: center; min-width: 108px; display: flex; flex-direction: column; justify-content: center; text-decoration: none; }
+.flow-step small { display: block; font-weight: 400; color: var(--text-tertiary); font-size: 0.625rem; margin-top: 6px; line-height: 1.4; }
+.flow-arrow { display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 1.1rem; flex: 0 0 auto; padding: 0 8px; }
+.flow-diagram.vertical { flex-direction: column; align-items: center; }
+.flow-diagram.vertical .flow-arrow { padding: 4px 0; }
+.flow-diagram.vertical .flow-step { min-width: 220px; }
+
+/* Relationship / layered diagram */
+.rel-diagram { margin: 2rem 0; }
+.rel-layer { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+.rel-connector { display: flex; justify-content: center; align-items: center; gap: 36px; padding: 8px 0; color: var(--accent); font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; text-align: center; }
+.rel-entity { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 10px; min-width: 150px; max-width: 220px; overflow: hidden; flex: 1 1 160px; }
+.rel-entity h4 { margin: 0; padding: 9px 12px; background: var(--accent-subtle); color: var(--accent); font-size: 0.75rem; font-weight: 700; border-bottom: 1px solid var(--border); }
+.rel-entity .rel-fields { list-style: none; margin: 0; padding: 8px 12px; font-size: 0.6875rem; font-family: 'Courier New', monospace; color: var(--text-tertiary); }
+.rel-entity .rel-fields li { margin-bottom: 3px; }
+
+/* Decision flowchart */
+.decision-flow { display: flex; flex-direction: column; align-items: center; margin: 2rem 0; }
+.decision-node { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); text-align: center; max-width: 340px; }
+.decision-flow .flow-arrow-down { color: var(--accent); font-size: 1.25rem; padding: 4px 0; }
+.decision-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.decision-diamond { width: 128px; height: 128px; background: var(--accent-subtle); border: 2px solid var(--accent); transform: rotate(45deg); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.decision-diamond span { transform: rotate(-45deg); font-size: 0.75rem; font-weight: 700; text-align: center; color: var(--text-primary); padding: 10px; line-height: 1.3; }
+.decision-branch-note { background: var(--bg-alt); border: 1px dashed var(--border); border-radius: 8px; padding: 10px 14px; font-size: 0.75rem; color: var(--text-secondary); max-width: 240px; }
+.decision-branch-note strong { color: var(--accent); }
+.decision-end { background: var(--accent); color: #fff; border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 700; text-align: center; max-width: 340px; }
+</style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="nav" role="navigation">
+<div class="nav-inner">
+  <a href="index.html" class="nav-brand">Mostasim Mahmud Tasim</a>
+  <ul class="nav-links">
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="index.html#experience">Experience</a></li>
+    <li><a href="index.html#capabilities">Engineering</a></li>
+    <li><a href="index.html#projects">Projects</a></li>
+    <li><a href="index.html#infrastructure">Infrastructure</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="https://github.com/tasim313" class="nav-ext" target="_blank"><i class="fa-brands fa-github"></i></a>
+    <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" class="nav-ext" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+    <button class="theme-toggle" id="themeToggle"><svg id="sunIcon" style="display:none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg><svg id="moonIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg></button>
+    <button class="mobile-toggle" id="mobileToggle"><span></span><span></span><span></span></button>
+  </div>
+</div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html#about">About</a>
+  <a href="index.html#experience">Experience</a>
+  <a href="index.html#capabilities">Engineering</a>
+  <a href="index.html#projects">Projects</a>
+  <a href="index.html#infrastructure">Infrastructure</a>
+  <a href="blog.html">Blog</a>
+  <a href="index.html#contact">Contact</a>
+</div>
+
+    <!-- Article Header -->
+    <header class="pt-12 pb-8">
+        <div class="article-container">
+            <div class="text-center mb-8">
+                <span class="category-badge">ERPNext &amp; Frappe</span>
+                <span class="reading-time ml-4">🧩 9-Part Course · Part 2: UI, Users &amp; Permissions</span>
+            </div>
+
+            <h1>ERPNext Users, Roles &amp; Permissions</h1>
+
+            <div class="text-center text-gray-600 mb-8">
+                <p class="text-sm">Published: <span class="font-semibold">Aug 30, 2026</span></p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Article Content -->
+    <main class="pb-16">
+        <div class="article-container">
+            <!-- Table of Contents -->
+            <div class="table-of-contents fade-in">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">📋 Table of Contents</h3>
+                <ul class="space-y-2">
+                    <li><a href="#recap-permission-chain">Recap: the Permission Chain</a></li>
+                    <li><a href="#user-types">User Types &amp; Standard Roles</a></li>
+                    <li><a href="#permission-manager">Role Permission Manager vs User Permission Manager</a></li>
+                    <li><a href="#ui-tour">Annotated UI Tour</a></li>
+                    <li><a href="#list-form-report">List View, Form View &amp; Report View</a></li>
+                    <li><a href="#normal-user-features">Normal User Features</a></li>
+                    <li><a href="#admin-features">System Manager / Administrator Features</a></li>
+                    <li><a href="#dev-mode">Developer Mode (Brief)</a></li>
+                    <li><a href="#common-mistakes">Common Permission Mistakes</a></li>
+                    <li><a href="#next">What's Next</a></li>
+                </ul>
+            </div>
+
+            <!-- Article Content -->
+            <article class="article-content fade-in">
+
+                <section id="recap-permission-chain">
+                    <h2>🔁 Recap: the Permission Chain</h2>
+                    <p><a href="erpnext-beginner-to-intermediate.html#users-roles">Part 1's Users, Roles &amp; Permission Flow section</a> introduced the idea that ERPNext never checks a single "can this user do this?" flag — every allowed action is the output of a layered chain evaluated in order. This article goes deep on each link in that chain, one section at a time, so it's worth restating the whole shape up front before we zoom in:</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram vertical">
+                            <div class="flow-step">User<small>the login/auth record</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Role<small>one or more roles assigned to the User</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Role Permission<small>DocType-level: read/write/create/submit/cancel/delete/amend</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">User Permission<small>restricts the role's access to specific records, e.g. one Company</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Document Permission<small>Document Share and workflow-state rules layered on top</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Allowed Action</div>
+                        </div>
+                    </div>
+                    <p>Every section below maps onto exactly one link in that chain: user types and roles (link 1–2), the Role Permission Manager and User Permission tools (link 3–4), and Document Share plus workflow permissions (link 5).</p>
+                </section>
+
+                <section id="user-types">
+                    <h2>👤 User Types &amp; Standard Roles</h2>
+                    <p>Two records get confused constantly by beginners because they sound related but serve different purposes. A <strong>User</strong> is a login/authentication record — it has an email, a password (or SSO identity), a set of assigned Roles, and it's what the framework checks on every request. An <strong>Employee</strong> is an HR master record — name, department, designation, reporting manager, joining date — that exists whether or not that person ever logs into the system. An Employee record can optionally be <em>linked</em> to a User record (so, for example, a Leave Application can resolve "whose leave is this" back to a login), but plenty of Employees in a real deployment (shop-floor staff, for instance) never get a User account at all, and plenty of Users (an external accountant, an API integration account) are not Employees.</p>
+                    <p>ERPNext ships a set of standard roles that map to job function, all ultimately subordinate to <strong>System Manager</strong>, which has unrestricted administrative access to the whole site:</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">System Manager</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Accounts Manager</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Sales Manager</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Purchase Manager</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Stock Manager</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">HR Manager</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Manufacturing Manager</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Projects Manager</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Employee</div>
+                        </div>
+                    </div>
+                    <p>A User can hold several roles at once — a small-business bookkeeper might reasonably be both Accounts Manager and Sales User. Assigning roles one at a time gets tedious for a growing team, which is what a <strong>Role Profile</strong> solves: it's a named bundle of roles (e.g. "Regional Sales Rep" = Sales User + Stock User) that can be applied to a new User in one step instead of ticking every role individually, and updating the Role Profile later can cascade the change to everyone assigned it. Individual role assignment is still the right tool for a one-off exception — granting a single extra role to one User without changing the bundle everyone else shares.</p>
+                </section>
+
+                <section id="permission-manager">
+                    <h2>🛂 Role Permission Manager vs User Permission Manager</h2>
+                    <p>These two tools — plus Document Share and workflow permissions — are easy to mix up because they all say "permission" in the name, but they operate at completely different levels of the chain:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Tool</th><th>Grants access at the level of</th><th>Example</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Role Permission Manager</strong></td><td>DocType level — read/write/create/submit/cancel/delete/amend, per role</td><td>Sales User role can create Sales Order but not submit it</td></tr>
+                            <tr><td><strong>User Permission</strong></td><td>Record level — restricts a user to specific documents within a DocType they already have role access to</td><td>Restrict a regional sales rep to only see customers in their Territory</td></tr>
+                            <tr><td><strong>Document Share</strong></td><td>One specific document, ad-hoc, bypassing normal role rules</td><td>Share one confidential Purchase Order with an auditor who has no Purchase role</td></tr>
+                            <tr><td><strong>Workflow permission</strong></td><td>State-gated — only a specific role can transition a document out of a given workflow state</td><td>Only Department Manager role can move a Purchase Request from Pending to Approved</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>The order matters: Role Permission decides whether the door to a DocType exists at all for that role; User Permission narrows which rooms behind that door a specific user can enter; Document Share and workflow permissions are exceptions layered on top of both, for the "just this one document" and "just at this stage" cases respectively.</p>
+                </section>
+
+                <section id="ui-tour">
+                    <h2>🖱️ Annotated UI Tour</h2>
+                    <p>Almost the entire application lives inside one interface, called <strong>the Desk</strong>. Rather than a specific screenshot — which would go stale the moment the UI is restyled in a future version — the table below is an illustrative annotation list of the elements a new user runs into first, in the rough order they'll notice them:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>#</th><th>Element</th><th>What a beginner should notice first</th></tr></thead>
+                        <tbody>
+                            <tr><td>1</td><td>Sidebar</td><td>Lists the modules and workspaces this user's roles give them access to — it's effectively a personalized menu, not a fixed one</td></tr>
+                            <tr><td>2</td><td>Workspace</td><td>The landing page after clicking a sidebar item — shortcuts, charts, and links curated for that module or role</td></tr>
+                            <tr><td>3</td><td>Awesome Bar (global search)</td><td>Type a DocType name, a document number, or even a command like "new sales invoice" — it's usually faster than navigating menus</td></tr>
+                            <tr><td>4</td><td>User menu</td><td>Profile, account settings, and where to switch between Desk and any customer-facing portal</td></tr>
+                            <tr><td>5</td><td>Notifications</td><td>Assignments, mentions, and document events targeted specifically at the logged-in user</td></tr>
+                            <tr><td>6</td><td>Document List (List View)</td><td>The default entry point into any DocType — a filterable, sortable table of its records</td></tr>
+                            <tr><td>7</td><td>Filters</td><td>Standard and saved filters on any list — the difference between scrolling through everything and finding one record</td></tr>
+                            <tr><td>8</td><td>Actions (Save / Submit / Cancel / Print)</td><td>Document-level buttons on a form — which of these actually appear depends entirely on the current user's permissions</td></tr>
+                            <tr><td>9</td><td>Reports link</td><td>Aggregate/spreadsheet-style views over a DocType's data, available only for DocTypes the user has read access to</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <div class="info-box">
+                        <strong>💡 Why no screenshots:</strong> this guide deliberately uses text annotation instead of real UI screenshots — exact menu positions, icon styling, and even element names shift between ERPNext versions and themes, so a screenshot captured today can mislead a reader on a different version. Open your own installed site alongside this table and match each numbered element to what you actually see; if a label has moved, the underlying purpose described here almost always hasn't.
+                    </div>
+                </section>
+
+                <section id="list-form-report">
+                    <h2>📋 List View, Form View &amp; Report View</h2>
+                    <p>Three view types cover almost every screen in ERPNext. <strong>List View</strong> shows many documents of one DocType as a filterable table. <strong>Form View</strong> opens exactly one document for reading, editing, or submitting. <strong>Report View</strong> shows many documents again, but grouped, aggregated, and pivotable rather than row-by-row — the same underlying data, read for a different purpose.</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">List View<small>data entry clerk — finds and opens records</small></div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Form View<small>approver — reviews and submits one record</small></div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Report View<small>analyst — aggregates many records</small></div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Dashboard<small>manager — charts the aggregation</small></div>
+                        </div>
+                    </div>
+                    <p>That progression isn't a strict pipeline every user walks through — it's a description of who tends to live in which view. A clerk mostly works in List and Form View all day; a manager mostly checks a Dashboard and drills into Report View when a number looks wrong.</p>
+                </section>
+
+                <section id="normal-user-features">
+                    <h2>🙋 Normal User Features</h2>
+                    <p>A "normal" (non-admin) ERPNext user is not a distinct product tier — it's simply a User whose assigned roles happen not to include System Manager or another administrative role. What that user can typically do:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Capability</th><th>Condition</th></tr></thead>
+                        <tbody>
+                            <tr><td>Log in</td><td>Account must be enabled</td></tr>
+                            <tr><td>View assigned Workspace(s)</td><td>Determined by assigned roles</td></tr>
+                            <tr><td>Create documents</td><td>Requires Create permission on that DocType via a role</td></tr>
+                            <tr><td>Edit / submit documents</td><td>Requires Write / Submit permission respectively — these are separate grants</td></tr>
+                            <tr><td>Use global search (Awesome Bar)</td><td>Always available; results are still filtered by the user's read permissions</td></tr>
+                            <tr><td>Apply filters on a list</td><td>Always available on any list the user can already view</td></tr>
+                            <tr><td>Run reports</td><td>Requires read access to the underlying DocType(s)</td></tr>
+                            <tr><td>Print / export documents</td><td>Requires access to the document plus print/export enabled for that DocType</td></tr>
+                            <tr><td>Receive notifications</td><td>Always, scoped to what's relevant to that user</td></tr>
+                            <tr><td>Add comments</td><td>On any document the user can already view</td></tr>
+                            <tr><td>Add attachments</td><td>On documents the user can view/edit, subject to attachment settings</td></tr>
+                            <tr><td>See documents assigned to them (ToDo)</td><td>Always — assignments are personal and don't require broader role access</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <div class="warning-box">
+                        <strong>⚠️ There is no separate "normal user" permission model.</strong> What a user can or cannot do is entirely a function of their assigned roles — the same permission chain from the <a href="#recap-permission-chain">recap above</a> governs every account on the site, including the one you're using right now to explore your own trial installation. "Normal user" just describes a role assignment, not a different code path.
+                    </div>
+                </section>
+
+                <section id="admin-features">
+                    <h2>🛡️ System Manager / Administrator Features</h2>
+                    <p>The table below shows the typical shape of how three tiers of access differ — not a fixed spec:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Feature</th><th>Normal User</th><th>Manager-level Role</th><th>System Manager</th></tr></thead>
+                        <tbody>
+                            <tr><td>Create Document</td><td>✓</td><td>✓</td><td>✓</td></tr>
+                            <tr><td>Submit</td><td>Based on permission</td><td>✓</td><td>✓</td></tr>
+                            <tr><td>Approve</td><td>Usually no</td><td>✓</td><td>✓</td></tr>
+                            <tr><td>User Management</td><td>No</td><td>Limited</td><td>✓</td></tr>
+                            <tr><td>Role Management</td><td>No</td><td>No–Limited</td><td>✓</td></tr>
+                            <tr><td>Customize DocType</td><td>No</td><td>Limited</td><td>✓</td></tr>
+                            <tr><td>System Settings</td><td>No</td><td>Limited</td><td>✓</td></tr>
+                            <tr><td>Developer Mode toggle</td><td>No</td><td>No</td><td>✓</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <div class="warning-box">
+                        <strong>⚠️ Not a guarantee.</strong> Exact access always depends on the specific roles and permission rules configured on a given site — this table shows the typical/default shape most fresh installations start from, not a hard-coded ceiling. A site's System Manager can grant a "Manager-level" role more (or less) than shown here, and it's common for real deployments to do exactly that.
+                    </div>
+                </section>
+
+                <section id="dev-mode">
+                    <h2>🧑‍💻 Developer Mode (Brief)</h2>
+                    <p><strong>Developer Mode</strong> is a site-wide setting, not a role or permission in the usual sense — it's typically toggled by a System Manager with server/config access. With it on, changes to DocTypes, Reports, and Pages that would normally live only as rows in the database get exported as JSON/Python files on disk instead, which is what makes them trackable in version control and shippable as part of a custom app. This one setting is the hinge between "customizing a site" and "building a custom Frappe app" — the full workflow it enables (creating DocTypes as code, writing controllers, packaging an app) is covered in depth in <a href="erpnext-custom-frappe-app-development.html">Part 7: Custom Frappe App Development</a>.</p>
+                </section>
+
+                <section id="common-mistakes">
+                    <h2>⚠️ Common Permission Mistakes</h2>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Mistake</th><th>Why it bites you</th></tr></thead>
+                        <tbody>
+                            <tr><td>Granting System Manager broadly "to save time"</td><td>Destroys the audit value of roles — once everyone is effectively an admin, "who can do X" stops being an answerable question</td></tr>
+                            <tr><td>Confusing Role Permission with User Permission</td><td>Assuming a role grant alone restricts a user to their own records — it doesn't; without a User Permission, a role that can read a DocType can read every record of it</td></tr>
+                            <tr><td>Forgetting Cancel/Amend need their own grant</td><td>Write permission does not imply Cancel or Amend on submitted documents — these are separate checkboxes in the Role Permission Manager and are easy to leave unset</td></tr>
+                            <tr><td>Only testing as Administrator</td><td>Administrator/System Manager bypasses most permission checks, so a permission bug for a restricted role can sit invisible until a real user hits it in production</td></tr>
+                            <tr><td>Over-customizing Role Permission Manager for approval chains</td><td>A static role check can't express "only the document's own reporting manager may approve it" — that needs a stateful Workflow, not a bigger permission matrix</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="next">
+                    <h2>➡️ What's Next</h2>
+                    <p>With the permission chain now covered link by link, <a href="erpnext-modules-business-workflows.html">Part 3: Modules &amp; Business Workflows</a> goes module by module through the actual business documents these roles and permissions get applied to — Selling, Buying, Stock, Manufacturing, HR, and the rest. If you landed on this article first, <a href="erpnext-beginner-to-intermediate.html">Part 1: The Architecture Guide</a> covers the foundational architecture, installation, and database concepts this series builds on.</p>
+
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <a href="blog.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold">
+                            ← Back to Blog
+                        </a>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        ↑
+    </div>
+
+    <!-- Footer -->
+<footer class="footer" style="margin-top: 60px;">
+<div class="container">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <strong>Md. Mostasim Mahmud Tasim</strong>
+      <p>Software Engineer</p>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/tasim313" target="_blank">GitHub</a>
+      <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" target="_blank">LinkedIn</a>
+      <a href="mailto:tasim.swe@gmail.com">Email</a>
+    </div>
+  </div>
+  <p class="footer-copy">&copy; 2026 Md. Mostasim Mahmud Tasim. All rights reserved.</p>
+</div>
+</footer>
+<script src="js/main.js"></script>
+<script>
+    document.querySelectorAll('pre').forEach(pre => {
+        pre.addEventListener('click', function() {
+            const code = this.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalBg = this.style.backgroundColor;
+                this.style.backgroundColor = '#059669';
+                setTimeout(() => { this.style.backgroundColor = originalBg; }, 500);
+            });
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERPNext Beginner to Intermediate: The Architecture Guide | Md. Mostasim Mahmud Tasim</title>
+<meta name="description" content="A course-style guide to ERPNext and the Frappe Framework — installation, architecture, modules, database design, permissions, customization, custom apps, and API integration.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* Article Specific Styles */
+.article-container { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+.article-content { font-size: 1.0625rem; line-height: 1.8; color: var(--text-secondary); }
+.article-content h2 { font-size: 1.9rem; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); color: var(--text-primary); font-weight: 700; }
+.article-content h3 { font-size: 1.3125rem; margin-top: 2.25rem; margin-bottom: 1rem; color: var(--text-primary); font-weight: 700; }
+.article-content h4 { font-size: 1.0625rem; margin-top: 1.75rem; margin-bottom: 0.75rem; color: var(--text-primary); font-weight: 600; }
+.article-content p { margin-bottom: 1.5rem; }
+.article-content ul, .article-content ol { margin: 1.5rem 0; padding-left: 2rem; }
+.article-content li { margin-bottom: 0.5rem; }
+.article-content pre { background: #1a1a1a; color: #f8f8f2; padding: 1.5rem; border-radius: 8px; overflow-x: auto; margin: 1.5rem 0; font-family: 'Courier New', monospace; font-size: 0.8125rem; line-height: 1.5; cursor: pointer; }
+.article-content code { background: var(--bg-alt); color: var(--text-primary); padding: 0.2rem 0.4rem; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.875rem; }
+.article-content pre code { background: transparent; color: inherit; padding: 0; }
+.article-content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.8125rem; }
+.article-content th, .article-content td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; vertical-align: top; }
+.article-content th { background: var(--bg-alt); color: var(--text-primary); font-weight: 700; }
+.table-wrap { overflow-x: auto; }
+.info-box { background: var(--accent-subtle); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.warning-box { background: #fff7ed; border-left: 4px solid #f97316; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.success-box { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 1.5rem; margin: 2rem 0; border-radius: 0 8px 8px 0; color: var(--text-primary); }
+.table-of-contents { background: var(--bg-alt); border-left: 4px solid var(--accent); padding: 1.5rem; margin: 2rem 0; border-radius: 0 12px 12px 0; }
+.table-of-contents ul { list-style: none; padding-left: 0; columns: 2; column-gap: 24px; }
+.table-of-contents li { margin-bottom: 0.6rem; padding-left: 1.5rem; position: relative; break-inside: avoid; }
+.table-of-contents li:before { content: "→"; position: absolute; left: 0; color: var(--accent); }
+.table-of-contents a { color: var(--accent); text-decoration: none; font-weight: 500; font-size: 0.9375rem; }
+.table-of-contents a:hover { text-decoration: underline; }
+@media (max-width: 640px) { .table-of-contents ul { columns: 1; } }
+header h1 { font-size: 2.25rem; font-weight: 800; color: var(--text-primary); line-height: 1.2; margin-bottom: 1.5rem; margin-top: 2rem; }
+header .category-badge { display: inline-block; background: var(--accent-subtle); color: var(--accent); padding: 6px 16px; border-radius: 20px; font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.reading-time { font-size: 0.875rem; color: var(--text-tertiary); font-weight: 500; }
+header p.text-center { text-align: center; margin-bottom: 1rem; color: var(--text-secondary); }
+
+/* Flow diagram */
+.diagram-scroll { overflow-x: auto; margin: 2rem 0; padding-bottom: 4px; }
+.flow-diagram { display: flex; align-items: stretch; gap: 0; min-width: min-content; }
+.flow-step { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 0.75rem; font-weight: 700; color: var(--text-primary); text-align: center; min-width: 108px; display: flex; flex-direction: column; justify-content: center; text-decoration: none; }
+.flow-step small { display: block; font-weight: 400; color: var(--text-tertiary); font-size: 0.625rem; margin-top: 6px; line-height: 1.4; }
+.flow-arrow { display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 1.1rem; flex: 0 0 auto; padding: 0 8px; }
+.flow-diagram.vertical { flex-direction: column; align-items: center; }
+.flow-diagram.vertical .flow-arrow { padding: 4px 0; }
+.flow-diagram.vertical .flow-step { min-width: 220px; }
+
+/* Relationship / layered diagram */
+.rel-diagram { margin: 2rem 0; }
+.rel-layer { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+.rel-connector { display: flex; justify-content: center; align-items: center; gap: 36px; padding: 8px 0; color: var(--accent); font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; text-align: center; }
+.rel-entity { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 10px; min-width: 150px; max-width: 220px; overflow: hidden; flex: 1 1 160px; }
+.rel-entity h4 { margin: 0; padding: 9px 12px; background: var(--accent-subtle); color: var(--accent); font-size: 0.75rem; font-weight: 700; border-bottom: 1px solid var(--border); }
+.rel-entity .rel-fields { list-style: none; margin: 0; padding: 8px 12px; font-size: 0.6875rem; font-family: 'Courier New', monospace; color: var(--text-tertiary); }
+.rel-entity .rel-fields li { margin-bottom: 3px; }
+
+/* Decision flowchart */
+.decision-flow { display: flex; flex-direction: column; align-items: center; margin: 2rem 0; }
+.decision-node { background: var(--bg-elevated); border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); text-align: center; max-width: 340px; }
+.decision-flow .flow-arrow-down { color: var(--accent); font-size: 1.25rem; padding: 4px 0; }
+.decision-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.decision-diamond { width: 128px; height: 128px; background: var(--accent-subtle); border: 2px solid var(--accent); transform: rotate(45deg); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.decision-diamond span { transform: rotate(-45deg); font-size: 0.75rem; font-weight: 700; text-align: center; color: var(--text-primary); padding: 10px; line-height: 1.3; }
+.decision-branch-note { background: var(--bg-alt); border: 1px dashed var(--border); border-radius: 8px; padding: 10px 14px; font-size: 0.75rem; color: var(--text-secondary); max-width: 240px; }
+.decision-branch-note strong { color: var(--accent); }
+.decision-end { background: var(--accent); color: #fff; border-radius: 8px; padding: 12px 20px; font-size: 0.8125rem; font-weight: 700; text-align: center; max-width: 340px; }
+</style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="nav" role="navigation">
+<div class="nav-inner">
+  <a href="index.html" class="nav-brand">Mostasim Mahmud Tasim</a>
+  <ul class="nav-links">
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="index.html#experience">Experience</a></li>
+    <li><a href="index.html#capabilities">Engineering</a></li>
+    <li><a href="index.html#projects">Projects</a></li>
+    <li><a href="index.html#infrastructure">Infrastructure</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="https://github.com/tasim313" class="nav-ext" target="_blank"><i class="fa-brands fa-github"></i></a>
+    <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" class="nav-ext" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+    <button class="theme-toggle" id="themeToggle"><svg id="sunIcon" style="display:none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg><svg id="moonIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg></button>
+    <button class="mobile-toggle" id="mobileToggle"><span></span><span></span><span></span></button>
+  </div>
+</div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html#about">About</a>
+  <a href="index.html#experience">Experience</a>
+  <a href="index.html#capabilities">Engineering</a>
+  <a href="index.html#projects">Projects</a>
+  <a href="index.html#infrastructure">Infrastructure</a>
+  <a href="blog.html">Blog</a>
+  <a href="index.html#contact">Contact</a>
+</div>
+
+    <!-- Article Header -->
+    <header class="pt-12 pb-8">
+        <div class="article-container">
+            <div class="text-center mb-8">
+                <span class="category-badge">ERPNext &amp; Frappe</span>
+                <span class="reading-time ml-4">🧩 9-Part Course · Part 1: Foundations</span>
+            </div>
+
+            <h1>ERPNext Beginner to Intermediate: The Architecture Guide</h1>
+
+            <div class="text-center text-gray-600 mb-8">
+                <p class="text-sm">Published: <span class="font-semibold">Aug 30, 2026</span></p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Article Content -->
+    <main class="pb-16">
+        <div class="article-container">
+            <!-- Table of Contents -->
+            <div class="table-of-contents fade-in">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">📋 Table of Contents</h3>
+                <ul class="space-y-2">
+                    <li><a href="#audience">Who This Is For &amp; the Learning Journey</a></li>
+                    <li><a href="#accuracy-note">Version &amp; Accuracy Note</a></li>
+                    <li><a href="#what-is-erpnext">What Is ERPNext? Frappe vs ERPNext</a></li>
+                    <li><a href="#architecture">Frappe/ERPNext Architecture</a></li>
+                    <li><a href="#installation">Installation &amp; Dependencies</a></li>
+                    <li><a href="#production">Production Deployment Architecture</a></li>
+                    <li><a href="#first-login">First Login &amp; Initial Setup</a></li>
+                    <li><a href="#ui-concepts">ERPNext UI Concepts</a></li>
+                    <li><a href="#users-roles">Users, Roles &amp; Permission Flow</a></li>
+                    <li><a href="#core-modules">Core Modules at a Glance</a></li>
+                    <li><a href="#document-flows">Flagship Document Flows</a></li>
+                    <li><a href="#module-interconnection">Module Interconnection Master Diagram</a></li>
+                    <li><a href="#database-architecture">Database Architecture: DocType → Table</a></li>
+                    <li><a href="#child-tables">Child Tables Explained</a></li>
+                    <li><a href="#table-map">Illustrative Table Map (Verify Per Version)</a></li>
+                    <li><a href="#er-diagrams">ER Diagrams: Customer, Item, Accounting</a></li>
+                    <li><a href="#connections">Internal vs External Connections</a></li>
+                    <li><a href="#rest-api">REST API Basics</a></li>
+                    <li><a href="#customization">Customization Decision Tree</a></li>
+                    <li><a href="#custom-app">Building a Custom Frappe App</a></li>
+                    <li><a href="#custom-module">Custom Module Case Study: Lab Management</a></li>
+                    <li><a href="#workflow-engine">Workflow Engine</a></li>
+                    <li><a href="#security-backup">Security, Backup &amp; Troubleshooting</a></li>
+                    <li><a href="#cheat-sheet">Developer Command Cheat Sheet</a></li>
+                    <li><a href="#best-practices">Best Practices</a></li>
+                    <li><a href="#scenarios">Real-World Scenarios</a></li>
+                    <li><a href="#roadmap">Learning Roadmap &amp; What's Next</a></li>
+                </ul>
+            </div>
+
+            <!-- Article Content -->
+            <article class="article-content fade-in">
+
+                <section id="audience">
+                    <h2>🎯 Who This Is For &amp; the Learning Journey</h2>
+                    <p>This guide is written for anyone who needs to go from zero knowledge of ERPNext to being productive with it professionally: ERPNext beginners, Python/Django and full-stack developers, system administrators, database developers, ERP implementers, business analysts, technical support engineers, and anyone building a custom ERPNext module.</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram vertical">
+                            <div class="flow-step">ERPNext Beginner</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Installation</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">System Setup</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Users &amp; Roles</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Modules</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">DocTypes</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Database</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Business Workflows</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Customization</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Custom Apps</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">API Integration</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Intermediate ERPNext Developer</div>
+                        </div>
+                    </div>
+                    <p>Every diagram in this guide labels the same underlying chain: <code>User → Frontend → Backend → DocType → Database → Integration</code>. That chain is the single idea the whole course is built around — once it clicks, every ERPNext screen, table, and API call reads as an instance of it.</p>
+                </section>
+
+                <section id="accuracy-note">
+                    <h2>⚠️ Version &amp; Accuracy Note</h2>
+                    <div class="warning-box">
+                        <strong>Read this before the rest of the guide.</strong> This content is written conceptually against the ERPNext v14/v15 and Frappe Framework v14/v15 generation — the architecture, DocType/table conventions, bench commands, and hook mechanisms described have been stable across recent versions, but exact field names, UI labels, menu paths, and command flags <strong>do change between versions</strong>. Two categories of claim appear throughout this guide:
+                        <ul style="margin-bottom:0;">
+                            <li><strong>Verified Frappe/ERPNext convention</strong> — core, long-stable behavior (e.g. the <code>tab&lt;DocType&gt;</code> table naming rule, the <code>bench</code> command family, doc-event hooks).</li>
+                            <li><strong>Conceptual / illustrative architecture</strong> — diagrams and table lists built to teach the relationships, not copied from a specific installation's schema browser.</li>
+                        </ul>
+                        Always verify exact table names, fields, and API behavior against the official documentation for your installed version before relying on them operationally, and never modify ERPNext core source to work around a version difference.
+                    </div>
+                </section>
+
+                <section id="what-is-erpnext">
+                    <h2>🧭 What Is ERPNext? Frappe vs ERPNext</h2>
+                    <p><strong>ERP</strong> (Enterprise Resource Planning) software exists to solve one recurring business problem: sales, purchasing, inventory, accounting, and HR are all run as separate spreadsheets or disconnected tools, so nobody can see one true, current picture of the business. An ERP unifies them into one database with one shared set of master data (customers, items, accounts) so every transaction updates the same source of truth.</p>
+                    <p><strong>ERPNext</strong> is an open-source ERP application. It is not a standalone codebase — it is built on top of <strong>Frappe Framework</strong>, a full-stack, metadata-driven web application framework (Python backend, JavaScript frontend, MariaDB database) that ERPNext uses for everything: authentication, permissions, forms, reports, workflows, and the REST API. This is the single most important distinction for a developer to internalize before touching ERPNext code.</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram vertical">
+                            <div class="flow-step">Frappe Framework<small>generic metadata-driven app platform</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">ERPNext<small>a Frappe app: the ERP business logic</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Business Modules<small>Accounting, Selling, Stock, HR…</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">DocTypes<small>the unit of data + logic + UI</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Database<small>MariaDB tables generated per DocType</small></div>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Term</th><th>What it means</th></tr></thead>
+                        <tbody>
+                            <tr><td>Frappe</td><td>The underlying framework: auth, permissions, ORM, UI rendering, REST API, background jobs</td></tr>
+                            <tr><td>ERPNext</td><td>A Frappe <em>app</em> that implements ERP business logic on top of the framework</td></tr>
+                            <tr><td>App</td><td>An installable Python package (Frappe or ERPNext itself, or a custom app) that bundles DocTypes, code, and assets</td></tr>
+                            <tr><td>Module</td><td>A logical grouping of DocTypes within an app (e.g. "Selling", "Stock")</td></tr>
+                            <tr><td>DocType</td><td>A metadata definition of a business object — its fields, permissions, and behavior; the framework generates a database table and a UI form from it</td></tr>
+                            <tr><td>Document</td><td>One saved record/row of a DocType (e.g. one specific Sales Invoice)</td></tr>
+                            <tr><td>Field</td><td>One attribute on a DocType (Data, Link, Currency, Table, Select, …)</td></tr>
+                            <tr><td>Child Table</td><td>A DocType marked "Is Child Table", used to store repeatable rows inside a parent document (e.g. invoice line items)</td></tr>
+                            <tr><td>Workspace</td><td>A configurable landing page/dashboard grouping shortcuts, charts, and links for a module or role</td></tr>
+                            <tr><td>Report</td><td>A saved query/script that reads DocType data and renders it as a table, chart, or dashboard</td></tr>
+                            <tr><td>Page</td><td>A custom, code-driven screen that isn't a standard DocType list/form (used for dashboards, POS, etc.)</td></tr>
+                            <tr><td>Web Form</td><td>A public-facing, simplified form that lets portal/external users create or edit specific DocTypes</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="architecture">
+                    <h2>🏗️ Frappe/ERPNext Architecture</h2>
+                    <div class="rel-diagram">
+                        <div class="rel-layer"><div class="rel-entity"><h4>Browser</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span>HTTP / WebSocket</div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>ERPNext UI</h4><ul class="rel-fields"><li>Desk, forms, list views</li></ul></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span>renders via</div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>Frappe Framework</h4><ul class="rel-fields"><li>auth, ORM, permissions</li></ul></div></div>
+                        <div class="rel-connector"><span class="arrow">↓ ↓ ↓</span>dispatches to</div>
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>DocTypes</h4><ul class="rel-fields"><li>metadata + schema</li></ul></div>
+                            <div class="rel-entity"><h4>APIs</h4><ul class="rel-fields"><li>REST / RPC endpoints</li></ul></div>
+                            <div class="rel-entity"><h4>Controllers</h4><ul class="rel-fields"><li>Python classes, hooks</li></ul></div>
+                        </div>
+                        <div class="rel-connector"><span class="arrow">↓</span>persist to</div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>MariaDB</h4><ul class="rel-fields"><li>ERPNext Database</li></ul></div></div>
+                    </div>
+                    <p>Behind that request/response path, a full ERPNext deployment runs several supporting processes together:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Component</th><th>Role</th></tr></thead>
+                        <tbody>
+                            <tr><td>Python</td><td>Backend language — DocType controllers, server scripts, API logic</td></tr>
+                            <tr><td>JavaScript</td><td>Frontend logic — client scripts, form behavior, the Desk UI itself</td></tr>
+                            <tr><td>MariaDB</td><td>Primary relational database; one table per DocType</td></tr>
+                            <tr><td>Redis</td><td>Caching, background job queue, and real-time pub/sub backing</td></tr>
+                            <tr><td>Background workers</td><td>Process queued/long-running jobs (emails, reports, bulk updates) outside the request cycle</td></tr>
+                            <tr><td>Scheduler</td><td>Triggers <code>scheduler_events</code> hooks on a cron-like cadence (daily, hourly, etc.)</td></tr>
+                            <tr><td>Web server</td><td>Gunicorn (app server) typically fronted by Nginx in production</td></tr>
+                            <tr><td>Socket.IO</td><td>Real-time updates — live notifications, document locks, desk refresh</td></tr>
+                            <tr><td>REST API</td><td><code>/api/resource/&lt;DocType&gt;</code> — the framework-generated API surface for every DocType</td></tr>
+                            <tr><td>File storage</td><td>Attachments and generated files, stored under the site's <code>public/files</code> / <code>private/files</code> directories</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="installation">
+                    <h2>⚙️ Installation &amp; Dependencies</h2>
+                    <p>ERPNext can be installed for local development (bench on bare metal or WSL), via Docker, or directly on a production VPS. All paths converge on the same tool: <strong>Frappe Bench</strong>, the CLI that manages sites, apps, and processes.</p>
+                    <div class="rel-diagram">
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>Linux</h4></div>
+                            <div class="rel-entity"><h4>Python</h4></div>
+                            <div class="rel-entity"><h4>Node.js</h4></div>
+                            <div class="rel-entity"><h4>MariaDB</h4></div>
+                            <div class="rel-entity"><h4>Redis</h4></div>
+                            <div class="rel-entity"><h4>Git</h4></div>
+                            <div class="rel-entity"><h4>Yarn</h4></div>
+                            <div class="rel-entity"><h4>wkhtmltopdf</h4></div>
+                        </div>
+                        <div class="rel-connector"><span class="arrow">↓</span>required by</div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>Frappe Bench</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span>installs</div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>Frappe</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span>installs as an app</div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>ERPNext</h4></div></div>
+                    </div>
+                    <p>The core bench workflow, in order:</p>
+                    <pre><code># install bench itself (via pip/pipx), then:
+bench init frappe-bench                 # scaffold a new bench (downloads the Frappe app)
+cd frappe-bench
+bench new-site site1.local              # create a site: its own database + config
+bench get-app erpnext                   # fetch the ERPNext app source
+bench --site site1.local install-app erpnext   # install ERPNext into that site
+bench start                             # run web server + workers + scheduler for development</code></pre>
+                    <p>Each command has a distinct job: <code>bench init</code> sets up the shared bench (apps + environment); <code>bench new-site</code> creates one isolated tenant (its own MariaDB database, own config, own set of installed apps); <code>get-app</code> vs <code>install-app</code> is the same split as downloading a package vs actually enabling it for a specific site — one bench can host many sites, each with a different combination of installed apps.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Path</th><th>Contents</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>apps/</code></td><td>Source of every installed app — <code>apps/frappe/</code>, <code>apps/erpnext/</code>, and any custom apps</td></tr>
+                            <tr><td><code>sites/</code></td><td>One folder per site; <code>sites/common_site_config.json</code> holds bench-wide settings, <code>sites/site1.local/</code> holds that site's config and files</td></tr>
+                            <tr><td><code>config/</code></td><td>Generated Nginx/Supervisor config for production setups</td></tr>
+                            <tr><td><code>logs/</code></td><td>Web, worker, and scheduler logs</td></tr>
+                            <tr><td><code>env/</code></td><td>The Python virtual environment bench runs inside</td></tr>
+                            <tr><td><code>Procfile</code></td><td>Process list <code>bench start</code> uses in development (web, workers, scheduler, socketio)</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="production">
+                    <h2>🚀 Production Deployment Architecture</h2>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram vertical">
+                            <div class="flow-step">Internet</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Domain (DNS)</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Nginx<small>TLS termination, static files, reverse proxy</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Gunicorn<small>Frappe/ERPNext app server</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Background Workers<small>queued jobs, supervised</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Redis<small>cache, queue, pub/sub</small></div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">MariaDB<small>the ERPNext database</small></div>
+                        </div>
+                    </div>
+                    <p>In production, <strong>Supervisor</strong> keeps Gunicorn, the background workers, and the scheduler running (and restarts them on crash or reboot), while <strong>Nginx</strong> handles TLS (typically via Let's Encrypt / Certbot for free auto-renewing HTTPS certificates), serves static assets directly, and proxies dynamic requests to Gunicorn. A production checklist also includes a configured firewall (only 80/443/22 open), a scheduled backup job, and a DNS record pointed at the server before requesting a certificate.</p>
+                </section>
+
+                <section id="first-login">
+                    <h2>🔑 First Login &amp; Initial Setup</h2>
+                    <p>The first login into a freshly installed site runs the <strong>Setup Wizard</strong>, which walks through the minimum master data ERPNext needs before any transaction can be created:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Step</th><th>Why it's required first</th></tr></thead>
+                        <tbody>
+                            <tr><td>Company</td><td>Almost every transaction and account belongs to a Company — it's the top of the accounting hierarchy</td></tr>
+                            <tr><td>Currency &amp; Fiscal Year</td><td>Every ledger entry needs a currency and an open accounting period to post into</td></tr>
+                            <tr><td>Chart of Accounts</td><td>Generated automatically from a country/industry template, then customized — every GL Entry needs an Account</td></tr>
+                            <tr><td>Warehouse</td><td>Stock can't move without at least one warehouse to move into/out of</td></tr>
+                            <tr><td>Customers / Suppliers</td><td>Optional at setup, but needed before the first Sales/Purchase document</td></tr>
+                            <tr><td>Users &amp; Roles</td><td>Determines who can do what from day one — see <a href="#users-roles">Users, Roles &amp; Permissions</a></td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="ui-concepts">
+                    <h2>🖥️ ERPNext UI Concepts</h2>
+                    <p>Almost the entire application is one interface, called the <strong>Desk</strong>, built from a small set of reusable view types:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>#</th><th>UI element</th><th>What it's for</th></tr></thead>
+                        <tbody>
+                            <tr><td>1</td><td>Sidebar</td><td>Module and workspace navigation</td></tr>
+                            <tr><td>2</td><td>Workspace</td><td>A configurable dashboard/landing page per module or role</td></tr>
+                            <tr><td>3</td><td>Awesome Bar (search)</td><td>Global fuzzy search across DocTypes, documents, and even commands ("new sales invoice")</td></tr>
+                            <tr><td>4</td><td>User menu</td><td>Profile, settings, "switch to desk/portal", logout</td></tr>
+                            <tr><td>5</td><td>Notifications</td><td>Assignments, mentions, and document events targeted at the current user</td></tr>
+                            <tr><td>6</td><td>List View</td><td>Filterable, sortable table of documents for one DocType</td></tr>
+                            <tr><td>7</td><td>Filters</td><td>Standard and saved filters on any list or report</td></tr>
+                            <tr><td>8</td><td>Form View</td><td>The single-document editing screen — fields, child tables, and actions</td></tr>
+                            <tr><td>9</td><td>Actions (Submit/Cancel/Print/Duplicate…)</td><td>Document-level operations available from the form</td></tr>
+                            <tr><td>—</td><td>Report View</td><td>Spreadsheet-like grouped/aggregated view over a DocType's data</td></tr>
+                            <tr><td>—</td><td>Dashboard / Kanban / Calendar / Tree view</td><td>Alternate visualizations of the same underlying documents, chosen per DocType</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="users-roles">
+                    <h2>👥 Users, Roles &amp; Permission Flow</h2>
+                    <p>ERPNext ships a set of standard roles that map to job functions, all ultimately subordinate to the <strong>System Manager</strong> role, which has unrestricted administrative access:</p>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">System Manager</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Accounts Manager</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Sales Manager</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Purchase Manager</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Stock Manager</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">HR Manager</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Manufacturing Manager</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Projects Manager</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Employee</div>
+                        </div>
+                    </div>
+                    <p>Access is resolved through a layered chain, not a single flag — this is the same "many small typed layers, not one field" principle that shows up in <a href="erp-invoice-payment-architecture.html#status-matrix">ERP accounting status modeling</a>:</p>
+                    <div class="flow-diagram vertical">
+                        <div class="flow-step">User</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Role</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Role Permission<small>DocType-level: read/write/create/submit/cancel/delete</small></div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">User Permission<small>restricts to specific records, e.g. one Company</small></div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Document Permission<small>share, workflow state, owner rules</small></div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Allowed Action</div>
+                    </div>
+                    <p>A <strong>Role Profile</strong> bundles a set of roles for fast assignment to new users; <strong>Document Share</strong> grants ad-hoc access to one specific document outside the normal role rules; and workflow-state permissions (see <a href="#workflow-engine">Workflow Engine</a>) can further restrict who may transition a document, independent of its base role permissions.</p>
+                </section>
+
+                <section id="core-modules">
+                    <h2>🧩 Core Modules at a Glance</h2>
+                    <p>ERPNext ships as a set of business modules sharing one database and one permission system. Every module follows the same internal shape — <code>Purpose → Master Data → Transactions → Child Tables → Workflow → Database → Accounting/Stock Impact → Other-Module Connections → Reports → API</code> — so once you understand one module deeply, reading a new one is mostly about learning its specific documents, not a new mental model.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Module</th><th>Purpose</th><th>Key master data</th><th>Core transaction flow</th><th>Connects to</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Accounting</strong></td><td>Books of record — every module ultimately posts here</td><td>Company, Account, Cost Center, Fiscal Year, Tax Template</td><td>Sales/Purchase Invoice → Payment Entry / Journal Entry → GL Entry</td><td>All modules</td></tr>
+                            <tr><td><strong>Selling</strong></td><td>Quote-to-cash for customers</td><td>Customer, Territory, Sales Person, Price List</td><td>Lead → Opportunity → Quotation → Sales Order → Delivery Note → Sales Invoice</td><td>Stock, Accounting, CRM</td></tr>
+                            <tr><td><strong>Buying</strong></td><td>Procure-to-pay from suppliers</td><td>Supplier, Item, Buying Price List</td><td>Material Request → RFQ → Supplier Quotation → Purchase Order → Purchase Receipt → Purchase Invoice</td><td>Stock, Accounting</td></tr>
+                            <tr><td><strong>Stock</strong></td><td>Inventory quantity &amp; valuation</td><td>Item, Item Group, Warehouse, Batch, Serial No</td><td>Stock Entry / Delivery Note / Purchase Receipt → Stock Ledger Entry → Bin</td><td>Selling, Buying, Manufacturing, Accounting</td></tr>
+                            <tr><td><strong>Manufacturing</strong></td><td>Convert raw materials into finished goods</td><td>BOM, Workstation, Operation, Routing</td><td>BOM → Work Order → Material Transfer → Job Card → Finished Goods → Stock Entry</td><td>Stock, Accounting</td></tr>
+                            <tr><td><strong>CRM</strong></td><td>Pre-sales relationship management</td><td>Lead, Opportunity, Contact, Address</td><td>Lead → Opportunity → Quotation → Customer</td><td>Selling</td></tr>
+                            <tr><td><strong>Projects</strong></td><td>Track billable and internal work</td><td>Project, Task, Activity Type</td><td>Project → Task → Timesheet → Sales Invoice</td><td>HR, Accounting</td></tr>
+                            <tr><td><strong>Assets</strong></td><td>Fixed asset lifecycle &amp; depreciation</td><td>Asset Category, Asset</td><td>Purchase Invoice → Asset → Depreciation → Asset Movement/Disposal</td><td>Accounting</td></tr>
+                            <tr><td><strong>HR</strong></td><td>Employee lifecycle &amp; attendance</td><td>Employee, Department, Designation</td><td>Employee → Attendance → Leave Application</td><td>Payroll</td></tr>
+                            <tr><td><strong>Payroll</strong></td><td>Salary calculation &amp; disbursement</td><td>Salary Structure, Employee Grade</td><td>Salary Structure → Salary Slip → Payroll Entry</td><td>HR, Accounting</td></tr>
+                            <tr><td><strong>Quality</strong></td><td>Inspection &amp; conformance</td><td>Quality Procedure, Quality Goal</td><td>Quality Inspection ↔ Purchase Receipt / Delivery Note / Manufacturing</td><td>Stock, Manufacturing, Buying</td></tr>
+                            <tr><td><strong>Support</strong></td><td>Post-sales customer service</td><td>Issue, Service Level Agreement</td><td>Customer → Issue → Assignment → Communication → Resolution</td><td>CRM, Selling</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <div class="info-box">
+                        <strong>💡 Additional apps:</strong> ERPNext's ecosystem also includes separate Frappe apps for POS, Website/Portal, Healthcare, Agriculture, and others depending on what's installed on a given site — treat any module not listed above as installation-specific and verify it against the actual site before documenting it as standard.
+                    </div>
+                </section>
+
+                <section id="document-flows">
+                    <h2>🔗 Flagship Document Flows</h2>
+                    <h3>Selling: Lead to Cash</h3>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Lead</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Opportunity</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Quotation</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Sales Order</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Delivery Note</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Sales Invoice</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Payment Entry</div>
+                        </div>
+                    </div>
+                    <p>Child tables carry the line items at every stage: <code>Quotation Item</code>, <code>Sales Order Item</code>, <code>Delivery Note Item</code>, <code>Sales Invoice Item</code> — each new document typically pulls its rows from the previous one so item, price, and quantity stay traceable end to end.</p>
+
+                    <h3>Buying: Procure to Pay</h3>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Material Request</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Request for Quotation</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Supplier Quotation</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Purchase Order</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Purchase Receipt</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Purchase Invoice</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Payment Entry</div>
+                        </div>
+                    </div>
+
+                    <h3>Manufacturing: BOM to Finished Goods</h3>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Item</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">BOM</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Work Order</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Material Transfer</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Job Card</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Finished Goods</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Stock Entry</div>
+                        </div>
+                    </div>
+                    <p>A BOM (Bill of Materials) can itself reference another Item that has its own BOM — a <strong>multi-level BOM</strong> — so manufacturing a finished item can cascade into manufacturing its sub-assemblies first.</p>
+
+                    <h3>HR &amp; Payroll: Employee to Accounting</h3>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Employee</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Attendance</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Leave</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Salary Structure</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Salary Slip</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Payroll Entry</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Accounting</div>
+                        </div>
+                    </div>
+
+                    <h3>Assets: Purchase to Disposal</h3>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Asset Category</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Asset</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Purchase Invoice</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Depreciation</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Asset Movement</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Asset Disposal</div>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>💡 The GL Entry table is the convergence point.</strong> Sales Invoices, Purchase Invoices, Payment Entries, Journal Entries, Payroll Entries, and Asset Depreciation all eventually write to the same <code>GL Entry</code> table — it's arguably the single most important transaction table in ERPNext, because it's where every module's financial impact becomes comparable in one ledger. For the full accounting theory behind why invoices, payments, and GL postings are deliberately kept as separate records, see <a href="erp-invoice-payment-architecture.html">Invoice vs Payment: The Complete ERP Accounting Architecture</a>.
+                    </div>
+                </section>
+
+                <section id="module-interconnection">
+                    <h2>🕸️ Module Interconnection Master Diagram</h2>
+                    <div class="rel-diagram">
+                        <div class="rel-layer"><div class="rel-entity"><h4>CRM</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span></div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>Selling</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓</span></div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>Sales Order</h4></div></div>
+                        <div class="rel-connector"><span class="arrow">↓ ↓</span>splits into</div>
+                        <div class="rel-layer">
+                            <div class="rel-entity"><h4>Stock</h4><ul class="rel-fields"><li>Delivery Note</li></ul></div>
+                            <div class="rel-entity"><h4>Accounting</h4><ul class="rel-fields"><li>GL Entry</li></ul></div>
+                        </div>
+                        <div class="rel-connector"><span class="arrow">↓ ↓</span>both feed</div>
+                        <div class="rel-layer"><div class="rel-entity"><h4>Payment</h4></div></div>
+                    </div>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Source module</th><th>Feeds into</th></tr></thead>
+                        <tbody>
+                            <tr><td>Buying</td><td>Stock, Accounting</td></tr>
+                            <tr><td>Manufacturing</td><td>Stock, Accounting</td></tr>
+                            <tr><td>HR</td><td>Payroll</td></tr>
+                            <tr><td>Payroll</td><td>Accounting</td></tr>
+                            <tr><td>Projects</td><td>Timesheet → Billing → Accounting</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>Notice the pattern: almost every module is a source that eventually drains into <strong>Stock</strong> and/or <strong>Accounting</strong>. Those two are the shared "settlement layer" every other module's transactions converge on — the ERPNext equivalent of the subledger/GL relationship described in the accounting curriculum's <a href="accounting-erp-curriculum.html#level-11">ERP Architecture level</a>.</p>
+                </section>
+
+                <section id="database-architecture">
+                    <h2>🗄️ Database Architecture: DocType → Table</h2>
+                    <div class="flow-diagram vertical">
+                        <div class="flow-step">DocType<small>metadata: fields, permissions, options</small></div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Database Table<small>auto-generated by the framework</small></div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Document Record<small>one row = one saved document</small></div>
+                    </div>
+                    <p>This is a <strong>verified, stable Frappe convention</strong>: every non-child, non-virtual DocType gets a MariaDB table named <code>tab</code> + the DocType name, spaces included — e.g. <code>tabCustomer</code>, <code>tabSupplier</code>, <code>tabItem</code>, <code>tabSales Order</code>, <code>tabSales Invoice</code>. Changing a DocType's fields in the UI ("Customize Form" or the DocType editor) triggers a schema migration that adds/alters the corresponding column — this is why DocTypes are described as "metadata-driven": the schema is a byproduct of the metadata, not hand-written SQL.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Concept</th><th>Definition</th></tr></thead>
+                        <tbody>
+                            <tr><td>DocType</td><td>The schema + behavior definition (fields, permissions, controller class)</td></tr>
+                            <tr><td>Document</td><td>One instance/row of a DocType</td></tr>
+                            <tr><td>Child table</td><td>A DocType flagged "Is Child Table"; its rows always belong to exactly one parent document</td></tr>
+                            <tr><td>Link field</td><td>A foreign-key-style reference to another DocType's <code>name</code> (primary key)</td></tr>
+                            <tr><td>Dynamic Link</td><td>A Link field whose target DocType is itself chosen by another field (used for polymorphic references, e.g. an Address linking to a Customer <em>or</em> a Supplier)</td></tr>
+                            <tr><td>Table field</td><td>The field type on a parent DocType that embeds a child table</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="table-map">
+                    <h2>📚 Master Tables vs Transaction Tables</h2>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Type</th><th>Examples</th><th>Behavior</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Master</strong></td><td>Customer, Supplier, Item, Warehouse, Account, Employee</td><td>Created once, referenced repeatedly by many transactions; rarely deleted, usually just deactivated</td></tr>
+                            <tr><td><strong>Transaction</strong></td><td>Sales Order, Purchase Order, Sales Invoice, Delivery Note, Payment Entry, Stock Entry</td><td>Created per business event, generally follow a submit/cancel lifecycle, and are the rows that actually move quantities and money</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>Master data exists so transactions don't repeat information — a Sales Order doesn't store a customer's address text, it stores a Link to the Customer, and the Customer record is the single place that address gets corrected. This is the same "don't duplicate the fact, reference it" principle behind normalized database design generally.</p>
+
+                    <h3 id="child-tables">Child Tables Explained</h3>
+                    <p>A child table row always carries four framework-managed fields that tie it back to its parent, in addition to whatever fields the child DocType itself defines:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Field</th><th>Purpose</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>parent</code></td><td>The <code>name</code> of the owning parent document</td></tr>
+                            <tr><td><code>parenttype</code></td><td>The parent's DocType (needed because a child table can, in principle, be reused by more than one parent DocType)</td></tr>
+                            <tr><td><code>parentfield</code></td><td>Which Table field on the parent this row belongs to</td></tr>
+                            <tr><td><code>idx</code></td><td>The row's display order within the table</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <pre><code>tabSales Order
+       │
+       │ parent (1) ──── (N) rows
+       ▼
+tabSales Order Item
+  parent      = "SAL-ORD-2026-00042"
+  parenttype  = "Sales Order"
+  parentfield = "items"
+  idx         = 1
+  item_code   = "WIDGET-001"
+  qty         = 10</code></pre>
+
+                    <h4>Illustrative Table Map (Verify Per Version)</h4>
+                    <p>The following are well-known, long-stable core DocTypes grouped by module, to illustrate the naming convention — not an exhaustive schema dump. Confirm exact names and any version differences against your installed site (e.g. via <code>bench --site SITE console</code> or the DocType list in Developer Mode) before relying on them in code.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Area</th><th>Representative tables</th></tr></thead>
+                        <tbody>
+                            <tr><td>Core</td><td><code>tabUser</code>, <code>tabRole</code>, <code>tabDocType</code>, <code>tabDocField</code>, <code>tabWorkflow</code>, <code>tabFile</code>, <code>tabCommunication</code>, <code>tabToDo</code></td></tr>
+                            <tr><td>CRM / Selling</td><td><code>tabLead</code>, <code>tabOpportunity</code>, <code>tabCustomer</code>, <code>tabQuotation</code>, <code>tabSales Order</code>, <code>tabSales Order Item</code>, <code>tabDelivery Note</code>, <code>tabSales Invoice</code>, <code>tabSales Invoice Item</code></td></tr>
+                            <tr><td>Buying</td><td><code>tabSupplier</code>, <code>tabMaterial Request</code>, <code>tabPurchase Order</code>, <code>tabPurchase Order Item</code>, <code>tabPurchase Receipt</code>, <code>tabPurchase Invoice</code>, <code>tabPurchase Invoice Item</code></td></tr>
+                            <tr><td>Stock</td><td><code>tabItem</code>, <code>tabItem Group</code>, <code>tabWarehouse</code>, <code>tabBin</code>, <code>tabStock Entry</code>, <code>tabStock Ledger Entry</code>, <code>tabSerial No</code>, <code>tabBatch</code></td></tr>
+                            <tr><td>Accounting</td><td><code>tabAccount</code>, <code>tabGL Entry</code>, <code>tabPayment Entry</code>, <code>tabJournal Entry</code>, <code>tabCost Center</code>, <code>tabCompany</code></td></tr>
+                            <tr><td>Manufacturing</td><td><code>tabBOM</code>, <code>tabBOM Item</code>, <code>tabWork Order</code>, <code>tabJob Card</code></td></tr>
+                            <tr><td>HR</td><td><code>tabEmployee</code>, <code>tabDepartment</code>, <code>tabAttendance</code>, <code>tabLeave Application</code>, <code>tabSalary Slip</code>, <code>tabPayroll Entry</code></td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="er-diagrams">
+                    <h2>🔀 ER Diagrams: Customer, Item, Accounting</h2>
+                    <h3>Customer Relationships</h3>
+                    <div class="flow-diagram vertical">
+                        <div class="flow-step">Customer</div><div class="flow-arrow-down">↓ referenced by</div>
+                        <div class="flow-step">Contact · Address · Opportunity · Quotation · Sales Order · Delivery Note · Sales Invoice</div>
+                    </div>
+                    <h3>Item Relationships</h3>
+                    <div class="flow-diagram vertical">
+                        <div class="flow-step">Item</div><div class="flow-arrow-down">↓ referenced by</div>
+                        <div class="flow-step">Item Group · Price List · Warehouse (via Bin) · BOM · Sales/Purchase Order Item · Delivery/Receipt Item · Stock Ledger Entry</div>
+                    </div>
+                    <h3>Accounting Relationships</h3>
+                    <div class="flow-diagram vertical">
+                        <div class="flow-step">Company</div><div class="flow-arrow-down">↓ owns</div>
+                        <div class="flow-step">Account · Cost Center · Journal Entry · Payment Entry · GL Entry</div>
+                    </div>
+                </section>
+
+                <section id="connections">
+                    <h2>🔌 Internal vs External Connections</h2>
+                    <h3>Internal (module ↔ module, inside one database)</h3>
+                    <div class="table-wrap">
+                    <table>
+                        <tbody>
+                            <tr><td>Selling ↔ Stock</td><td>Selling ↔ Accounting</td></tr>
+                            <tr><td>Buying ↔ Stock</td><td>Buying ↔ Accounting</td></tr>
+                            <tr><td>Manufacturing ↔ Stock</td><td>Manufacturing ↔ Accounting</td></tr>
+                            <tr><td>HR ↔ Payroll</td><td>Projects ↔ Accounting</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <h3>External (ERPNext ↔ the outside world)</h3>
+                    <div class="flow-diagram vertical">
+                        <div class="flow-step">ERPNext</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">REST API · Webhooks · OAuth · API Keys</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">E-commerce · Payment Gateways · SMS/Email · Other ERPs/Systems</div>
+                    </div>
+                </section>
+
+                <section id="rest-api">
+                    <h2>🌐 REST API Basics</h2>
+                    <p>Frappe auto-generates a REST-style endpoint for every DocType at <code>/api/resource/&lt;DocType&gt;</code>, supporting the standard HTTP verbs, authenticated with an API key/secret pair generated per user:</p>
+                    <pre><code># list/read
+GET /api/resource/Customer
+GET /api/resource/Customer/CUST-00001
+
+# create
+POST /api/resource/Customer
+
+# update
+PUT /api/resource/Customer/CUST-00001
+
+# delete
+DELETE /api/resource/Customer/CUST-00001</code></pre>
+                    <pre><code># Python (requests)
+import requests
+headers = {"Authorization": "token API_KEY:API_SECRET"}
+r = requests.get("https://site.example.com/api/resource/Customer", headers=headers)
+
+// JavaScript (fetch)
+fetch("https://site.example.com/api/resource/Customer", {
+  headers: { "Authorization": "token API_KEY:API_SECRET" }
+}).then(r => r.json());</code></pre>
+                    <div class="warning-box">
+                        <strong>⚠️ Secure API usage:</strong> always call over HTTPS, scope API keys to the minimum role needed rather than a System Manager account, and rotate/revoke keys through the User record if a key is ever exposed — the same audit-trail discipline covered for financial records in the <a href="accounting-erp-curriculum.html#level-14">accounting curriculum's System Architecture level</a> applies to API credentials too.
+                    </div>
+                </section>
+
+                <section id="customization">
+                    <h2>🛠️ Customization Decision Tree</h2>
+                    <p>ERPNext offers a deliberate ladder of customization tools, from no-code to full custom application — always reach for the lowest rung that solves the problem:</p>
+                    <div class="decision-flow">
+                        <div class="decision-row">
+                            <div class="decision-diamond"><span>Need a simple new field?</span></div>
+                            <div class="decision-branch-note"><strong>Yes →</strong> Custom Field (+ Property Setter to tweak an existing field)</div>
+                        </div>
+                        <div class="flow-arrow-down">↓ No</div>
+                        <div class="decision-row">
+                            <div class="decision-diamond"><span>Need UI behavior only?</span></div>
+                            <div class="decision-branch-note"><strong>Yes →</strong> Client Script (JavaScript, runs in the browser)</div>
+                        </div>
+                        <div class="flow-arrow-down">↓ No</div>
+                        <div class="decision-row">
+                            <div class="decision-diamond"><span>Need server-side validation/logic?</span></div>
+                            <div class="decision-branch-note"><strong>Yes →</strong> Server Script (Python, runs on save/submit)</div>
+                        </div>
+                        <div class="flow-arrow-down">↓ No</div>
+                        <div class="decision-row">
+                            <div class="decision-diamond"><span>Need a multi-step approval process?</span></div>
+                            <div class="decision-branch-note"><strong>Yes →</strong> Workflow (states, transitions, role-gated actions)</div>
+                        </div>
+                        <div class="flow-arrow-down">↓ No</div>
+                        <div class="decision-end">Need new DocTypes, deep integration, or reusable logic → build a Custom App</div>
+                    </div>
+                </section>
+
+                <section id="custom-app">
+                    <h2>📦 Building a Custom Frappe App</h2>
+                    <pre><code>bench new-app my_custom_app
+bench --site site1.local install-app my_custom_app</code></pre>
+                    <pre><code>my_custom_app/
+├── hooks.py            # app config: doc_events, scheduler_events, includes, fixtures
+├── modules.txt         # modules this app defines
+├── patches.txt         # data migration scripts run on update
+├── public/             # JS/CSS/images served to the browser
+├── templates/           # Jinja templates for web pages/emails
+└── my_custom_app/
+    └── my_module/
+        ├── doctype/     # one folder per custom DocType (json + python + js)
+        ├── report/      # custom reports
+        └── page/        # custom Desk pages</code></pre>
+                    <p>Doc-event hooks are how a custom app plugs into the lifecycle of any document — including ERPNext's own — without editing ERPNext source:</p>
+                    <div class="flow-diagram vertical">
+                        <div class="flow-step">User saves a document</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">validate()</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">before_save</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Database Save</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">on_update</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">after_save</div>
+                    </div>
+                    <p>Other key hook categories: <code>scheduler_events</code> (cron-style background jobs), <code>app_include_js</code>/<code>app_include_css</code> (global frontend assets), <code>fixtures</code> (data — like custom fields or roles — exported and reapplied on install), <code>permission_query_conditions</code> and <code>has_permission</code> (row-level access rules beyond the standard permission engine), and <code>override_doctype_class</code> (replacing a standard DocType's controller logic without editing its file).</p>
+                </section>
+
+                <section id="custom-module">
+                    <h2>🧪 Custom Module Case Study: Laboratory Management</h2>
+                    <p>A realistic custom app example — extending ERPNext for a diagnostic lab — illustrates how a domain-specific module plugs into ERPNext's core rather than replacing it:</p>
+                    <div class="flow-diagram vertical">
+                        <div class="flow-step">Patient</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Sample</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Test Request</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Test</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Lab Result</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Lab Report</div>
+                    </div>
+                    <p>New DocTypes (<code>Patient</code>, <code>Sample</code>, <code>Test Request</code>, etc.) link back into ERPNext core via ordinary Link fields — <code>Sample.customer → Customer</code>, <code>Sample.company → Company</code>, <code>Test.item → Item</code>, <code>Test Request.employee → Employee</code> — so a lab report can bill through the standard Sales Invoice flow instead of the custom app reinventing billing.</p>
+                    <p>Integration happens on three levels, and a well-designed custom app touches all three deliberately rather than only the first:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Level</th><th>Mechanism</th></tr></thead>
+                        <tbody>
+                            <tr><td>1. UI Integration</td><td>Workspace, module icon, dashboard cards for the new DocTypes</td></tr>
+                            <tr><td>2. Data Integration</td><td>Link/Dynamic Link fields and child tables tying custom records to Customer, Item, Company, Employee</td></tr>
+                            <tr><td>3. Business Logic Integration</td><td>Hooks, doc events, controller methods, and APIs that trigger ERPNext-side actions (e.g. auto-creating a Sales Invoice when a Lab Report is approved)</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="workflow-engine">
+                    <h2>🔄 Workflow Engine</h2>
+                    <div class="flow-diagram">
+                        <div class="flow-step">Draft</div><div class="flow-arrow">→</div>
+                        <div class="flow-step">Submitted</div><div class="flow-arrow">→</div>
+                        <div class="flow-step">Approved</div><div class="flow-arrow">→</div>
+                        <div class="flow-step">Completed</div><div class="flow-arrow">→</div>
+                        <div class="flow-step">Cancelled</div>
+                    </div>
+                    <p>A Frappe <strong>Workflow</strong> defines a set of <strong>Workflow States</strong>, the <strong>Actions</strong>/<strong>Transitions</strong> allowed between them, and which <strong>Role</strong> may perform each transition — letting a document (any DocType, standard or custom) require a multi-step approval chain without writing code:</p>
+                    <div class="flow-diagram">
+                        <div class="flow-step">Purchase Request</div><div class="flow-arrow">→</div>
+                        <div class="flow-step">Employee submits</div><div class="flow-arrow">→</div>
+                        <div class="flow-step">Department Manager</div><div class="flow-arrow">→</div>
+                        <div class="flow-step">Finance</div><div class="flow-arrow">→</div>
+                        <div class="flow-step">Purchase Manager</div><div class="flow-arrow">→</div>
+                        <div class="flow-step">Approved</div>
+                    </div>
+                </section>
+
+                <section id="security-backup">
+                    <h2>🛡️ Security, Backup &amp; Troubleshooting</h2>
+                    <div class="flow-diagram vertical">
+                        <div class="flow-step">Authentication</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Authorization</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Role Permission</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">User Permission</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Document Access</div>
+                    </div>
+                    <p>Layer that with HTTPS everywhere, a real password policy, server-side validation (never trust client scripts alone), and the audit trail every document already carries (owner, modified_by, version history) — plus scheduled, tested backups:</p>
+                    <div class="flow-diagram vertical">
+                        <div class="flow-step">ERPNext</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Database Backup + Files Backup</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Backup Storage (offsite)</div><div class="flow-arrow-down">↓</div>
+                        <div class="flow-step">Recovery (tested, not assumed)</div>
+                    </div>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Symptom</th><th>Likely cause</th><th>First command to run</th></tr></thead>
+                        <tbody>
+                            <tr><td>Site doesn't open</td><td>Web process/Nginx down, or wrong host entry</td><td><code>bench start</code> / check Nginx logs</td></tr>
+                            <tr><td>MariaDB connection error</td><td>DB not running or wrong credentials in site config</td><td><code>bench mariadb</code></td></tr>
+                            <tr><td>Redis error</td><td>Redis cache/queue process not running</td><td>check <code>redis-server</code> status/logs</td></tr>
+                            <tr><td>Scheduled jobs not firing</td><td>Scheduler disabled or worker not running</td><td><code>bench doctor</code></td></tr>
+                            <tr><td>Migration failure</td><td>Conflicting patch or schema change</td><td><code>bench migrate</code> (read the traceback first)</td></tr>
+                            <tr><td>Build/asset failure</td><td>Node/Yarn version mismatch</td><td><code>bench build</code></td></tr>
+                            <tr><td>Nginx 502</td><td>Gunicorn/app server not running</td><td>check Supervisor status</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+
+                <section id="cheat-sheet">
+                    <h2>💻 Developer Command Cheat Sheet</h2>
+                    <pre><code>bench start                          # run dev processes (web, workers, scheduler)
+bench restart                        # restart supervisor-managed processes (production)
+bench update                         # pull latest app code + run migrations
+bench migrate                        # apply pending schema/data migrations
+bench build                          # rebuild frontend JS/CSS assets
+bench clear-cache                    # clear Frappe's Redis cache
+bench clear-website-cache            # clear rendered website page cache
+bench console                        # interactive Python shell with the site bootstrapped
+bench mariadb                        # open a MariaDB shell for the current site
+bench doctor                         # diagnose common environment problems
+bench --site SITE list-apps          # list apps installed on a site
+bench --site SITE install-app APP    # install an app into a site
+bench --site SITE uninstall-app APP  # remove an app from a site
+bench --site SITE backup             # take a database (+ optional files) backup</code></pre>
+                </section>
+
+                <section id="best-practices">
+                    <h2>✅ Best Practices</h2>
+                    <div class="success-box">
+                        <ul style="margin-bottom:0;">
+                            <li>Never modify ERPNext (or Frappe) core source — every core change gets silently discarded or conflicts on the next <code>bench update</code>.</li>
+                            <li>Extend via a Custom App + hooks + Custom DocTypes + Custom Fields + Workflows + APIs instead.</li>
+                            <li>Use fixtures and patches to move customizations between dev, staging, and production predictably.</li>
+                            <li>Keep development, staging, and production as separate sites/environments, and test every upgrade in staging first.</li>
+                            <li>Back up the database before running <code>bench migrate</code> or <code>bench update</code> in production.</li>
+                            <li>Prefer the REST API for external integrations over direct database access.</li>
+                            <li>Design permissions through Roles and User Permissions rather than hard-coding access checks in custom scripts.</li>
+                            <li>Keep everything in version control, including fixtures exported from the UI.</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section id="scenarios">
+                    <h2>🏢 Real-World Scenarios</h2>
+                    <h3>Retail: ABC Electronics Ltd.</h3>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Customer</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Quotation</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Sales Order</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Delivery</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Sales Invoice</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Payment</div>
+                        </div>
+                    </div>
+                    <p>Running in parallel on the purchasing side — <code>Supplier → Purchase Order → Purchase Receipt → Purchase Invoice → Payment</code> — with Stock and Accounting updating automatically from both sides without either team touching the other's documents directly.</p>
+
+                    <h3>Manufacturing Company</h3>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram">
+                            <div class="flow-step">Sales Order</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">BOM</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Work Order</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Raw Material Consumption</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Job Card</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Finished Product</div><div class="flow-arrow">→</div>
+                            <div class="flow-step">Delivery &amp; Invoice</div>
+                        </div>
+                    </div>
+
+                    <h3>Custom Module: Laboratory Extension</h3>
+                    <p>The same <a href="#custom-module">Lab Management case study</a> above, closing with billing: once a Lab Report is approved, the custom app's business-logic hook creates a Sales Invoice against the linked Customer, feeding straight back into the Accounting module covered earlier.</p>
+                </section>
+
+                <section id="roadmap">
+                    <h2>🗺️ Learning Roadmap &amp; What's Next</h2>
+                    <div class="diagram-scroll">
+                        <div class="flow-diagram vertical">
+                            <div class="flow-step">Level 1 — ERP Basics</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Level 2 — ERPNext UI</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Level 3 — Modules</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Level 4 — Business Workflows</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Level 5 — DocTypes</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Level 6 — Database</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Level 7 — Permissions</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Level 8 — Customization</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Level 9 — Custom App</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Level 10 — API &amp; Integration</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">Level 11 — Production Deployment</div><div class="flow-arrow-down">↓</div>
+                            <div class="flow-step">ERPNext Intermediate Developer</div>
+                        </div>
+                    </div>
+                    <p>This article is <strong>Part 1 of a 9-part series</strong>, covering the foundations (architecture, installation, modules, and database design) in enough depth to navigate the rest of ERPNext confidently. The planned follow-ups go deeper on each area:</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Part</th><th>Focus</th></tr></thead>
+                        <tbody>
+                            <tr><td>2</td><td><a href="erpnext-users-permissions.html">UI, users, roles, permissions, and administration in depth</a></td></tr>
+                            <tr><td>3</td><td><a href="erpnext-modules-business-workflows.html">Every major module and its business workflow, one at a time</a></td></tr>
+                            <tr><td>4</td><td><a href="erpnext-doctypes-database-relationships.html">DocTypes, master/transaction/child tables, and full database relationships</a></td></tr>
+                            <tr><td>5</td><td><a href="erpnext-module-integration-accounting-stock.html">Module-to-module integration and the accounting/stock impact of every transaction</a></td></tr>
+                            <tr><td>6</td><td><a href="erpnext-customization-guide.html">Customization: Custom Fields, Client/Server Scripts, Print Formats, Web Forms</a></td></tr>
+                            <tr><td>7</td><td><a href="erpnext-custom-frappe-app-development.html">Custom Frappe app/module development end to end</a></td></tr>
+                            <tr><td>8</td><td><a href="erpnext-api-deployment-troubleshooting.html">REST API, external integration, production deployment, and troubleshooting</a></td></tr>
+                            <tr><td>9</td><td><a href="erpnext-lab-management-capstone-project.html">The full Laboratory Management custom-module project, built as a capstone</a></td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>If your interest in ERPNext is specifically the accounting side — how GL Entry, Payment Entry, and invoice settlement actually work under the hood — that ground is covered in full depth, framework-agnostically, in <a href="erp-invoice-payment-architecture.html">Invoice vs Payment: The Complete ERP Accounting Architecture</a> and the <a href="accounting-erp-curriculum.html">Accounting to ERP curriculum</a>.</p>
+
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <a href="blog.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold">
+                            ← Back to Blog
+                        </a>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        ↑
+    </div>
+
+    <!-- Footer -->
+<footer class="footer" style="margin-top: 60px;">
+<div class="container">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <strong>Md. Mostasim Mahmud Tasim</strong>
+      <p>Software Engineer</p>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/tasim313" target="_blank">GitHub</a>
+      <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" target="_blank">LinkedIn</a>
+      <a href="mailto:tasim.swe@gmail.com">Email</a>
+    </div>
+  </div>
+  <p class="footer-copy">&copy; 2026 Md. Mostasim Mahmud Tasim. All rights reserved.</p>
+</div>
+</footer>
+<script src="js/main.js"></script>
+<script>
+    document.querySelectorAll('pre').forEach(pre => {
+        pre.addEventListener('click', function() {
+            const code = this.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalBg = this.style.backgroundColor;
+                this.style.backgroundColor = '#059669';
+                setTimeout(() => { this.style.backgroundColor = originalBg; }, 500);
+            });
+        });
+    });
+</script>
+</body>
+</html>
