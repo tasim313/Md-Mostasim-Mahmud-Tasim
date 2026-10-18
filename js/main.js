@@ -159,4 +159,68 @@
     });
   });
 
+  /* ---- SECURITY: DISABLE INSPECT & SHORTCUTS (FALLBACK) ---- */
+  (function initSecurity() {
+    document.addEventListener('contextmenu', function (e) {
+      e.preventDefault();
+      return false;
+    }, { capture: true });
+
+    document.addEventListener('keydown', function (e) {
+      var isCtrlOrCmd = e.ctrlKey || e.metaKey;
+      var isShift = e.shiftKey;
+      var isAlt = e.altKey;
+      var key = (e.key || '').toUpperCase();
+      var keyCode = e.keyCode || e.which;
+
+      if (key === 'F12' || keyCode === 123) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+
+      if (isCtrlOrCmd && (isShift || isAlt) && (
+        key === 'I' || key === 'J' || key === 'C' || key === 'K' ||
+        keyCode === 73 || keyCode === 74 || keyCode === 67 || keyCode === 75
+      )) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+
+      if (isCtrlOrCmd && (key === 'U' || keyCode === 85 || key === 'S' || keyCode === 83)) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    }, { capture: true });
+
+    document.addEventListener('dragstart', function (e) {
+      if (e.target && e.target.nodeName === 'IMG') {
+        e.preventDefault();
+      }
+    }, { capture: true });
+
+    if (!window.location.pathname.endsWith('access-denied.html')) {
+      var threshold = 160;
+      var devtoolsDetected = false;
+      var checkDevTools = function () {
+        var widthDiff = window.outerWidth - window.innerWidth;
+        var heightDiff = window.outerHeight - window.innerHeight;
+        if (widthDiff > threshold || heightDiff > threshold) {
+          if (!devtoolsDetected) {
+            devtoolsDetected = true;
+            try { document.body.innerHTML = ''; } catch (err) {}
+            var target = new URL('access-denied.html', window.location.href).href;
+            window.location.replace(target);
+          }
+        } else {
+          devtoolsDetected = false;
+        }
+      };
+      setInterval(checkDevTools, 500);
+      window.addEventListener('resize', checkDevTools, { passive: true });
+    }
+  })();
+
 })();
