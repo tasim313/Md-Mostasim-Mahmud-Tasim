@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Linux Systems Engineering & Server Administration: The Complete Architectural Blueprint | Md. Mostasim Mahmud Tasim</title>
-<meta name="description" content="In-depth Linux systems engineering handbook: Filesystem Hierarchy (FHS), permissions and octal security, process lifecycle internals, top diagnostic engine, compression pipelines, production web stacks, and reconnaissance tooling.">
+<title>Linux Systems Engineering &amp; Server Administration: The Complete Architectural Blueprint | Md. Mostasim Mahmud Tasim</title>
+<meta name="description" content="Master handbook on Linux systems engineering: Filesystem Hierarchy (FHS), advanced search (grep, find, locate), permissions &amp; octal bitmasks, kernel process scheduling, top diagnostic engine, temporal date math, vim modal editing, systemd daemons, production web stacks, and offensive security reconnaissance.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -15,11 +15,11 @@
 /* ============================================================
    ARTICLE CUSTOM DESIGN SYSTEM & VISUALIZATIONS
    ============================================================ */
-.article-container { max-width: 920px; margin: 0 auto; padding: 0 24px; }
+.article-container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
 .article-header { padding: 60px 0 40px; text-align: center; }
 .article-title { font-size: 2.6rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.2; margin: 20px 0; color: var(--text-primary); }
 @media (max-width: 768px) { .article-title { font-size: 1.95rem; } }
-.article-subtitle { font-size: 1.15rem; color: var(--text-secondary); max-width: 760px; margin: 0 auto 28px; line-height: 1.6; }
+.article-subtitle { font-size: 1.15rem; color: var(--text-secondary); max-width: 800px; margin: 0 auto 28px; line-height: 1.6; }
 .article-meta { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 16px; font-size: 0.875rem; color: var(--text-tertiary); }
 .article-badge { background: var(--accent-subtle); color: var(--accent); padding: 4px 14px; border-radius: 9999px; font-weight: 600; font-size: 0.8125rem; }
 
@@ -36,7 +36,7 @@
 .toc-title { font-size: 1.125rem; font-weight: 700; margin-bottom: 16px; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
 .toc-list { display: grid; grid-template-columns: 1fr; gap: 10px; list-style: none; padding-left: 0; }
 @media (min-width: 640px) { .toc-list { grid-template-columns: 1fr 1fr; } }
-.toc-item a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color var(--transition); display: flex; align-items: center; gap: 8px; }
+.toc-item a { color: var(--text-secondary); text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: color var(--transition); display: flex; align-items: center; gap: 8px; }
 .toc-item a:hover { color: var(--accent); }
 .toc-item i { color: var(--accent); font-size: 0.75rem; }
 
@@ -65,15 +65,26 @@
 .callout-success { background: rgba(16,185,129,0.08); border-color: #10b981; color: var(--text-primary); }
 .callout-success i { color: #10b981; }
 
+/* Keyboard Badges */
+kbd {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.775rem;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 0 var(--border);
+  border-radius: 5px;
+  padding: 2px 7px;
+  display: inline-block;
+  font-weight: 600;
+}
+
 /* ============================================================
-   DIAGRAM 1: FILESYSTEM HIERARCHY STANDARD (FHS) TREE
+   DIAGRAMS & COMPONENT CONTAINERS
    ============================================================ */
 .fhs-wrapper {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 32px 24px;
-  margin: 32px 0;
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: 16px; padding: 32px 24px; margin: 32px 0;
   box-shadow: 0 4px 20px rgba(0,0,0,0.03);
 }
 .fhs-root-node {
@@ -84,24 +95,14 @@
   box-shadow: 0 4px 16px rgba(37,99,235,0.3);
 }
 .fhs-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 16px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px;
 }
 .fhs-card {
-  background: var(--bg-alt);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 16px;
-  transition: all var(--transition);
-  display: flex;
-  flex-direction: column;
+  background: var(--bg-alt); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px; transition: all var(--transition);
+  display: flex; flex-direction: column;
 }
-.fhs-card:hover {
-  border-color: var(--accent);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.05);
-}
+.fhs-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.05); }
 .fhs-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
 .fhs-icon {
   width: 32px; height: 32px; border-radius: 8px;
@@ -111,35 +112,19 @@
 .fhs-path { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.95rem; color: var(--text-primary); }
 .fhs-desc { font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5; margin: 0; }
 
-/* ============================================================
-   DIAGRAM 2: WORKFLOW & PATH RESOLUTION FLOWCHART
-   ============================================================ */
+/* Flowchart Nodes */
 .flowchart-container {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 32px 24px;
-  margin: 32px 0;
-  text-align: center;
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: 16px; padding: 32px 24px; margin: 32px 0; text-align: center;
 }
 .workflow-row {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin: 16px 0;
+  display: flex; justify-content: center; align-items: center;
+  flex-wrap: wrap; gap: 16px; margin: 16px 0;
 }
 .wf-node {
-  padding: 14px 20px;
-  border-radius: 10px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  text-align: center;
-  border: 1px solid var(--border);
-  background: var(--bg-alt);
-  color: var(--text-primary);
-  min-width: 170px;
+  padding: 14px 20px; border-radius: 10px; font-size: 0.875rem;
+  font-weight: 600; text-align: center; border: 1px solid var(--border);
+  background: var(--bg-alt); color: var(--text-primary); min-width: 170px;
   transition: all var(--transition);
 }
 .wf-node.accent { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 4px 14px rgba(37,99,235,0.25); }
@@ -152,164 +137,225 @@
 .wf-arrow { color: var(--text-tertiary); font-size: 1.25rem; }
 @media (max-width: 768px) { .wf-arrow { transform: rotate(90deg); margin: 6px 0; } }
 
-/* ============================================================
-   DIAGRAM 3: PERMISSION MATRIX & OCTAL ANATOMY
-   ============================================================ */
+/* Permission Anatomy */
 .perm-anatomy-box {
-  background: #0f172a;
-  color: #fff;
-  border-radius: 16px;
-  padding: 32px 24px;
-  margin: 32px 0;
-  text-align: center;
-  font-family: 'JetBrains Mono', monospace;
-  border: 1px solid #1e293b;
+  background: #0f172a; color: #fff; border-radius: 16px; padding: 32px 24px;
+  margin: 32px 0; text-align: center; font-family: 'JetBrains Mono', monospace; border: 1px solid #1e293b;
 }
-.perm-string {
-  font-size: 2.2rem;
-  letter-spacing: 0.25em;
-  font-weight: 700;
-  display: inline-block;
-  margin-bottom: 24px;
-}
-.perm-parts {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  text-align: center;
-}
+.perm-string { font-size: 2.2rem; letter-spacing: 0.25em; font-weight: 700; display: inline-block; margin-bottom: 24px; }
+.perm-parts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; text-align: center; }
 @media (max-width: 640px) { .perm-parts { grid-template-columns: 1fr 1fr; } }
 .perm-part-card {
-  background: rgba(30,41,59,0.7);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
-  padding: 16px 12px;
+  background: rgba(30,41,59,0.7); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px; padding: 16px 12px;
 }
 .perm-part-title { font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 6px; }
 .perm-part-val { font-size: 1.3rem; font-weight: 700; color: #38bdf8; margin-bottom: 6px; }
 .perm-part-desc { font-size: 0.75rem; color: #cbd5e1; line-height: 1.4; }
 
-.perm-table {
+/* Tables */
+.custom-table {
   width: 100%; border-collapse: collapse; margin: 24px 0;
   font-size: 0.9rem; border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
 }
-.perm-table th, .perm-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); }
-.perm-table th { background: var(--bg-alt); font-weight: 700; color: var(--text-primary); }
-.perm-table tr:last-child td { border-bottom: none; }
+.custom-table th, .custom-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+.custom-table th { background: var(--bg-alt); font-weight: 700; color: var(--text-primary); }
+.custom-table tr:last-child td { border-bottom: none; }
 
-/* ============================================================
-   DIAGRAM 4: REALISTIC TERMINAL `top` MONITOR UI
-   ============================================================ */
+/* Terminal top UI */
 .terminal-top-ui {
-  background: #090d16;
-  border: 1px solid #1e293b;
-  border-radius: 14px;
-  padding: 24px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.825rem;
-  color: #e2e8f0;
-  overflow-x: auto;
-  margin: 32px 0;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  background: #090d16; border: 1px solid #1e293b; border-radius: 14px; padding: 24px;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.825rem; color: #e2e8f0;
+  overflow-x: auto; margin: 32px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
 }
 .top-header-line { line-height: 1.7; margin-bottom: 4px; white-space: nowrap; }
 .top-highlight { color: #38bdf8; font-weight: 700; }
 .top-warn { color: #f59e0b; font-weight: 700; }
 .top-err { color: #ef4444; font-weight: 700; }
 .top-ok { color: #10b981; font-weight: 700; }
-.top-table {
-  width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 0.775rem;
-}
-.top-table th {
-  background: #1e293b; color: #f1f5f9; padding: 6px 10px; text-align: left; font-weight: 700;
-}
+.top-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 0.775rem; }
+.top-table th { background: #1e293b; color: #f1f5f9; padding: 6px 10px; text-align: left; font-weight: 700; }
 .top-table td { padding: 5px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
 .top-table tr:hover { background: rgba(56,189,248,0.08); }
 
-/* ============================================================
-   DIAGRAM 5: PROCESS STATE MACHINE & SIGNALS
-   ============================================================ */
-.state-machine-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin: 28px 0;
-}
+/* State Machine */
+.state-machine-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 28px 0; }
 .state-card {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-  text-align: center;
-  position: relative;
-  transition: all var(--transition);
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px; text-align: center; position: relative; transition: all var(--transition);
 }
 .state-card:hover { border-color: var(--accent); }
 .state-pill {
   display: inline-block; padding: 4px 12px; border-radius: 20px;
-  font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 700;
-  margin-bottom: 10px;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 700; margin-bottom: 10px;
 }
 .pill-running { background: rgba(16,185,129,0.15); color: #10b981; }
 .pill-sleep { background: rgba(56,189,248,0.15); color: #0284c7; }
 .pill-stopped { background: rgba(245,158,11,0.15); color: #d97706; }
 .pill-zombie { background: rgba(239,68,68,0.15); color: #ef4444; }
 
-/* ============================================================
-   DIAGRAM 6: WEB STACK DEPLOYMENT & PROVISIONING
-   ============================================================ */
-.stack-pipeline {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin: 32px 0;
+/* Vim Modal Box */
+.vim-modes-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 28px 0;
 }
+.vim-mode-card {
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px; border-top: 4px solid var(--accent);
+}
+.vim-mode-name { font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.vim-cmd-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.775rem; background: var(--bg-alt); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); margin: 2px; display: inline-block; }
+
+/* Systemd Lifecycle */
+.systemd-stages {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 24px 0;
+}
+.systemd-card {
+  background: var(--bg-alt); border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px; text-align: center;
+}
+.systemd-status { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; display: inline-block; margin-bottom: 8px; }
+
+/* Web Stack */
+.stack-pipeline { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 32px 0; }
 @media (max-width: 900px) { .stack-pipeline { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 500px) { .stack-pipeline { grid-template-columns: 1fr; } }
-.stack-stage {
-  background: var(--bg-alt);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-  position: relative;
-}
-.stack-badge {
-  font-size: 0.725rem; font-weight: 700; text-transform: uppercase;
-  color: var(--accent); letter-spacing: 0.05em; margin-bottom: 6px;
-}
+.stack-stage { background: var(--bg-alt); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.stack-badge { font-size: 0.725rem; font-weight: 700; text-transform: uppercase; color: var(--accent); letter-spacing: 0.05em; margin-bottom: 6px; }
 .stack-stage h4 { margin: 4px 0 10px; font-size: 1.05rem; }
 .stack-stage ul { list-style: none; padding-left: 0; font-size: 0.825rem; line-height: 1.6; }
 .stack-stage li { padding: 4px 0; border-bottom: 1px solid var(--border-light); }
 .stack-stage li:last-child { border-bottom: none; }
 
-/* ============================================================
-   DIAGRAM 7: RECONNAISSANCE & PENTESTING TAXONOMY GRID
-   ============================================================ */
-.recon-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 16px;
-  margin: 32px 0;
+/* Recon Grid */
+.recon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin: 32px 0; }
+.recon-cat { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.recon-title { display: flex; align-items: center; gap: 8px; font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; color: var(--text-primary); }
+.tool-tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.tool-pill { background: var(--bg-alt); border: 1px solid var(--border); font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; padding: 3px 8px; border-radius: 6px; color: var(--text-secondary); }
+
+/* Reading Progress Bar */
+.reading-progress-bar {
+  position: fixed; top: 0; left: 0; height: 4px;
+  background: linear-gradient(90deg, var(--accent) 0%, #10b981 100%);
+  width: 0%; z-index: 10000; transition: width 0.1s ease-out;
 }
-.recon-cat {
+
+/* Guide Search & Command Palette */
+.guide-search-panel {
   background: var(--bg-elevated);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
+  border-radius: 16px;
+  padding: 24px;
+  margin: 32px 0 40px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.04);
 }
-.recon-title {
-  display: flex; align-items: center; gap: 8px; font-size: 0.95rem; font-weight: 700;
-  margin-bottom: 12px; color: var(--text-primary);
+.guide-search-bar {
+  position: relative; width: 100%; display: flex; align-items: center; margin-bottom: 16px;
 }
-.tool-tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
-.tool-pill {
+.guide-search-bar .search-icon {
+  position: absolute; left: 18px; color: var(--accent); font-size: 1.15rem; pointer-events: none;
+}
+.guide-search-bar input {
+  width: 100%; padding: 16px 48px 16px 52px; font-size: 1rem;
+  background: var(--bg-alt); color: var(--text-primary);
+  border: 2px solid var(--border); border-radius: 12px;
+  outline: none; transition: all var(--transition);
+  font-family: inherit;
+}
+.guide-search-bar input:focus {
+  border-color: var(--accent); background: var(--bg-elevated);
+  box-shadow: 0 0 0 4px var(--accent-subtle);
+}
+.guide-search-bar .clear-search-btn {
+  position: absolute; right: 14px; background: none; border: none;
+  color: var(--text-tertiary); font-size: 1.1rem; cursor: pointer;
+  padding: 6px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+}
+.guide-search-bar .clear-search-btn:hover { color: var(--text-primary); }
+
+.quick-filter-chips {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 16px;
+}
+.chips-label { font-size: 0.8125rem; font-weight: 700; color: var(--text-tertiary); margin-right: 4px; display: flex; align-items: center; gap: 6px; }
+.chips-label i { color: #f59e0b; }
+.chip {
+  background: var(--bg-alt); color: var(--text-secondary);
+  border: 1px solid var(--border); border-radius: 9999px;
+  padding: 5px 13px; font-size: 0.8rem; font-weight: 600;
+  cursor: pointer; transition: all var(--transition); font-family: inherit;
+}
+.chip:hover { border-color: var(--accent); color: var(--text-primary); }
+.chip.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 2px 8px rgba(37,99,235,0.25); }
+
+/* Quick Command Results Grid */
+.quick-command-results {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px; max-height: 480px; overflow-y: auto; padding-right: 4px; margin-top: 16px;
+}
+.cmd-result-card {
   background: var(--bg-alt); border: 1px solid var(--border);
-  font-size: 0.75rem; font-family: 'JetBrains Mono', monospace;
-  padding: 3px 8px; border-radius: 6px; color: var(--text-secondary);
+  border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column;
+  transition: all var(--transition);
 }
+.cmd-result-card:hover {
+  border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+.cmd-result-header {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
+}
+.cmd-result-code {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.825rem; font-weight: 700;
+  color: var(--accent); word-break: break-all;
+}
+.cmd-copy-btn {
+  background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 6px;
+  color: var(--text-secondary); cursor: pointer; padding: 4px 8px; font-size: 0.75rem;
+  display: flex; align-items: center; gap: 4px; transition: all var(--transition); font-family: inherit;
+}
+.cmd-copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.cmd-result-desc {
+  font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 8px; flex-grow: 1;
+}
+.cmd-result-footer {
+  display: flex; justify-content: space-between; align-items: center; font-size: 0.725rem;
+}
+.cmd-cat-tag {
+  background: var(--accent-subtle); color: var(--accent); padding: 2px 8px;
+  border-radius: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.cmd-jump-link {
+  color: var(--text-tertiary); text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 4px;
+}
+.cmd-jump-link:hover { color: var(--accent); }
+
+/* Code Block Copy Button */
+.code-block-wrapper { position: relative; margin: 24px 0; }
+.code-block-wrapper pre { margin: 0; }
+.code-copy-floating-btn {
+  position: absolute; top: 12px; right: 12px;
+  background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px; color: #cbd5e1; font-size: 0.75rem;
+  padding: 5px 10px; cursor: pointer; display: flex; align-items: center; gap: 5px;
+  font-family: 'Inter', sans-serif; font-weight: 500; transition: all 0.2s ease; z-index: 5;
+}
+.code-copy-floating-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.code-copy-floating-btn.copied { background: #10b981; color: #fff; border-color: #10b981; }
+
+/* System D Architecture SVG Diagram */
+.systemd-arch-box {
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: 16px; padding: 24px; margin: 32px 0;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+}
+.systemd-arch-svg {
+  width: 100%; height: auto; max-width: 900px; margin: 0 auto; display: block;
+}
+
 </style>
 </head>
 <body>
+<div id="readingProgressBar" class="reading-progress-bar"></div>
 
 <!-- Navigation -->
 <nav class="nav" role="navigation" aria-label="Main navigation">
@@ -342,12 +388,12 @@
     <div class="article-badge"><i class="fa-brands fa-linux"></i> Linux Systems Engineering · Architectural Masterclass</div>
     <h1 class="article-title">Linux Systems Engineering &amp; Server Administration: The Complete Architectural Blueprint</h1>
     <p class="article-subtitle">
-      A comprehensive technical manual spanning Filesystem Hierarchy Standards (FHS), permission bitmask mathematics, kernel process scheduling, the <code>top</code> interactive diagnostic engine, systemd services, web stack provisioning, and offensive security reconnaissance.
+      The authoritative production manual spanning Filesystem Hierarchy Standards (FHS), advanced search pipelines, permission bitmask mathematics, kernel process scheduling, the <code>top</code> diagnostic engine, temporal date math, vim modal editing, systemd daemons, production web stacks, and offensive security reconnaissance.
     </p>
     <div class="article-meta">
       <span><i class="fa-regular fa-calendar"></i> October 2026</span>
       <span>•</span>
-      <span><i class="fa-regular fa-clock"></i> 32 min comprehensive read</span>
+      <span><i class="fa-regular fa-clock"></i> 38 min comprehensive read</span>
       <span>•</span>
       <span><i class="fa-solid fa-code"></i> Production Systems Engineering</span>
     </div>
@@ -357,19 +403,47 @@
 <main class="article-body">
   <div class="article-container">
 
+    <!-- Interactive Command Search Palette -->
+    <div class="guide-search-panel" id="guideSearchPanel">
+      <div class="guide-search-bar">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" id="guideCommandSearch" placeholder="🔍 Instant Command Finder: Search 100+ commands, System D daemons, searching tools, flags (e.g. systemctl, grep, journalctl, find, chmod, top, date, tar, scp)..." autocomplete="off" aria-label="Search guide commands">
+        <button id="clearGuideSearch" class="clear-search-btn" style="display:none;" aria-label="Clear Search"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="quick-filter-chips">
+        <span class="chips-label"><i class="fa-solid fa-bolt"></i> Quick Filters:</span>
+        <button class="chip active" data-filter="all">All Commands</button>
+        <button class="chip" data-filter="searching">Searching (grep/find)</button>
+        <button class="chip" data-filter="systemd">System D (systemctl)</button>
+        <button class="chip" data-filter="permissions">Permissions &amp; Octals</button>
+        <button class="chip" data-filter="process">Process &amp; top</button>
+        <button class="chip" data-filter="temporal">Date &amp; Time</button>
+        <button class="chip" data-filter="terminal">Vim &amp; Shortcuts</button>
+        <button class="chip" data-filter="storage">Storage &amp; Tar</button>
+        <button class="chip" data-filter="network">Network &amp; SCP</button>
+        <button class="chip" data-filter="web">Web Stack &amp; AL2</button>
+        <button class="chip" data-filter="recon">Pentest Recon</button>
+      </div>
+      <div id="quickCommandResults" class="quick-command-results"></div>
+    </div>
+
     <!-- Table of Contents -->
     <div class="toc-box">
       <div class="toc-title"><i class="fa-solid fa-list-check"></i> System Architecture &amp; Execution Roadmap</div>
       <ul class="toc-list">
         <li class="toc-item"><a href="#fhs"><i class="fa-solid fa-folder-tree"></i> 1. Filesystem Hierarchy Standard (FHS)</a></li>
-        <li class="toc-item"><a href="#navigation"><i class="fa-solid fa-compass"></i> 2. Path Resolution &amp; File Streams</a></li>
-        <li class="toc-item"><a href="#permissions"><i class="fa-solid fa-shield-halved"></i> 3. Security Model: Permissions &amp; Octals</a></li>
-        <li class="toc-item"><a href="#processes"><i class="fa-solid fa-microchip"></i> 4. Process Lifecycle &amp; Kernel Signals</a></li>
-        <li class="toc-item"><a href="#top-engine"><i class="fa-solid fa-gauge-high"></i> 5. The Interactive top Diagnostic Engine</a></li>
-        <li class="toc-item"><a href="#storage-archives"><i class="fa-solid fa-hard-drive"></i> 6. Storage Diagnostics &amp; Tar Compression</a></li>
-        <li class="toc-item"><a href="#networking"><i class="fa-solid fa-network-wired"></i> 7. Network Probing &amp; Secure SCP Transfer</a></li>
-        <li class="toc-item"><a href="#web-stack"><i class="fa-solid fa-server"></i> 8. Enterprise Web Stacks (Nginx/Apache/PHP/DB)</a></li>
-        <li class="toc-item"><a href="#devops-recon"><i class="fa-solid fa-crosshairs"></i> 9. Git Lifecycle &amp; Pentesting Recon Map</a></li>
+        <li class="toc-item"><a href="#navigation"><i class="fa-solid fa-compass"></i> 2. Path Resolution, File Streams &amp; System Info</a></li>
+        <li class="toc-item"><a href="#searching"><i class="fa-solid fa-magnifying-glass"></i> 3. Advanced Searching Architecture (grep, find, locate, which, whereis, whatis, pgrep)</a></li>
+        <li class="toc-item"><a href="#permissions"><i class="fa-solid fa-shield-halved"></i> 4. Security Model: Permissions &amp; Octal Mathematics</a></li>
+        <li class="toc-item"><a href="#processes"><i class="fa-solid fa-microchip"></i> 5. Process Lifecycle, Signals &amp; Priority Scheduling</a></li>
+        <li class="toc-item"><a href="#top-engine"><i class="fa-solid fa-gauge-high"></i> 6. The Interactive top Diagnostic Engine</a></li>
+        <li class="toc-item"><a href="#systemd"><i class="fa-solid fa-gears"></i> 7. Systemd (System D) Architecture &amp; Daemon Engineering (systemctl, journalctl, timers)</a></li>
+        <li class="toc-item"><a href="#temporal"><i class="fa-solid fa-clock"></i> 8. Temporal Engineering: The Linux date Command &amp; Time Sync</a></li>
+        <li class="toc-item"><a href="#editors-shortcuts"><i class="fa-solid fa-terminal"></i> 9. Terminal Mastery: Vim Modal Editing, Nano &amp; Bash Shortcuts</a></li>
+        <li class="toc-item"><a href="#storage-archives"><i class="fa-solid fa-hard-drive"></i> 10. Storage Diagnostics &amp; Tar Compression Pipelines</a></li>
+        <li class="toc-item"><a href="#networking"><i class="fa-solid fa-network-wired"></i> 11. Network Probing &amp; Bidirectional Secure SCP Transfer</a></li>
+        <li class="toc-item"><a href="#web-stack"><i class="fa-solid fa-server"></i> 12. Production Multi-Distro Web Stacks (Amazon Linux AL2 vs Ubuntu)</a></li>
+        <li class="toc-item"><a href="#devops-recon"><i class="fa-solid fa-crosshairs"></i> 13. Git Lifecycle &amp; 12-Category Pentesting Recon Matrix</a></li>
       </ul>
     </div>
 
@@ -502,22 +576,242 @@ ls -lh     # Long listing with human-readable binary file sizes (K, M, G)
 ls -lt     # Sort entries chronologically by modification timestamp (newest first)
 ls -ltr    # Reverse chronological sort (most recently touched file appears at the bottom)
 ls -i      # Display unique filesystem inode numbers for each entry
-ls -R      # Recursively traverse and list entire subtree hierarchies</code></pre>
+ls -R      # Recursively traverse and list entire subtree hierarchies
+ls -F      # Append indicator indicators (/ for directories, * for executables, @ for links)</code></pre>
+    </section>
 
+    <!-- SECTION 3 (EXPANDED: SEARCHING ARCHITECTURE) -->
+    <section id="searching">
+      <h2><i class="fa-solid fa-magnifying-glass"></i> 3. Advanced Searching &amp; Pattern Discovery Architecture</h2>
+      <p>
+        Fast, accurate searching is essential when auditing large production filesystems, diagnosing incident logs, or inspecting active processes. Linux provides a multi-tiered search architecture separating content pattern discovery from filesystem inode traversal and binary path resolution.
+      </p>
+
+      <!-- Flowchart: Search Strategy -->
+      <div class="flowchart-container">
+        <h4 style="margin-bottom: 20px;">Search Engine Selection Decision Tree</h4>
+        <div class="workflow-row">
+          <div class="wf-node">What are you searching for?</div>
+          <div class="wf-arrow">→</div>
+          <div class="wf-node decision">Target Domain?</div>
+        </div>
+        <div class="workflow-row">
+          <div class="wf-node" style="border-color:#3b82f6;"><strong>1. File Content / Streams</strong><br>Regular expressions &amp; text<br><code>grep / egrep / rgrep</code></div>
+          <div class="wf-node" style="border-color:#10b981;"><strong>2. Inode Metadata &amp; Names</strong><br>Size, timestamps, SUID perms<br><code>find / locate</code></div>
+          <div class="wf-node" style="border-color:#f59e0b;"><strong>3. Executables &amp; Binaries</strong><br>Path, manuals, sources<br><code>which / whereis / whatis</code></div>
+          <div class="wf-node" style="border-color:#8b5cf6;"><strong>4. Active Processes &amp; Sockets</strong><br>Kernel proc table &amp; ports<br><code>pgrep / pidof / lsof</code></div>
+        </div>
+      </div>
+
+      <h3>1. Content Filtering &amp; Regex Mining: <code>grep</code></h3>
+      <p>
+        <code>grep</code> (Global Regular Expression Print) processes streams line-by-line, matching patterns against regular expressions. For modern high-throughput environments, Linux includes <code>grep -E</code> (extended regex) and <code>grep -F</code> (fixed exact strings).
+      </p>
+
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Flag</th>
+            <th>Engineering Function</th>
+            <th>Production Command Example</th>
+            <th>Primary Use Case</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>-i</code></td>
+            <td>Case-insensitive search</td>
+            <td><code>grep -i "exception" /var/log/app.log</code></td>
+            <td>Matches 'Exception', 'EXCEPTION', 'exception'</td>
+          </tr>
+          <tr>
+            <td><code>-v</code></td>
+            <td>Invert match (exclude pattern)</td>
+            <td><code>grep -v "^#" /etc/nginx/nginx.conf | grep -v "^$"</code></td>
+            <td>Strip comments and empty lines from config</td>
+          </tr>
+          <tr>
+            <td><code>-r / -R</code></td>
+            <td>Recursive directory traversal</td>
+            <td><code>grep -rn "DB_PASSWORD" /var/www/html/</code></td>
+            <td>Locate secrets across deep source code trees</td>
+          </tr>
+          <tr>
+            <td><code>-n</code></td>
+            <td>Print line numbers</td>
+            <td><code>grep -n "FATAL" /var/log/syslog</code></td>
+            <td>Pinpoint line index for immediate editor navigation</td>
+          </tr>
+          <tr>
+            <td><code>-w</code></td>
+            <td>Match whole words only</td>
+            <td><code>grep -w "port" /etc/ssh/sshd_config</code></td>
+            <td>Prevents matching 'portable', 'support', or 'report'</td>
+          </tr>
+          <tr>
+            <td><code>-c</code></td>
+            <td>Count matching lines</td>
+            <td><code>grep -c "404" /var/log/nginx/access.log</code></td>
+            <td>Instant telemetry of error frequencies</td>
+          </tr>
+          <tr>
+            <td><code>-l / -L</code></td>
+            <td>List matching / non-matching files</td>
+            <td><code>grep -rl "redis" /etc/supervisor/conf.d/</code></td>
+            <td>Identify file list without outputting line clutter</td>
+          </tr>
+          <tr>
+            <td><code>-C / -B / -A</code></td>
+            <td>Context lines around match</td>
+            <td><code>grep -C 3 -i "segfault" /var/log/messages</code></td>
+            <td>Prints 3 lines before &amp; after for root-cause context</td>
+          </tr>
+          <tr>
+            <td><code>-E</code></td>
+            <td>Extended Regular Expressions (ERE)</td>
+            <td><code>grep -E "(404|500|502)" access.log</code></td>
+            <td>Match multiple HTTP error codes using alternation <code>|</code></td>
+          </tr>
+          <tr>
+            <td><code>-o</code></td>
+            <td>Print ONLY matching segment</td>
+            <td><code>grep -oE "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" auth.log</code></td>
+            <td>Extract raw IP addresses from SSH brute-force logs</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <pre><code># Advanced Production Log Auditing Pipelines
+# Pipeline 1: Count Top 10 Attacking IPs Attempting SSH Brute Force
+grep "Failed password for" /var/log/auth.log | grep -oE "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | sort | uniq -c | sort -nr | head -n 10
+
+# Pipeline 2: Identify Out-Of-Memory (OOM) Kernel Terminations
+dmesg -T | grep -i -E "(oom-killer|killed process)"
+
+# Pipeline 3: Audit Listening Web Sockets Without Full Table Scan
+netstat -tulnp | grep -E "(:80|:443|:3306|:5432)"</code></pre>
+
+      <h3>2. Filesystem Hierarchy &amp; Inode Metadata Search: <code>find</code></h3>
+      <p>
+        While <code>grep</code> reads file data streams, <code>find</code> traverses the directory tree inspecting inode metadata (timestamps, ownership, size, permissions, and file types):
+      </p>
+
+      <pre><code># 1. Search by Name and File Type
+find /etc -iname "*nginx*"                 # Case-insensitive filename lookup
+find /var/www -type d                      # Find all directories only
+find /var/www -type f                      # Find all regular files only
+find /var/run -type s                      # Find active UNIX domain sockets
+
+# 2. Search by Size (Finding Disk Space Consumers)
+find /var/log -type f -size +100M          # Files larger than 100MB
+find /var/log -type f -size +1G            # Massive logs consuming volume space
+find /tmp -type f -empty                   # Zero-byte garbage files
+
+# 3. Search by Temporal Inode Timestamps (Modification, Access, Inode Change)
+find /var/log -mtime -1                    # Modified within the last 24 hours
+find /var/log -name "*.log" -mtime +30     # Modified more than 30 days ago
+find /tmp -mmin -60                        # Modified in the last 60 minutes
+find /home -atime +90                      # Not accessed for more than 90 days
+
+# 4. Critical Security Audits: SUID & World-Writable Files
+find / -perm -4000 -type f 2>/dev/null     # Discover all SUID root binaries (privilege escalation check)
+find /var/www -perm 777 -type f            # Unsafe world-writable files in web root
+find / -nouser -o -nogroup 2>/dev/null     # Orphaned files without valid owner
+
+# 5. Pipeline Actions with -exec and xargs
+find /var/log -name "*.log" -mtime +30 -exec gzip {} \;      # Compress old logs in place
+find /var/www/html -type d -exec chmod 755 {} +             # Batch enforce directory permissions
+find /var/www/html -type f -exec chmod 644 {} +             # Batch enforce file permissions
+find . -type f -name "*.tmp" -print0 | xargs -0 rm -f       # Safe null-byte deletion for files with spaces</code></pre>
+
+      <h3>3. High-Speed Index Search: <code>locate</code> &amp; <code>updatedb</code></h3>
       <div class="callout callout-info">
-        <i class="fa-solid fa-circle-info"></i>
+        <i class="fa-solid fa-bolt"></i>
         <div class="callout-content">
-          <div class="callout-title">The Engineering Distinction Between 'ls' and 'ls -a'</div>
+          <div class="callout-title">Real-Time Traversal vs Indexed Binary Search</div>
           <p class="callout-desc">
-            In Unix systems, files beginning with a dot (<code>.</code>) are intentionally hidden from everyday shell visibility to prevent cluttering application directories. However, in production troubleshooting, over 90% of security breaches and misconfigurations lurk inside dotfiles (e.g., <code>.ssh/authorized_keys</code>, <code>.env</code>, <code>.bash_history</code>). Running <code>ls -al</code> is mandatory during server audits.
+            <code>find</code> traverses the physical storage volume in real-time, which is thorough but can trigger heavy I/O latency on multi-terabyte arrays. <code>locate</code> queries a pre-indexed binary database (<code>/var/lib/mlocate/mlocate.db</code>) returning results in milliseconds. The database is indexed daily by cron or manually refreshed via <code>sudo updatedb</code>.
           </p>
         </div>
       </div>
+      <pre><code># Fast Indexed Search Workflows
+sudo updatedb                      # Re-index filesystem inodes into mlocate database
+locate nginx.conf                  # Instant lookup of all paths matching 'nginx.conf'
+locate -i "settings.py"            # Case-insensitive indexed query
+locate -c "*.png"                  # Instant count of all PNG images on the host</code></pre>
+
+      <h3>4. Binary, Manual &amp; Source Discovery: <code>which</code>, <code>whereis</code>, <code>whatis</code></h3>
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Command</th>
+            <th>Search Scope</th>
+            <th>Sample Usage</th>
+            <th>Underlying Resolution Mechanism</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>which</code></td>
+            <td>User <code>$PATH</code> directories only</td>
+            <td><code>which python3</code></td>
+            <td>Locates the first executable binary that executes when typing the command.</td>
+          </tr>
+          <tr>
+            <td><code>whereis</code></td>
+            <td>Standard binary, source &amp; man directories</td>
+            <td><code>whereis nginx</code></td>
+            <td>Simultaneously resolves binary (<code>/usr/sbin/nginx</code>), configs (<code>/etc/nginx</code>), and manpages.</td>
+          </tr>
+          <tr>
+            <td><code>whatis</code></td>
+            <td>System manual page index (<code>mandb</code>)</td>
+            <td><code>whatis tar</code></td>
+            <td>Returns a concise one-line description from Section 1/8 manual pages.</td>
+          </tr>
+          <tr>
+            <td><code>type -a</code></td>
+            <td>Shell built-ins, aliases &amp; binaries</td>
+            <td><code>type -a ls</code></td>
+            <td>Distinguishes whether a command is a shell built-in, alias (<code>ls='ls --color=auto'</code>), or disk binary.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>5. Kernel Process &amp; Socket Searching: <code>pgrep</code>, <code>pidof</code>, <code>lsof</code></h3>
+      <pre><code># Process Searching via /proc Table
+pgrep nginx                        # Print all PIDs associated with 'nginx'
+pgrep -fl python3                  # Print PID AND full command-line arguments
+pgrep -u www-data                  # Filter processes owned by web server user
+pidof mariadbd                     # Return exact PID of active database daemon
+
+# Socket & Port Association
+fuser 80/tcp                       # Identify PID actively binding TCP port 80
+fuser -k 80/tcp                    # Terminate process holding port 80
+lsof -i :443                       # List file descriptors & process listening on HTTPS</code></pre>
+
+      <h3>6. Reverse Shell History Searching</h3>
+      <p>
+        When working in production bash terminals, searching previously executed commands avoids syntax errors:
+      </p>
+      <ul>
+        <li><kbd>Ctrl</kbd> + <kbd>R</kbd>: <strong>Reverse Incremental History Search</strong>. Type any keyword (e.g., <code>docker</code> or <code>systemctl</code>) to instantly recall the most recent matching command. Press <kbd>Ctrl</kbd> + <kbd>R</kbd> repeatedly to cycle backward through history.</li>
+        <li><code>history | grep "systemctl"</code>: Search entire session history buffer.</li>
+        <li><code>!grep</code>: Re-execute the most recent command that began with <code>grep</code>.</li>
+        <li><code>!!</code>: Re-execute the previous command (commonly used as <code>sudo !!</code>).</li>
+      </ul>
+
+      <h3>7. Modern High-Performance CLI Tools: <code>ripgrep</code> &amp; <code>fzf</code></h3>
+      <pre><code># Modern CLI Replacements used by Senior DevOps Engineers
+rg -i "database_url" /var/www/     # ripgrep: 10x faster than GNU grep, ignores .git & .gitignore by default
+fd -e conf                         # fd-find: User-friendly, ultra-fast alternative to 'find'
+fzf                                # Interactive fuzzy finder for files, logs, and shell history</code></pre>
     </section>
 
-    <!-- SECTION 3 -->
+
+    <!-- SECTION 4 -->
     <section id="permissions">
-      <h2><i class="fa-solid fa-shield-halved"></i> 3. Linux Security Architecture: Permissions &amp; Octal Mathematics</h2>
+      <h2><i class="fa-solid fa-shield-halved"></i> 4. Linux Security Architecture: Permissions &amp; Octal Mathematics</h2>
       <p>
         Linux enforces a strict Discretionary Access Control (DAC) model where every file and directory is bound to an <strong>Owner</strong>, a <strong>Primary Group</strong>, and <strong>Others</strong>. This is represented by a 10-character mode string in <code>ls -l</code>.
       </p>
@@ -550,74 +844,33 @@ ls -R      # Recursively traverse and list entire subtree hierarchies</code></pr
         </div>
       </div>
 
-      <h3>Octal Weight Formula &amp; chmod Execution</h3>
-      <table class="perm-table">
-        <thead>
-          <tr>
-            <th>Permission Bit</th>
-            <th>Symbolic</th>
-            <th>Octal Value</th>
-            <th>Binary Weight</th>
-            <th>Meaning on Files</th>
-            <th>Meaning on Directories</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Read</strong></td>
-            <td><code>r</code></td>
-            <td><code>4</code></td>
-            <td><code>100</code></td>
-            <td>View file contents (<code>cat</code>, <code>less</code>)</td>
-            <td>List directory contents (<code>ls</code>)</td>
-          </tr>
-          <tr>
-            <td><strong>Write</strong></td>
-            <td><code>w</code></td>
-            <td><code>2</code></td>
-            <td><code>010</code></td>
-            <td>Modify file contents</td>
-            <td>Create, rename, or delete files inside directory</td>
-          </tr>
-          <tr>
-            <td><strong>Execute</strong></td>
-            <td><code>x</code></td>
-            <td><code>1</code></td>
-            <td><code>001</code></td>
-            <td>Run file as a program or script</td>
-            <td>Enter directory (<code>cd</code>) and access its inodes</td>
-          </tr>
-        </tbody>
-      </table>
-
       <pre><code># Symbolic Permission Modifications
 chmod u+r file.txt      # Grant read permission to Owner (User)
 chmod g-w file.txt      # Revoke write permission from Group
 chmod o+x script.sh     # Grant execute permission to Others (World)
 chmod a+r document.pdf  # Grant read permission to All (u, g, and o)
 
-# Octal Permission Calculations
-# Example: 754 -> (4+2+1=7 User) (4+0+1=5 Group) (4+0+0=4 Other)
+# Octal Permission Calculations: 754 -> (4+2+1=7 User) (4+0+1=5 Group) (4+0+0=4 Other)
 chmod 754 script.sh
 chmod -R 755 /var/www/html    # Recursively enforce 755 across web assets
 chmod 600 ~/.ssh/id_rsa       # Strict privacy: only owner can read/write private key
 
 # Ownership & User Administration
 chown tasim:tasim report.log           # Change user and group ownership
-chown root:root /etc/nginx/nginx.conf  # Enforce root governance
+chown -R www-data:www-data /var/www    # Enforce web server ownership
+chgrp devops deployment.sh             # Change group ownership only
 sudo useradd -m -s /bin/bash devops    # Create new user with home directory and shell
 sudo passwd devops                     # Set user password
 su - devops                            # Switch to devops shell environment with full environment load</code></pre>
     </section>
 
-    <!-- SECTION 4 -->
+    <!-- SECTION 5 -->
     <section id="processes">
-      <h2><i class="fa-solid fa-microchip"></i> 4. Kernel Process Lifecycle, Niceness &amp; Signal Handling</h2>
+      <h2><i class="fa-solid fa-microchip"></i> 5. Kernel Process Lifecycle, Niceness &amp; Signal Handling</h2>
       <p>
         Every task executed in Linux is assigned a unique <strong>Process Identifier (PID)</strong>. The Linux kernel schedules threads dynamically across physical CPU cores using the Completely Fair Scheduler (CFS).
       </p>
 
-      <!-- State Machine Diagram -->
       <div class="state-machine-grid">
         <div class="state-card">
           <span class="state-pill pill-running">RUNNING (R)</span>
@@ -632,7 +885,7 @@ su - devops                            # Switch to devops shell environment with
         <div class="state-card">
           <span class="state-pill pill-stopped">STOPPED (T)</span>
           <h4>Job Suspended</h4>
-          <p class="fhs-desc">Halted via job control signal (e.g., <code>Ctrl+Z</code> / <code>SIGTSTP</code>) or under active tracing by a debugger (<code>ptrace</code>).</p>
+          <p class="fhs-desc">Halted via job control signal (e.g., <kbd>Ctrl+Z</kbd> / <code>SIGTSTP</code>) or under active tracing by a debugger (<code>ptrace</code>).</p>
         </div>
         <div class="state-card">
           <span class="state-pill pill-zombie">ZOMBIE (Z)</span>
@@ -641,7 +894,6 @@ su - devops                            # Switch to devops shell environment with
         </div>
       </div>
 
-      <h3>Job Control &amp; Shell Signal Dispatching</h3>
       <pre><code># Background Execution and Job Management
 python3 worker.py &amp;    # Launch process directly into background
 jobs -l                # List background job IDs with their PIDs
@@ -657,17 +909,15 @@ killall -9 nginx       # Terminate all running processes matching the name 'ngin
 pkill -u www-data      # Terminate all processes owned by the 'www-data' user
 
 # Niceness & CPU Scheduling Priority (-20 to 19 scale)
-# -20 = Highest Priority (more aggressive CPU time slices)
-#  19 = Lowest Priority (idle/polite background processing)
 nice -n -10 ./database_indexer   # Launch with elevated priority (requires sudo)
 renice +5 -p 1842                # Demote priority of existing process with PID 1842</code></pre>
     </section>
 
-    <!-- SECTION 5 -->
+    <!-- SECTION 6 -->
     <section id="top-engine">
-      <h2><i class="fa-solid fa-gauge-high"></i> 5. The Interactive <code>top</code> System Diagnostics Engine</h2>
+      <h2><i class="fa-solid fa-gauge-high"></i> 6. The Interactive <code>top</code> System Diagnostics Engine</h2>
       <p>
-        The <code>top</code> command provides a live, dynamic stream of operating system telemetry directly from the kernel. Below is a production terminal view and comprehensive field-by-field breakdown:
+        The <code>top</code> command provides a live, dynamic stream of operating system telemetry directly from the kernel:
       </p>
 
       <!-- Interactive Terminal Replica of `top` -->
@@ -766,27 +1016,6 @@ renice +5 -p 1842                # Demote priority of existing process with PID 
         </table>
       </div>
 
-      <h3>Header Telemetry Deep Dive</h3>
-      <ul>
-        <li><strong>Load Average (2.08, 3.70, 3.37)</strong>: Represents the average number of computational threads in a runnable (CPU) or uninterruptible disk I/O state over 1, 5, and 15 minutes. On a 4-core CPU, any load under 4.0 indicates headroom. A load of 8.0 indicates a 100% backlog waiting for compute.</li>
-        <li><strong>%Cpu(s) Metrics</strong>:
-          <ul>
-            <li><code>us</code> (User Time): Percentage of CPU cycles executing un-niced user space processes (e.g., Python, Nginx, Node.js).</li>
-            <li><code>sy</code> (System Time): Percentage of CPU time spent executing kernel routines and handling system calls.</li>
-            <li><code>wa</code> (I/O Wait): <strong>Critical Performance Indicator</strong>. Measures CPU idle time spent blocked on slow disk storage or remote NFS latency. Values above 10% indicate an I/O bottleneck.</li>
-            <li><code>st</code> (Steal Time): In cloud environments (AWS EC2 / GCP), indicates CPU cycles stolen by the hypervisor to service other noisy virtual machines.</li>
-          </ul>
-        </li>
-        <li><strong>Memory (VIRT vs RES vs SHR)</strong>:
-          <ul>
-            <li><code>VIRT</code>: Virtual memory reserved by the process (including mapped files and unallocated heap).</li>
-            <li><code>RES</code>: Resident Memory — the exact amount of physical, non-swapped RAM currently occupied by the process.</li>
-            <li><code>SHR</code>: Shared memory segments accessible to other libraries and child processes.</li>
-          </ul>
-        </li>
-      </ul>
-
-      <h3>Interactive Control Commands</h3>
       <div class="fhs-grid" style="margin: 20px 0;">
         <div class="fhs-card"><div class="fhs-path">P Key</div><p class="fhs-desc">Sort process table by %CPU utilization (default sort order).</p></div>
         <div class="fhs-card"><div class="fhs-path">M Key</div><p class="fhs-desc">Sort process table by %MEM (RAM consumption).</p></div>
@@ -799,11 +1028,609 @@ renice +5 -p 1842                # Demote priority of existing process with PID 
       </div>
     </section>
 
-    <!-- SECTION 6 -->
-    <section id="storage-archives">
-      <h2><i class="fa-solid fa-hard-drive"></i> 6. Storage Diagnostics &amp; Archive Compression Pipelines</h2>
+    <!-- SECTION 7 (EXPANDED: SYSTEM D ARCHITECTURE) -->
+    <section id="systemd">
+      <h2><i class="fa-solid fa-gears"></i> 7. Systemd (System D) Architecture &amp; Daemon Engineering (systemctl, journalctl, timers, cgroups)</h2>
       <p>
-        System stability requires proactive storage auditing and efficient asset bundling.
+        <strong>Systemd</strong> (abbreviated <strong>System D</strong> for <em>System Daemon</em>) is the modern init system and service manager across all mainstream enterprise Linux distributions (Ubuntu, Debian, RHEL, CentOS, Rocky Linux, Amazon Linux 2 &amp; AL2023). Initialized by the Linux kernel as <strong>PID 1</strong>, System D orchestrates parallelized boot sequences, socket activation, dependency trees, filesystem mounts, hardware events, and cgroup resource isolation.
+      </p>
+
+      <!-- System D SVG Architecture Diagram -->
+      <div class="systemd-arch-box">
+        <h4 style="text-align:center; margin-bottom:16px;"><i class="fa-solid fa-sitemap"></i> System D (PID 1) Boot Hierarchy &amp; Daemon Architecture</h4>
+        <svg class="systemd-arch-svg" viewBox="0 0 840 360" xmlns="http://www.w3.org/2000/svg">
+          <!-- Definitions -->
+          <defs>
+            <linearGradient id="gradKernel" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#1e293b"/>
+              <stop offset="100%" stop-color="#0f172a"/>
+            </linearGradient>
+            <linearGradient id="gradPid1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#2563eb"/>
+              <stop offset="100%" stop-color="#1d4ed8"/>
+            </linearGradient>
+            <linearGradient id="gradTarget" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#059669"/>
+              <stop offset="100%" stop-color="#047857"/>
+            </linearGradient>
+            <linearGradient id="gradUnits" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#f8fafc"/>
+              <stop offset="100%" stop-color="#f1f5f9"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Kernel Box -->
+          <rect x="20" y="140" width="160" height="70" rx="10" fill="url(#gradKernel)" stroke="#334155" stroke-width="2"/>
+          <text x="100" y="170" fill="#f8fafc" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" text-anchor="middle">Linux Kernel</text>
+          <text x="100" y="190" fill="#94a3b8" font-family="'Inter', sans-serif" font-size="11" text-anchor="middle">Bootstraps /sbin/init</text>
+
+          <!-- Arrow Kernel -> PID 1 -->
+          <path d="M 180 175 L 230 175" stroke="#3b82f6" stroke-width="3" marker-end="url(#arrowBlue)" fill="none"/>
+          <polygon points="230,170 240,175 230,180" fill="#3b82f6"/>
+
+          <!-- PID 1 System D Box -->
+          <rect x="240" y="125" width="180" height="100" rx="12" fill="url(#gradPid1)" stroke="#60a5fa" stroke-width="2"/>
+          <text x="330" y="160" fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="15" font-weight="800" text-anchor="middle">System D (PID 1)</text>
+          <text x="330" y="180" fill="#dbeafe" font-family="'Inter', sans-serif" font-size="12" text-anchor="middle">Master Init Manager</text>
+          <text x="330" y="200" fill="#93c5fd" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">/lib/systemd/systemd</text>
+
+          <!-- Arrow PID 1 -> Target -->
+          <path d="M 420 175 L 470 175" stroke="#10b981" stroke-width="3" fill="none"/>
+          <polygon points="470,170 480,175 470,180" fill="#10b981"/>
+
+          <!-- Default Target Box -->
+          <rect x="480" y="130" width="160" height="90" rx="10" fill="url(#gradTarget)" stroke="#34d399" stroke-width="2"/>
+          <text x="560" y="165" fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" text-anchor="middle">multi-user.target</text>
+          <text x="560" y="185" fill="#d1fae5" font-family="'Inter', sans-serif" font-size="11" text-anchor="middle">(Runlevel 3 Server)</text>
+          <text x="560" y="202" fill="#a7f3d0" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">Dependency Anchor</text>
+
+          <!-- Branch Lines to Unit Subsystems -->
+          <path d="M 640 175 L 670 175 L 670 50 L 690 50" stroke="#64748b" stroke-width="2" fill="none"/>
+          <polygon points="690,47 696,50 690,53" fill="#64748b"/>
+
+          <path d="M 670 110 L 690 110" stroke="#64748b" stroke-width="2" fill="none"/>
+          <polygon points="690,107 696,110 690,113" fill="#64748b"/>
+
+          <path d="M 670 175 L 690 175" stroke="#64748b" stroke-width="2" fill="none"/>
+          <polygon points="690,172 696,175 690,178" fill="#64748b"/>
+
+          <path d="M 670 240 L 690 240" stroke="#64748b" stroke-width="2" fill="none"/>
+          <polygon points="690,237 696,240 690,243" fill="#64748b"/>
+
+          <path d="M 670 175 L 670 305 L 690 305" stroke="#64748b" stroke-width="2" fill="none"/>
+          <polygon points="690,302 696,305 690,308" fill="#64748b"/>
+
+          <!-- Unit Boxes -->
+          <!-- .service -->
+          <rect x="696" y="30" width="124" height="40" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5"/>
+          <text x="758" y="55" fill="#60a5fa" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" text-anchor="middle">.service Units</text>
+
+          <!-- .socket -->
+          <rect x="696" y="90" width="124" height="40" rx="6" fill="#1e293b" stroke="#10b981" stroke-width="1.5"/>
+          <text x="758" y="115" fill="#34d399" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" text-anchor="middle">.socket Units</text>
+
+          <!-- .timer -->
+          <rect x="696" y="155" width="124" height="40" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+          <text x="758" y="180" fill="#fbbf24" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" text-anchor="middle">.timer (Cron)</text>
+
+          <!-- .mount -->
+          <rect x="696" y="220" width="124" height="40" rx="6" fill="#1e293b" stroke="#8b5cf6" stroke-width="1.5"/>
+          <text x="758" y="245" fill="#a78bfa" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" text-anchor="middle">.mount Units</text>
+
+          <!-- journald -->
+          <rect x="696" y="285" width="124" height="40" rx="6" fill="#1e293b" stroke="#ec4899" stroke-width="1.5"/>
+          <text x="758" y="310" fill="#f472b6" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" text-anchor="middle">journald (Logs)</text>
+        </svg>
+      </div>
+
+      <h3>1. System D Targets vs Legacy SysVinit Runlevels</h3>
+      <p>
+        In legacy Unix systems (SysVinit), states were defined by numerical runlevels (0 through 6). System D replaces runlevels with <strong>Target Units</strong> (<code>.target</code>), which act as synchronization checkpoints:
+      </p>
+
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Legacy Runlevel</th>
+            <th>System D Target Unit</th>
+            <th>Operational Purpose</th>
+            <th>Isolation Command</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Runlevel 0</td>
+            <td><code>poweroff.target</code></td>
+            <td>Halts hardware and shuts down power.</td>
+            <td><code>sudo systemctl isolate poweroff.target</code></td>
+          </tr>
+          <tr>
+            <td>Runlevel 1 / S</td>
+            <td><code>rescue.target</code></td>
+            <td>Single-user administrative maintenance mode.</td>
+            <td><code>sudo systemctl isolate rescue.target</code></td>
+          </tr>
+          <tr>
+            <td>Runlevel 3</td>
+            <td><code>multi-user.target</code></td>
+            <td>Standard non-graphical multi-user server environment.</td>
+            <td><code>sudo systemctl set-default multi-user.target</code></td>
+          </tr>
+          <tr>
+            <td>Runlevel 5</td>
+            <td><code>graphical.target</code></td>
+            <td>Multi-user environment with X11 / Wayland display manager.</td>
+            <td><code>sudo systemctl isolate graphical.target</code></td>
+          </tr>
+          <tr>
+            <td>Runlevel 6</td>
+            <td><code>reboot.target</code></td>
+            <td>Clean shutdown and hardware reboot.</td>
+            <td><code>sudo systemctl isolate reboot.target</code></td>
+          </tr>
+          <tr>
+            <td>Emergency</td>
+            <td><code>emergency.target</code></td>
+            <td>Minimal shell with read-only root for fsck repairs.</td>
+            <td><code>sudo systemctl isolate emergency.target</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>2. System D Service Lifecycle States</h3>
+      <div class="systemd-stages">
+        <div class="systemd-card">
+          <span class="systemd-status" style="background: rgba(148,163,184,0.15); color: #94a3b8;">INACTIVE</span>
+          <h4>Unit Stopped</h4>
+          <p class="fhs-desc">Daemon unloaded. Zero PIDs allocated in memory.</p>
+        </div>
+        <div class="systemd-card">
+          <span class="systemd-status" style="background: rgba(245,158,11,0.15); color: #f59e0b;">ACTIVATING</span>
+          <h4>Startup Sequence</h4>
+          <p class="fhs-desc">ExecStartPre and environment loading in progress.</p>
+        </div>
+        <div class="systemd-card">
+          <span class="systemd-status" style="background: rgba(16,185,129,0.15); color: #10b981;">ACTIVE</span>
+          <h4>Running Steady</h4>
+          <p class="fhs-desc">Process listening on sockets and handling incoming traffic.</p>
+        </div>
+        <div class="systemd-card">
+          <span class="systemd-status" style="background: rgba(56,189,248,0.15); color: #0284c7;">RELOADING</span>
+          <h4>Graceful Reload</h4>
+          <p class="fhs-desc">ExecReload dispatched (SIGHUP) refreshing configs without connection drop.</p>
+        </div>
+        <div class="systemd-card">
+          <span class="systemd-status" style="background: rgba(239,68,68,0.15); color: #ef4444;">FAILED</span>
+          <h4>Crashed / Dead</h4>
+          <p class="fhs-desc">Terminated with non-zero exit code or timeout failure.</p>
+        </div>
+      </div>
+
+      <h3>3. Mastering <code>systemctl</code> Service Control</h3>
+      <pre><code># 1. Daemon Runtime Control
+sudo systemctl start nginx.service          # Immediately start daemon
+sudo systemctl stop nginx.service           # Graceful shutdown (SIGTERM)
+sudo systemctl restart nginx.service        # Full restart (Stop -> Start fresh)
+sudo systemctl reload nginx.service         # SIGHUP configuration reload without dropping TCP sockets
+sudo systemctl status nginx.service         # Inspect health, active PID, memory cgroup, and recent log tail
+
+# 2. Boot Persistence (Symlinking into /etc/systemd/system/multi-user.target.wants/)
+sudo systemctl enable nginx                 # Enable service to boot automatically
+sudo systemctl disable nginx                # Prevent service from booting automatically
+sudo systemctl enable --now mariadb         # Enable persistence AND start immediately in one command
+
+# 3. Security Unit Masking & Unmasking (Preventing Accidental Starts)
+sudo systemctl mask apache2                 # Symlinks unit to /dev/null; CANNOT be started by user or dependency!
+sudo systemctl unmask apache2               # Restore unit file access
+
+# 4. Service Auditing, Introspection & Failure Triage
+systemctl is-active nginx                   # Returns 'active' or 'inactive' (exit code 0/3 for shell scripts)
+systemctl is-enabled nginx                  # Returns 'enabled' or 'disabled'
+systemctl is-failed nginx                   # Returns 0 if failed, non-zero if healthy
+systemctl --failed                          # Instant audit of ALL currently broken or crashed units across host!
+systemctl reset-failed                      # Clear failed state markers after rectifying root cause
+
+# 5. Unit Inspection & Drop-In Configuration Overrides
+systemctl cat nginx.service                 # Print raw unit definition from disk
+sudo systemctl edit nginx.service           # Creates drop-in override: /etc/systemd/system/nginx.service.d/override.conf
+sudo systemctl edit --full nginx.service    # Copies entire unit into /etc/systemd/system/ for full customization
+systemctl list-dependencies nginx.service   # Print ASCII tree of required unit dependencies
+
+# 6. Configuration Reload & System State
+sudo systemctl daemon-reload                # Reread all modified unit files from disk without rebooting!
+sudo systemctl reboot                       # Orderly system reboot
+sudo systemctl poweroff                     # Orderly ACPI power down</code></pre>
+
+      <h3>4. Engineering a Hardened Production System D Unit File</h3>
+      <p>
+        Below is a hardened production unit file blueprint (e.g., <code>/etc/systemd/system/api-backend.service</code>) managing a Python/Django, Node.js, or Go microservice with cgroup resource constraints:
+      </p>
+      <pre><code>[Unit]
+Description=Enterprise Core API Gateway Daemon
+Documentation=https://docs.enterprise.internal/architecture
+After=network.target mariadb.service redis.service
+Wants=mariadb.service redis.service
+Conflicts=maintenance-mode.target
+
+[Service]
+Type=notify
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/api-backend
+ExecStart=/var/www/api-backend/venv/bin/gunicorn \
+          --workers 4 \
+          --bind unix:/run/api-backend/gunicorn.sock \
+          --access-logfile - \
+          config.wsgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+
+# Process Self-Healing & Resilience
+Restart=always
+RestartSec=5s
+TimeoutStartSec=30s
+TimeoutStopSec=15s
+KillMode=mixed
+
+# Central Journal Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=api-backend
+
+# Security & Sandboxing Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+# Cgroup Resource Quotas & Limits
+LimitNOFILE=65536
+TasksMax=500
+MemoryMax=1.5G
+CPUQuota=80%
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+
+      <h3>5. System D Timers (<code>.timer</code>) - The Modern Replacement for Cron</h3>
+      <p>
+        System D Timers supersede legacy crontab by offering nanosecond accuracy, automatic logging via journald, dependency resolution, and monotonic scheduling (e.g. 15 minutes after system boot).
+      </p>
+
+      <div class="code-block-wrapper">
+        <pre><code># Step 1: Create the matching Service: /etc/systemd/system/db-backup.service
+[Unit]
+Description=Automated PostgreSQL Production Backup
+
+[Service]
+Type=oneshot
+User=postgres
+ExecStart=/usr/local/bin/pg_backup.sh
+
+# Step 2: Create the Timer Unit: /etc/systemd/system/db-backup.timer
+[Unit]
+Description=Trigger PostgreSQL Backup Daily at 02:30 AM
+Requires=db-backup.service
+
+[Timer]
+OnCalendar=*-*-* 02:30:00
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target</code></pre>
+      </div>
+
+      <pre><code># Managing and Auditing System D Timers
+sudo systemctl daemon-reload
+sudo systemctl enable --now db-backup.timer
+systemctl list-timers --all                 # Inspect next scheduled trigger, time left, and last execution!</code></pre>
+
+      <h3>6. Demand-Driven Socket Activation (<code>.socket</code>)</h3>
+      <p>
+        System D can hold listening network and IPC sockets open on behalf of a daemon before the daemon even starts. When the first connection arrives, System D instantly wakes the service and hands over the file descriptor:
+      </p>
+      <pre><code># /etc/systemd/system/api-gateway.socket
+[Unit]
+Description=Inbound Socket for API Gateway
+
+[Socket]
+ListenStream=8080
+ListenStream=/run/api-gateway/socket.sock
+Accept=false
+
+[Install]
+WantedBy=sockets.target</code></pre>
+
+      <h3>7. Real-Time Resource Monitoring via Cgroups: <code>systemd-cgtop</code></h3>
+      <pre><code># Audit live CPU, Memory, and Disk I/O consumption grouped by systemd slice & service:
+systemd-cgtop                              # Real-time interactive top view by cgroup service!
+systemd-cgls                               # Hierarchical tree view of active processes per service</code></pre>
+
+      <h3>8. Advanced Log Streaming &amp; Incident Triage: <code>journalctl</code></h3>
+      <p>
+        <code>journalctl</code> queries the binary log database compiled by <code>systemd-journald</code>. Unlike plain text logs in <code>/var/log</code>, journald logs include indexed metadata (UID, PID, service unit, kernel boot ID):
+      </p>
+      <pre><code># 1. Live Streaming Logs (Replacing tail -f)
+journalctl -u nginx.service -f              # Follow active service logs in real time
+journalctl -u api-backend.service -f -n 50  # Follow with 50 lines of preceding context
+
+# 2. Post-Mortem Crash Autopsy
+journalctl -xe                              # Jump to end of log with error explanations (-e) and extra catalog data (-x)
+journalctl -k                               # Print Linux Kernel ring buffer logs (hardware faults, OOM events)
+
+# 3. Boot-Scoped Incident Analysis
+journalctl --list-boots                     # Display list of all recorded host boots and timestamps
+journalctl -b 0                             # Inspect logs recorded during current boot only
+journalctl -b -1                            # Inspect logs recorded during the PREVIOUS boot (essential after an unexpected kernel panic!)
+
+# 4. Strict Time-Window Filtering
+journalctl --since "1 hour ago"             # Logs from the last 60 minutes
+journalctl --since "2026-10-18 09:00:00" --until "2026-10-18 10:30:00"
+
+# 5. Filtering by Priority Severity
+journalctl -p err..emerg                    # Filter log severity: Errors (3), Critical (2), Alerts (1), Emergencies (0)
+
+# 6. Disk Maintenance & Space Vacuuming
+journalctl --disk-usage                     # Check total disk size consumed by journal files
+sudo journalctl --vacuum-time=14d           # Purge log archives older than 14 days
+sudo journalctl --vacuum-size=500M          # Cap journal storage footprint to 500 Megabytes</code></pre>
+    </section>
+
+
+    <!-- SECTION 8 (NEW EXPANDED: TEMPORAL) -->
+    <section id="temporal">
+      <h2><i class="fa-solid fa-clock"></i> 8. Temporal Engineering: The Linux <code>date</code> Command &amp; Time Synchronization</h2>
+      <p>
+        System clocks govern transaction sequencing, cryptographic certificates, database MVCC, and log forensics. In Linux, time manipulation is both powerful and flexible.
+      </p>
+
+      <h3>1. Basic Display, UTC &amp; Modification Timestamps</h3>
+      <pre><code>date                     # Display current system time in local timezone
+date -u                  # Display current time in Universal Coordinated Time (UTC)
+date -r /var/log/syslog  # Display the last modification time of a target file (mtime)
+
+# Setting System Clock Manually (requires root privileges)
+sudo date -s "Mon May 1 00:00:00 EDT 2026"
+sudo date -s "2026-10-18 10:30:00"</code></pre>
+
+      <h3>2. The Date Format Specifiers Matrix</h3>
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Specifier</th>
+            <th>Description</th>
+            <th>Example Output</th>
+            <th>Primary Engineering Use Case</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>date +%a</code></td>
+            <td>Abbreviated weekday name</td>
+            <td><code>Sun</code></td>
+            <td>Short daily audit logging</td>
+          </tr>
+          <tr>
+            <td><code>date +%A</code></td>
+            <td>Full weekday name</td>
+            <td><code>Sunday</code></td>
+            <td>Report header formatting</td>
+          </tr>
+          <tr>
+            <td><code>date +%b</code></td>
+            <td>Abbreviated month name</td>
+            <td><code>Oct</code></td>
+            <td>Syslog timestamp matching</td>
+          </tr>
+          <tr>
+            <td><code>date +%B</code></td>
+            <td>Full month name</td>
+            <td><code>October</code></td>
+            <td>Human-readable summaries</td>
+          </tr>
+          <tr>
+            <td><code>date +%d</code></td>
+            <td>Day of the month (01-31)</td>
+            <td><code>18</code></td>
+            <td>Partition path construction</td>
+          </tr>
+          <tr>
+            <td><code>date +%D</code></td>
+            <td>Current date formatted as MM/DD/YY</td>
+            <td><code>10/18/26</code></td>
+            <td>Legacy format display</td>
+          </tr>
+          <tr>
+            <td><code>date +%F</code></td>
+            <td>ISO-8601 Date (YYYY-MM-DD)</td>
+            <td><code>2026-10-18</code></td>
+            <td>Database &amp; automated backup naming</td>
+          </tr>
+          <tr>
+            <td><code>date +%T</code></td>
+            <td>24-hour time (HH:MM:SS)</td>
+            <td><code>10:45:22</code></td>
+            <td>Granular log timestamps</td>
+          </tr>
+          <tr>
+            <td><code>date +%s</code></td>
+            <td>Unix Epoch (Seconds since 1970-01-01 UTC)</td>
+            <td><code>1792305922</code></td>
+            <td>Microsecond benchmarking &amp; token expiry</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>3. Relative Date Calculations &amp; String Parsing</h3>
+      <pre><code># Natural Language Date Math
+date --date="yesterday"               # Date of previous day
+date --date="tomorrow"                # Date of next day
+date --date="next mon"                # Calculate exact calendar date of coming Monday
+date --date="30 seconds ago"          # Past time subtraction
+date --date="1 day ago"               # 24 hours prior
+date --date="1 month ago"             # Exactly 1 month prior
+date --date="2 years ago"             # 2 calendar years prior
+
+# Epoch Time Conversion
+date --date="@1792305922"             # Convert raw Unix Epoch seconds back to human timestamp
+date --date="@0"                      # Displays Unix Epoch genesis (1970-01-01 00:00:00 UTC)
+
+# Bulk File Date Parsing
+# Reads file lines containing dates and converts each into standard output
+date -f datefile.txt</code></pre>
+    </section>
+
+    <!-- SECTION 9 (NEW EXPANDED: TERMINAL MASTERY) -->
+    <section id="editors-shortcuts">
+      <h2><i class="fa-solid fa-terminal"></i> 9. Terminal Mastery: Vim Modal Architecture, Nano &amp; Bash Shortcuts</h2>
+      <p>
+        Mastering CLI text editors and readline shortcuts separates novice users from senior infrastructure architects.
+      </p>
+
+      <!-- Vim Modal Grid -->
+      <div class="vim-modes-grid">
+        <div class="vim-mode-card">
+          <div class="vim-mode-name"><i class="fa-solid fa-arrows-up-down-left-right"></i> NORMAL MODE</div>
+          <p class="fhs-desc">The default hub. Commands navigate, delete, copy, and manipulate text.</p>
+          <div>
+            <span class="vim-cmd-tag">h/j/k/l (move)</span>
+            <span class="vim-cmd-tag">dd (delete line)</span>
+            <span class="vim-cmd-tag">yy (yank line)</span>
+            <span class="vim-cmd-tag">p (paste)</span>
+            <span class="vim-cmd-tag">u (undo)</span>
+            <span class="vim-cmd-tag">Ctrl+R (redo)</span>
+            <span class="vim-cmd-tag">/pattern (search)</span>
+            <span class="vim-cmd-tag">gg (top)</span>
+            <span class="vim-cmd-tag">G (bottom)</span>
+          </div>
+        </div>
+
+        <div class="vim-mode-card">
+          <div class="vim-mode-name"><i class="fa-solid fa-keyboard"></i> INSERT MODE</div>
+          <p class="fhs-desc">Direct text typing into buffer. Enter via specific trigger keys; exit with <kbd>Esc</kbd>.</p>
+          <div>
+            <span class="vim-cmd-tag">i (insert at cursor)</span>
+            <span class="vim-cmd-tag">a (append after)</span>
+            <span class="vim-cmd-tag">o (open line below)</span>
+            <span class="vim-cmd-tag">O (open line above)</span>
+            <span class="vim-cmd-tag">I (insert at start)</span>
+            <span class="vim-cmd-tag">A (append at end)</span>
+            <span class="vim-cmd-tag">Esc (return to Normal)</span>
+          </div>
+        </div>
+
+        <div class="vim-mode-card">
+          <div class="vim-mode-name"><i class="fa-solid fa-terminal"></i> COMMAND-LINE MODE</div>
+          <p class="fhs-desc">Execute ex-commands, search/replace regex, save buffers, or quit.</p>
+          <div>
+            <span class="vim-cmd-tag">:w (write/save)</span>
+            <span class="vim-cmd-tag">:q (quit)</span>
+            <span class="vim-cmd-tag">:wq! (save &amp; force quit)</span>
+            <span class="vim-cmd-tag">:q! (discard changes)</span>
+            <span class="vim-cmd-tag">:%s/old/new/g (replace)</span>
+            <span class="vim-cmd-tag">:set number (line nos)</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>File Creation Methods</h3>
+      <pre><code># 1. touch (Create empty file or update timestamps)
+touch server.conf
+touch -m server.conf     # Update modification time only
+
+# 2. cat Stream Redirection
+cat > notes.txt          # Overwrite/Create file from stdin (type content, press Ctrl+D to save)
+cat >> notes.txt         # Append lines to existing file without truncating
+cat file1 file2 > merged # Concatenate multiple files into one
+
+# 3. Nano Quick Editing
+nano config.ini          # Simple modal-free editor; Ctrl+O saves, Ctrl+X exits</code></pre>
+
+      <h3>High-Productivity Bash Keybindings</h3>
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Shortcut</th>
+            <th>Category</th>
+            <th>Function</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><kbd>Ctrl</kbd> + <kbd>C</kbd></td>
+            <td>Process Control</td>
+            <td>Sends <code>SIGINT</code> to halt and cancel the currently executing foreground command.</td>
+          </tr>
+          <tr>
+            <td><kbd>Ctrl</kbd> + <kbd>Z</kbd></td>
+            <td>Process Control</td>
+            <td>Sends <code>SIGTSTP</code> to stop the active command and push it into the background.</td>
+          </tr>
+          <tr>
+            <td><kbd>Ctrl</kbd> + <kbd>D</kbd></td>
+            <td>Session Control</td>
+            <td>Sends End-Of-File (EOF); logs out of the current shell session or closes stdin.</td>
+          </tr>
+          <tr>
+            <td><kbd>Ctrl</kbd> + <kbd>L</kbd></td>
+            <td>Terminal UI</td>
+            <td>Clears the terminal screen buffer (identical to running <code>clear</code>).</td>
+          </tr>
+          <tr>
+            <td><kbd>Tab</kbd> / <kbd>Tab</kbd><kbd>Tab</kbd></td>
+            <td>Autocomplete</td>
+            <td>Auto-completes command names, arguments, paths, or prints all possible candidates.</td>
+          </tr>
+          <tr>
+            <td><kbd>Ctrl</kbd> + <kbd>A</kbd></td>
+            <td>Cursor Movement</td>
+            <td>Instantly jumps cursor to the <strong>beginning</strong> of the current command line.</td>
+          </tr>
+          <tr>
+            <td><kbd>Ctrl</kbd> + <kbd>E</kbd></td>
+            <td>Cursor Movement</td>
+            <td>Instantly jumps cursor to the <strong>end</strong> of the current command line.</td>
+          </tr>
+          <tr>
+            <td><kbd>Ctrl</kbd> + <kbd>U</kbd></td>
+            <td>Line Editing</td>
+            <td>Cuts/erases the entire command line from cursor to beginning.</td>
+          </tr>
+          <tr>
+            <td><kbd>Ctrl</kbd> + <kbd>K</kbd></td>
+            <td>Line Editing</td>
+            <td>Cuts/erases the command line from cursor to the end.</td>
+          </tr>
+          <tr>
+            <td><kbd>Ctrl</kbd> + <kbd>W</kbd></td>
+            <td>Word Editing</td>
+            <td>Erases one word immediately preceding the cursor.</td>
+          </tr>
+          <tr>
+            <td><kbd>Ctrl</kbd> + <kbd>R</kbd></td>
+            <td>History Search</td>
+            <td>Opens reverse-i-search to incrementally search through previously executed commands.</td>
+          </tr>
+          <tr>
+            <td><kbd>!!</kbd></td>
+            <td>History Expansion</td>
+            <td>Repeats the last executed command (e.g., <code>sudo !!</code> to run previous command as root).</td>
+          </tr>
+          <tr>
+            <td><kbd>!$</kbd></td>
+            <td>History Expansion</td>
+            <td>Substitutes the last argument of the previous command (e.g., <code>mkdir /path</code> then <code>cd !$</code>).</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- SECTION 10 -->
+    <section id="storage-archives">
+      <h2><i class="fa-solid fa-hard-drive"></i> 10. Storage Diagnostics &amp; Archive Compression Pipelines</h2>
+      <p>
+        System stability requires proactive storage auditing and efficient asset bundling:
       </p>
 
       <pre><code># Disk Space & Storage Inspection
@@ -813,11 +1640,6 @@ du -h --max-depth=1 /home | sort -hr  # Identify largest storage-hogging home fo
 lsblk               # Print hierarchical tree of block storage devices and partitions
 free -m             # Instant RAM and Swap utilization in Megabytes
 cat /proc/meminfo   # Detailed breakdown of kernel memory buffers and dirty pages</code></pre>
-
-      <h3>The Tarball Archiving &amp; Compression Pipeline</h3>
-      <p>
-        The <code>tar</code> (Tape Archive) utility aggregates thousands of individual files into a single contiguous stream. It does not compress data by itself; rather, it passes the resulting stream through compression engines such as <code>gzip</code> (balanced speed/compression) or <code>bzip2</code> (maximum ratio).
-      </p>
 
       <div class="flowchart-container">
         <h4 style="margin-bottom: 20px;">Archival &amp; Compression Flow</h4>
@@ -846,11 +1668,11 @@ unzip backup.zip -d /extracted            # Extract ZIP file into target folder
 gzip -d file.gz                           # Decompress standalone gzip file back to original</code></pre>
     </section>
 
-    <!-- SECTION 7 -->
+    <!-- SECTION 11 -->
     <section id="networking">
-      <h2><i class="fa-solid fa-network-wired"></i> 7. Network Probing &amp; Secure SCP Remote Workflows</h2>
+      <h2><i class="fa-solid fa-network-wired"></i> 11. Network Probing &amp; Secure SCP Remote Workflows</h2>
       <p>
-        Production system engineers frequently manage fleet servers remotely over encrypted transport layers.
+        Production system engineers frequently manage fleet servers remotely over encrypted transport layers:
       </p>
 
       <pre><code># Network Connectivity Diagnostics
@@ -861,11 +1683,6 @@ dig example.com +short  # DNS forward resolution (A records)
 dig -x 93.184.216.34    # Reverse DNS lookup (PTR record)
 whois example.com       # Domain registration and registrar details
 wget -c https://example.com/asset.iso  # Download asset with automatic resume support</code></pre>
-
-      <h3>Secure Remote Copying (SCP) Pipeline</h3>
-      <p>
-        The <code>scp</code> utility establishes an encrypted SSH tunnel to stream files bidirectionally using cryptographic key pairs:
-      </p>
 
       <div class="flowchart-container">
         <h4 style="margin-bottom: 20px;">Bidirectional SCP Data Transfer Flow</h4>
@@ -888,14 +1705,13 @@ scp -i ~/.ssh/cloud_key.pem ubuntu@54.210.12.33:/var/log/nginx/error.log ./local
 scp -r -i ~/.ssh/cloud_key.pem ./assets ec2-user@54.210.12.33:/home/ec2-user/site/</code></pre>
     </section>
 
-    <!-- SECTION 8 -->
+    <!-- SECTION 12 -->
     <section id="web-stack">
-      <h2><i class="fa-solid fa-server"></i> 8. Enterprise Web Stack Orchestration (Nginx, Apache, PHP-FPM, MariaDB)</h2>
+      <h2><i class="fa-solid fa-server"></i> 12. Enterprise Multi-Distro Web Stacks &amp; Package Ecosystems</h2>
       <p>
         A complete systems administration runbook comparing Ubuntu (Debian ecosystem) against Amazon Linux 2 / AL2023 (RHEL ecosystem).
       </p>
 
-      <!-- Architecture Pipeline -->
       <div class="stack-pipeline">
         <div class="stack-stage">
           <div class="stack-badge">Web Gateway</div>
@@ -939,25 +1755,60 @@ scp -r -i ~/.ssh/cloud_key.pem ./assets ec2-user@54.210.12.33:/home/ec2-user/sit
         </div>
       </div>
 
-      <pre><code># Complete Production Web Stack Deployment Commands (Amazon Linux)
-sudo yum update -y
-sudo yum install -y mariadb105-server
-sudo systemctl enable --now mariadb
-
-# Install Nginx and PHP-FPM
-sudo dnf install -y nginx php-fpm php-mysqlnd
-sudo systemctl enable --now nginx
-sudo systemctl enable --now php-fpm
-
-# Verify listening sockets and runtime status
-sudo systemctl status nginx
-sudo systemctl status php-fpm
-sudo ss -tulpn | grep -E ':(80|443|3306)'</code></pre>
+      <h3>Cross-Distribution Package Management Comparison</h3>
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Operation</th>
+            <th>Debian / Ubuntu (APT)</th>
+            <th>Amazon Linux 2 / RHEL 7/8 (YUM)</th>
+            <th>Amazon Linux 2023 / Fedora (DNF)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Update Repository Index</td>
+            <td><code>sudo apt update</code></td>
+            <td><code>sudo yum check-update</code></td>
+            <td><code>sudo dnf check-update</code></td>
+          </tr>
+          <tr>
+            <td>Upgrade Packages</td>
+            <td><code>sudo apt upgrade -y</code></td>
+            <td><code>sudo yum upgrade -y</code></td>
+            <td><code>sudo dnf upgrade -y</code></td>
+          </tr>
+          <tr>
+            <td>Install Software</td>
+            <td><code>sudo apt install -y nginx</code></td>
+            <td><code>sudo yum install -y nginx</code></td>
+            <td><code>sudo dnf install -y nginx</code></td>
+          </tr>
+          <tr>
+            <td>Inspect Installed Software</td>
+            <td><code>dpkg -l</code> or <code>apt list --installed</code></td>
+            <td><code>yum list installed</code></td>
+            <td><code>dnf list --installed</code></td>
+          </tr>
+          <tr>
+            <td>Remove Software</td>
+            <td><code>sudo apt remove &lt;pkg&gt;</code></td>
+            <td><code>sudo yum remove -y &lt;pkg&gt;</code></td>
+            <td><code>sudo dnf remove -y &lt;pkg&gt;</code></td>
+          </tr>
+          <tr>
+            <td>Curated Ext / Modules</td>
+            <td>PPA (Personal Package Archives)</td>
+            <td><code>amazon-linux-extras list</code></td>
+            <td>DNF Modules / AppStream</td>
+          </tr>
+        </tbody>
+      </table>
     </section>
 
-    <!-- SECTION 9 -->
+    <!-- SECTION 13 -->
     <section id="devops-recon">
-      <h2><i class="fa-solid fa-crosshairs"></i> 9. DevOps Git Architecture &amp; Web Application Reconnaissance</h2>
+      <h2><i class="fa-solid fa-crosshairs"></i> 13. DevOps Git Architecture &amp; Web Application Reconnaissance</h2>
       <p>
         System engineers bridge infrastructure management with application deployment and security assessments.
       </p>
@@ -986,10 +1837,6 @@ git log --oneline --graph          # Visualize commit graph tree
 git config --list                  # Display active user and repository settings</code></pre>
 
       <h3>Web Application Penetration Testing &amp; Reconnaissance Map</h3>
-      <p>
-        When hardening infrastructure, security engineers map attack surfaces using specialized reconnaissance tooling across key operational vectors:
-      </p>
-
       <div class="recon-grid">
         <div class="recon-cat">
           <div class="recon-title"><i class="fa-solid fa-shield-virus"></i> Traffic Interception (Proxies)</div>
@@ -1107,5 +1954,292 @@ git config --list                  # Display active user and repository settings
 </footer>
 
 <script src="js/main.js"></script>
+
+<script>
+// ============================================================
+// LINUX SYSTEMS ENGINEERING GUIDE: INTERACTIVE ENGINES
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. Reading Progress Bar
+  const progressBar = document.getElementById('readingProgressBar');
+  window.addEventListener('scroll', () => {
+    const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+    if (totalHeight > 0 && progressBar) {
+      const progress = (window.scrollY / totalHeight) * 100;
+      progressBar.style.width = Math.min(100, Math.max(0, progress)) + '%';
+    }
+  });
+
+  // 2. Comprehensive Linux Command Dataset (100+ Production Commands)
+  const linuxCommands = [
+    // SEARCHING COMMANDS
+    { cmd: 'grep -rn "DB_PASS" /var/www/', desc: 'Search string recursively with line numbers', cat: 'searching', target: '#searching' },
+    { cmd: 'grep -i "exception" app.log', desc: 'Case-insensitive search (Exception, EXCEPTION)', cat: 'searching', target: '#searching' },
+    { cmd: 'grep -v "^#" nginx.conf | grep -v "^$"', desc: 'Strip comments and blank lines from configs', cat: 'searching', target: '#searching' },
+    { cmd: 'grep -C 3 "FATAL" system.log', desc: 'Context search: 3 lines before & after match', cat: 'searching', target: '#searching' },
+    { cmd: 'grep -oE "[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}" auth.log', desc: 'Extract raw IPv4 addresses using regex', cat: 'searching', target: '#searching' },
+    { cmd: 'find /var/log -type f -size +100M', desc: 'Find regular files exceeding 100MB on disk', cat: 'searching', target: '#searching' },
+    { cmd: 'find / -perm -4000 -type f 2>/dev/null', desc: 'Security Audit: Discover SUID root binaries', cat: 'searching', target: '#searching' },
+    { cmd: 'find /var/www -perm 777 -type f', desc: 'Find dangerous world-writable files in web root', cat: 'searching', target: '#searching' },
+    { cmd: 'find /var/log -name "*.log" -mtime +30', desc: 'Find log files modified more than 30 days ago', cat: 'searching', target: '#searching' },
+    { cmd: 'find . -type f -name "*.tmp" -delete', desc: 'Find and delete temporary files in-place', cat: 'searching', target: '#searching' },
+    { cmd: 'sudo updatedb', desc: 'Refresh mlocate binary database index', cat: 'searching', target: '#searching' },
+    { cmd: 'locate nginx.conf', desc: 'Instant millisecond indexed path resolution', cat: 'searching', target: '#searching' },
+    { cmd: 'which python3', desc: 'Resolve exact binary path in user $PATH', cat: 'searching', target: '#searching' },
+    { cmd: 'whereis nginx', desc: 'Locate binary executable, configs, and manpages', cat: 'searching', target: '#searching' },
+    { cmd: 'whatis tar', desc: 'Return concise one-line manual description', cat: 'searching', target: '#searching' },
+    { cmd: 'pgrep -fl nginx', desc: 'Search active processes: Print PID & full commandline', cat: 'searching', target: '#searching' },
+    { cmd: 'pidof mariadbd', desc: 'Return exact PID of database daemon process', cat: 'searching', target: '#searching' },
+    { cmd: 'Ctrl + R', desc: 'Reverse incremental shell command history search', cat: 'searching', target: '#searching' },
+
+    // SYSTEM D / SYSTEMCTL / JOURNALCTL
+    { cmd: 'sudo systemctl start nginx.service', desc: 'Start System D daemon immediately', cat: 'systemd', target: '#systemd' },
+    { cmd: 'sudo systemctl stop nginx.service', desc: 'Stop active daemon gracefully (SIGTERM)', cat: 'systemd', target: '#systemd' },
+    { cmd: 'sudo systemctl restart nginx.service', desc: 'Full restart of daemon service', cat: 'systemd', target: '#systemd' },
+    { cmd: 'sudo systemctl reload nginx.service', desc: 'Graceful config reload (SIGHUP) without drop', cat: 'systemd', target: '#systemd' },
+    { cmd: 'sudo systemctl status nginx.service', desc: 'Inspect daemon health, PID, cgroup, and logs', cat: 'systemd', target: '#systemd' },
+    { cmd: 'sudo systemctl enable --now mariadb', desc: 'Enable boot persistence AND start immediately', cat: 'systemd', target: '#systemd' },
+    { cmd: 'sudo systemctl mask apache2', desc: 'Mask service to /dev/null preventing any start', cat: 'systemd', target: '#systemd' },
+    { cmd: 'sudo systemctl unmask apache2', desc: 'Restore service accessibility from mask', cat: 'systemd', target: '#systemd' },
+    { cmd: 'systemctl is-active nginx', desc: 'Query active status (exit code 0/3 for scripts)', cat: 'systemd', target: '#systemd' },
+    { cmd: 'systemctl is-enabled nginx', desc: 'Query boot enablement status', cat: 'systemd', target: '#systemd' },
+    { cmd: 'systemctl --failed', desc: 'Instant audit of all broken or crashed units', cat: 'systemd', target: '#systemd' },
+    { cmd: 'sudo systemctl daemon-reload', desc: 'Reread disk unit files after editing configurations', cat: 'systemd', target: '#systemd' },
+    { cmd: 'sudo systemctl edit nginx', desc: 'Create drop-in override snippet in /etc/systemd', cat: 'systemd', target: '#systemd' },
+    { cmd: 'systemctl cat nginx.service', desc: 'Print active unit file configuration from disk', cat: 'systemd', target: '#systemd' },
+    { cmd: 'systemctl list-timers --all', desc: 'Audit scheduled System D timer events and next run', cat: 'systemd', target: '#systemd' },
+    { cmd: 'systemd-cgtop', desc: 'Real-time CPU/Memory top view by cgroup service', cat: 'systemd', target: '#systemd' },
+    { cmd: 'journalctl -u nginx.service -f', desc: 'Stream live daemon logs in real time (tail -f)', cat: 'systemd', target: '#systemd' },
+    { cmd: 'journalctl -xe', desc: 'Jump to end of logs with error catalog explanations', cat: 'systemd', target: '#systemd' },
+    { cmd: 'journalctl -k', desc: 'Inspect Linux Kernel ring buffer (hardware, OOM)', cat: 'systemd', target: '#systemd' },
+    { cmd: 'journalctl -b -1', desc: 'Inspect logs from previous boot (post-crash autopsy)', cat: 'systemd', target: '#systemd' },
+    { cmd: 'journalctl --since "1 hour ago"', desc: 'Filter logs generated within the last 60 minutes', cat: 'systemd', target: '#systemd' },
+    { cmd: 'journalctl -p err..emerg', desc: 'Filter high-priority errors, alerts, and panics', cat: 'systemd', target: '#systemd' },
+    { cmd: 'sudo journalctl --vacuum-time=14d', desc: 'Purge journal logs older than 14 days', cat: 'systemd', target: '#systemd' },
+
+    // PERMISSIONS & OCTALS
+    { cmd: 'chmod 754 filename.txt', desc: 'Set rwxr-xr-- (User 7, Group 5, Others 4)', cat: 'permissions', target: '#permissions' },
+    { cmd: 'chmod -R 755 /var/www/html', desc: 'Recursively grant rwxr-xr-x to directories', cat: 'permissions', target: '#permissions' },
+    { cmd: 'chmod 644 /var/www/html/*.html', desc: 'Enforce rw-r--r-- on web content files', cat: 'permissions', target: '#permissions' },
+    { cmd: 'chmod +x deploy.sh', desc: 'Add execute permission for all users', cat: 'permissions', target: '#permissions' },
+    { cmd: 'chmod u+r,g-w,o-rwx secret.key', desc: 'Symbolic fine-grained permission assignment', cat: 'permissions', target: '#permissions' },
+    { cmd: 'sudo chown www-data:www-data /var/www', desc: 'Change user and group ownership simultaneously', cat: 'permissions', target: '#permissions' },
+    { cmd: 'sudo chgrp staff /shared/docs', desc: 'Change primary group ownership', cat: 'permissions', target: '#permissions' },
+
+    // PROCESSES & TOP
+    { cmd: 'ps aux | grep nginx', desc: 'Audit active process table with CPU & Memory %', cat: 'process', target: '#processes' },
+    { cmd: 'ps -ef', desc: 'Full-format listing with PPID parent process IDs', cat: 'process', target: '#processes' },
+    { cmd: 'kill -15 <PID>', desc: 'Send SIGTERM: Request orderly graceful shutdown', cat: 'process', target: '#processes' },
+    { cmd: 'kill -9 <PID>', desc: 'Send SIGKILL: Uncatchable kernel force termination', cat: 'process', target: '#processes' },
+    { cmd: 'kill -1 <PID>', desc: 'Send SIGHUP: Instruct daemon to reload config', cat: 'process', target: '#processes' },
+    { cmd: 'killall -9 nginx', desc: 'Terminate all processes matching binary name', cat: 'process', target: '#processes' },
+    { cmd: 'pkill -f "celery_worker"', desc: 'Signal processes matching full command string', cat: 'process', target: '#processes' },
+    { cmd: 'nice -n 10 backup.sh', desc: 'Launch process with lower CPU priority (+10)', cat: 'process', target: '#processes' },
+    { cmd: 'renice -n -5 -p <PID>', desc: 'Elevate priority (-5) of active running process', cat: 'process', target: '#processes' },
+    { cmd: 'top (Keys: P, M, T, k, q)', desc: 'Interactive top keys: P(CPU), M(Mem), T(Time), k(Kill)', cat: 'process', target: '#top-engine' },
+
+    // TEMPORAL & DATE
+    { cmd: 'date +"%Y-%m-%d %H:%M:%S"', desc: 'Standard ISO 8601 timestamp formatting', cat: 'temporal', target: '#temporal' },
+    { cmd: 'date +%s', desc: 'Current Unix Epoch timestamp in seconds', cat: 'temporal', target: '#temporal' },
+    { cmd: 'date -d "yesterday"', desc: 'Relative calculation: 24 hours prior', cat: 'temporal', target: '#temporal' },
+    { cmd: 'date -d "next monday" +%F', desc: 'Evaluate upcoming calendar date mathematically', cat: 'temporal', target: '#temporal' },
+    { cmd: 'date -d @1700000000', desc: 'Convert raw Unix epoch seconds into human date', cat: 'temporal', target: '#temporal' },
+    { cmd: 'sudo date -s "2026-10-18 10:30:00"', desc: 'Set system clock manually (requires sudo)', cat: 'temporal', target: '#temporal' },
+    { cmd: 'cal', desc: 'Display current month calendar matrix in terminal', cat: 'temporal', target: '#temporal' },
+
+    // TERMINAL, VIM & SHORTCUTS
+    { cmd: 'vim file.txt (:wq! / :q!)', desc: 'Modal editor: Insert (i), Save/Quit (:wq!), Discard (:q!)', cat: 'terminal', target: '#editors-shortcuts' },
+    { cmd: 'nano filename.txt (Ctrl+O, Ctrl+X)', desc: 'Modeless editor: Write (Ctrl+O), Exit (Ctrl+X)', cat: 'terminal', target: '#editors-shortcuts' },
+    { cmd: 'cat > myfile.txt (Ctrl+D to save)', desc: 'Interactive terminal file creation stream', cat: 'terminal', target: '#navigation' },
+    { cmd: 'cat >> myfile.txt', desc: 'Append stream to existing file without overwrite', cat: 'terminal', target: '#navigation' },
+    { cmd: 'touch -m myfile.txt', desc: 'Update file modification timestamp to current time', cat: 'terminal', target: '#navigation' },
+    { cmd: 'mkdir -p /a/b/c/d', desc: 'Create nested parent directory tree without error', cat: 'terminal', target: '#navigation' },
+    { cmd: 'mkdir folder1 folder2 folder3', desc: 'Create multiple directories simultaneously in one line', cat: 'terminal', target: '#navigation' },
+    { cmd: 'cd -', desc: 'Toggle back to previous working directory (backspace)', cat: 'terminal', target: '#navigation' },
+    { cmd: 'head -n 20 access.log', desc: 'Print first 20 lines of file stream', cat: 'terminal', target: '#navigation' },
+    { cmd: 'tail -n 50 -f err.log', desc: 'Follow last 50 lines with continuous live stream', cat: 'terminal', target: '#navigation' },
+    { cmd: 'wc -l -w -c file.txt', desc: 'Count total lines (-l), words (-w), and bytes (-c)', cat: 'terminal', target: '#navigation' },
+    { cmd: 'whoami && uptime', desc: 'Inspect current user session and system load averages', cat: 'terminal', target: '#navigation' },
+    { cmd: 'w', desc: 'Show who is logged in and what commands they are running', cat: 'terminal', target: '#navigation' },
+    { cmd: 'cat /proc/cpuinfo', desc: 'Inspect physical & virtual CPU core architecture', cat: 'terminal', target: '#navigation' },
+    { cmd: 'cat /proc/meminfo', desc: 'Detailed Linux kernel virtual memory statistics', cat: 'terminal', target: '#navigation' },
+
+    // STORAGE & COMPRESSION
+    { cmd: 'df -h', desc: 'Human-readable disk filesystem volume capacity', cat: 'storage', target: '#storage-archives' },
+    { cmd: 'du -sh /var/www/*', desc: 'Inspect disk usage per folder in current directory', cat: 'storage', target: '#storage-archives' },
+    { cmd: 'free -m', desc: 'RAM usage telemetry in Megabytes (Used, Free, Buff/Cache)', cat: 'storage', target: '#storage-archives' },
+    { cmd: 'lsblk', desc: 'Tree view of attached block devices and partitions', cat: 'storage', target: '#storage-archives' },
+    { cmd: 'tar -czvf archive.tar.gz /data', desc: 'Create gzip-compressed archive (-c create, -z gzip)', cat: 'storage', target: '#storage-archives' },
+    { cmd: 'tar -xzvf archive.tar.gz -C /opt', desc: 'Extract gzip archive to target destination directory', cat: 'storage', target: '#storage-archives' },
+    { cmd: 'tar -cjvf archive.tar.bz2 /data', desc: 'Create high-compression bzip2 archive (-j bzip2)', cat: 'storage', target: '#storage-archives' },
+    { cmd: 'zip -r backup.zip /var/www', desc: 'Create standard cross-platform zip archive', cat: 'storage', target: '#storage-archives' },
+    { cmd: 'unzip backup.zip -d /target', desc: 'Extract zip archive into specified directory', cat: 'storage', target: '#storage-archives' },
+
+    // NETWORKING & REMOTE SCP
+    { cmd: 'ping -c 4 8.8.8.8', desc: 'Check ICMP echo round-trip latency to remote host', cat: 'network', target: '#networking' },
+    { cmd: 'ip a (or ifconfig)', desc: 'Audit network interface addresses, MAC, and subnets', cat: 'network', target: '#networking' },
+    { cmd: 'ss -tulnp', desc: 'Modern fast socket statistics for listening ports', cat: 'network', target: '#networking' },
+    { cmd: 'ssh -i key.pem ubuntu@<IP>', desc: 'Secure SSH authentication using private RSA/Ed25519 key', cat: 'network', target: '#networking' },
+    { cmd: 'scp -i key.pem ./app.tar.gz ubuntu@<IP>:/home/ubuntu/', desc: 'Secure upload: Local file to remote cloud server', cat: 'network', target: '#networking' },
+    { cmd: 'scp -i key.pem ec2-user@<IP>:/var/log/err.log ~/Desktop/', desc: 'Secure download: Remote server log to local machine', cat: 'network', target: '#networking' },
+    { cmd: 'wget -c https://example.com/data.iso', desc: 'Download file from HTTP server with resume (-c) support', cat: 'network', target: '#networking' },
+    { cmd: 'curl -I https://api.internal/health', desc: 'Fetch HTTP response headers to inspect status codes', cat: 'network', target: '#networking' },
+
+    // WEB STACK & AMAZON LINUX / UBUNTU
+    { cmd: 'sudo amazon-linux-extras install php8.1 -y', desc: 'Amazon Linux 2: Install PHP 8.1 runtime repository', cat: 'web', target: '#web-stack' },
+    { cmd: 'sudo yum install php-fpm mariadb-server -y', desc: 'Amazon Linux / RHEL: Install PHP-FPM & MariaDB', cat: 'web', target: '#web-stack' },
+    { cmd: 'sudo service php-fpm start', desc: 'Start PHP FastCGI Process Manager service', cat: 'web', target: '#web-stack' },
+    { cmd: 'sudo apt update && sudo apt install nginx mariadb-server php8.1-fpm -y', desc: 'Ubuntu/Debian: Provision production LEMP stack', cat: 'web', target: '#web-stack' },
+
+    // PENTESTING & RECONNAISSANCE
+    { cmd: 'nmap -sV -sC -p- <TARGET>', desc: 'Port Scanning: Discover open TCP ports, versions & scripts', cat: 'recon', target: '#devops-recon' },
+    { cmd: 'nikto -h http://<TARGET>', desc: 'Web Server Vulnerability Scanner for misconfigurations', cat: 'recon', target: '#devops-recon' },
+    { cmd: 'subfinder -d example.com -o subs.txt', desc: 'Passive subdomain discovery across OSINT datasets', cat: 'recon', target: '#devops-recon' },
+    { cmd: 'ffuf -u http://<TARGET>/FUZZ -w /wordlists/common.txt', desc: 'High-speed directory and parameter fuzzing', cat: 'recon', target: '#devops-recon' },
+    { cmd: 'trufflehog git file://./ --only-verified', desc: 'Scan git commit history for leaked secrets & API keys', cat: 'recon', target: '#devops-recon' }
+  ];
+
+  // 3. Command Finder Rendering & Filtering Engine
+  const searchInput = document.getElementById('guideCommandSearch');
+  const clearBtn = document.getElementById('clearGuideSearch');
+  const filterChips = document.querySelectorAll('.quick-filter-chips .chip');
+  const resultsContainer = document.getElementById('quickCommandResults');
+  const toast = document.getElementById('toast');
+
+  let activeCategory = 'all';
+  let activeSearch = '';
+
+  function copyTextToClipboard(text, btnElement) {
+    navigator.clipboard.writeText(text).then(() => {
+      if (btnElement) {
+        const originalHtml = btnElement.innerHTML;
+        btnElement.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+        btnElement.classList.add('copied');
+        setTimeout(() => {
+          btnElement.innerHTML = originalHtml;
+          btnElement.classList.remove('copied');
+        }, 1800);
+      }
+      if (toast) {
+        toast.textContent = 'Copied to clipboard: ' + text;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2500);
+      }
+    });
+  }
+
+  function renderCommands() {
+    if (!resultsContainer) return;
+    const q = activeSearch.toLowerCase().trim();
+
+    const matches = linuxCommands.filter(item => {
+      const catMatch = activeCategory === 'all' || item.cat === activeCategory;
+      const textMatch = !q || item.cmd.toLowerCase().includes(q) || item.desc.toLowerCase().includes(q) || item.cat.toLowerCase().includes(q);
+      return catMatch && textMatch;
+    });
+
+    if (matches.length === 0) {
+      resultsContainer.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:32px; color:var(--text-tertiary);"><i class="fa-solid fa-magnifying-glass" style="font-size:1.5rem; margin-bottom:8px; display:block;"></i>No Linux commands matching "' + q + '". Try "systemctl", "grep", "find", or "chmod".</div>';
+      return;
+    }
+
+    resultsContainer.innerHTML = matches.map(item => {
+      return '<div class="cmd-result-card">' +
+        '<div class="cmd-result-header">' +
+          '<span class="cmd-result-code">' + item.cmd + '</span>' +
+          '<button class="cmd-copy-btn" data-copy="' + item.cmd.replace(/"/g, '&quot;') + '"><i class="fa-regular fa-copy"></i> Copy</button>' +
+        '</div>' +
+        '<div class="cmd-result-desc">' + item.desc + '</div>' +
+        '<div class="cmd-result-footer">' +
+          '<span class="cmd-cat-tag">' + item.cat + '</span>' +
+          '<a href="' + item.target + '" class="cmd-jump-link">Jump to section <i class="fa-solid fa-arrow-right"></i></a>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    // Attach copy button handlers
+    resultsContainer.querySelectorAll('.cmd-copy-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const textToCopy = btn.getAttribute('data-copy');
+        copyTextToClipboard(textToCopy, btn);
+      });
+    });
+  }
+
+  // Initial render
+  renderCommands();
+
+  // Search input handler
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      activeSearch = e.target.value;
+      if (clearBtn) clearBtn.style.display = activeSearch ? 'flex' : 'none';
+      renderCommands();
+    });
+  }
+
+  // Clear button handler
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      activeSearch = '';
+      clearBtn.style.display = 'none';
+      searchInput.focus();
+      renderCommands();
+    });
+  }
+
+  // Filter chips handler
+  filterChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      filterChips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeCategory = chip.getAttribute('data-filter') || 'all';
+      renderCommands();
+    });
+  });
+
+  // 4. Code Blocks Copy Floating Buttons
+  document.querySelectorAll('pre code').forEach(codeBlock => {
+    const pre = codeBlock.parentElement;
+    if (!pre) return;
+
+    // Check if wrapper already exists
+    if (pre.parentElement && pre.parentElement.classList.contains('code-block-wrapper')) return;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'code-block-wrapper';
+    pre.parentNode.insertBefore(wrapper, pre);
+    wrapper.appendChild(pre);
+
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'code-copy-floating-btn';
+    copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Copy';
+    copyBtn.setAttribute('aria-label', 'Copy code snippet');
+    copyBtn.addEventListener('click', () => {
+      copyTextToClipboard(codeBlock.innerText, copyBtn);
+    });
+
+    wrapper.appendChild(copyBtn);
+  });
+
+  // 5. Back to Top Smooth Scroll
+  const backToTopBtn = document.getElementById('backToTop');
+  if (backToTopBtn) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 400) {
+        backToTopBtn.classList.add('visible');
+      } else {
+        backToTopBtn.classList.remove('visible');
+      }
+    });
+
+    backToTopBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+});
+</script>
+
 </body>
 </html>
