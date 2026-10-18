@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux Systems Engineering & Server Administration: The Complete Architectural Blueprint | Md. Mostasim Mahmud Tasim</title>
+<meta name="description" content="In-depth Linux systems engineering handbook: Filesystem Hierarchy (FHS), permissions and octal security, process lifecycle internals, top diagnostic engine, compression pipelines, production web stacks, and reconnaissance tooling.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+<script src="js/security.js"></script>
+<style>
+/* ============================================================
+   ARTICLE CUSTOM DESIGN SYSTEM & VISUALIZATIONS
+   ============================================================ */
+.article-container { max-width: 920px; margin: 0 auto; padding: 0 24px; }
+.article-header { padding: 60px 0 40px; text-align: center; }
+.article-title { font-size: 2.6rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.2; margin: 20px 0; color: var(--text-primary); }
+@media (max-width: 768px) { .article-title { font-size: 1.95rem; } }
+.article-subtitle { font-size: 1.15rem; color: var(--text-secondary); max-width: 760px; margin: 0 auto 28px; line-height: 1.6; }
+.article-meta { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 16px; font-size: 0.875rem; color: var(--text-tertiary); }
+.article-badge { background: var(--accent-subtle); color: var(--accent); padding: 4px 14px; border-radius: 9999px; font-weight: 600; font-size: 0.8125rem; }
+
+/* Table of Contents */
+.toc-box {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: 12px;
+  padding: 28px;
+  margin: 40px 0 50px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+}
+.toc-title { font-size: 1.125rem; font-weight: 700; margin-bottom: 16px; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
+.toc-list { display: grid; grid-template-columns: 1fr; gap: 10px; list-style: none; padding-left: 0; }
+@media (min-width: 640px) { .toc-list { grid-template-columns: 1fr 1fr; } }
+.toc-item a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color var(--transition); display: flex; align-items: center; gap: 8px; }
+.toc-item a:hover { color: var(--accent); }
+.toc-item i { color: var(--accent); font-size: 0.75rem; }
+
+/* Typography & Content */
+.article-body { font-size: 1.0625rem; line-height: 1.8; color: var(--text-secondary); }
+.article-body h2 { font-size: 1.85rem; font-weight: 800; color: var(--text-primary); margin: 60px 0 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.article-body h3 { font-size: 1.35rem; font-weight: 700; color: var(--text-primary); margin: 36px 0 16px; }
+.article-body h4 { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin: 24px 0 12px; }
+.article-body p { margin-bottom: 20px; }
+.article-body ul, .article-body ol { margin: 16px 0 24px 24px; }
+.article-body li { margin-bottom: 8px; }
+.article-body code { font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; background: var(--bg-alt); color: var(--accent); padding: 2px 7px; border-radius: 6px; border: 1px solid var(--border); }
+.article-body pre { background: #0f172a; color: #f8fafc; padding: 20px; border-radius: 12px; overflow-x: auto; margin: 24px 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; line-height: 1.6; border: 1px solid #1e293b; box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+.article-body pre code { background: transparent; color: inherit; border: none; padding: 0; font-size: inherit; }
+
+/* Callouts */
+.callout { border-radius: 10px; padding: 20px 24px; margin: 28px 0; border-left: 4px solid; display: flex; gap: 16px; align-items: flex-start; }
+.callout i { font-size: 1.25rem; margin-top: 3px; }
+.callout-content { flex: 1; }
+.callout-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; }
+.callout-desc { font-size: 0.9rem; line-height: 1.6; margin: 0; }
+.callout-info { background: var(--accent-subtle); border-color: var(--accent); color: var(--text-primary); }
+.callout-info i { color: var(--accent); }
+.callout-warning { background: rgba(245,158,11,0.08); border-color: #f59e0b; color: var(--text-primary); }
+.callout-warning i { color: #f59e0b; }
+.callout-success { background: rgba(16,185,129,0.08); border-color: #10b981; color: var(--text-primary); }
+.callout-success i { color: #10b981; }
+
+/* ============================================================
+   DIAGRAM 1: FILESYSTEM HIERARCHY STANDARD (FHS) TREE
+   ============================================================ */
+.fhs-wrapper {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px 24px;
+  margin: 32px 0;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+}
+.fhs-root-node {
+  width: 60px; height: 60px; margin: 0 auto 32px;
+  background: var(--accent); color: #fff;
+  border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 1.75rem; font-weight: 800;
+  box-shadow: 0 4px 16px rgba(37,99,235,0.3);
+}
+.fhs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+.fhs-card {
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  transition: all var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+.fhs-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+}
+.fhs-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.fhs-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--accent-subtle); color: var(--accent);
+  display: flex; align-items: center; justify-content: center; font-size: 0.9rem;
+}
+.fhs-path { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.95rem; color: var(--text-primary); }
+.fhs-desc { font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5; margin: 0; }
+
+/* ============================================================
+   DIAGRAM 2: WORKFLOW & PATH RESOLUTION FLOWCHART
+   ============================================================ */
+.flowchart-container {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px 24px;
+  margin: 32px 0;
+  text-align: center;
+}
+.workflow-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 16px 0;
+}
+.wf-node {
+  padding: 14px 20px;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+  border: 1px solid var(--border);
+  background: var(--bg-alt);
+  color: var(--text-primary);
+  min-width: 170px;
+  transition: all var(--transition);
+}
+.wf-node.accent { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 4px 14px rgba(37,99,235,0.25); }
+.wf-node.decision {
+  background: #fef3c7; color: #92400e; border-color: #fcd34d;
+  clip-path: polygon(10% 0%, 90% 0%, 100% 50%, 90% 100%, 10% 100%, 0% 50%);
+  padding: 14px 30px;
+}
+[data-theme="dark"] .wf-node.decision { background: #78350f; color: #fde68a; border-color: #b45309; }
+.wf-arrow { color: var(--text-tertiary); font-size: 1.25rem; }
+@media (max-width: 768px) { .wf-arrow { transform: rotate(90deg); margin: 6px 0; } }
+
+/* ============================================================
+   DIAGRAM 3: PERMISSION MATRIX & OCTAL ANATOMY
+   ============================================================ */
+.perm-anatomy-box {
+  background: #0f172a;
+  color: #fff;
+  border-radius: 16px;
+  padding: 32px 24px;
+  margin: 32px 0;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  border: 1px solid #1e293b;
+}
+.perm-string {
+  font-size: 2.2rem;
+  letter-spacing: 0.25em;
+  font-weight: 700;
+  display: inline-block;
+  margin-bottom: 24px;
+}
+.perm-parts {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  text-align: center;
+}
+@media (max-width: 640px) { .perm-parts { grid-template-columns: 1fr 1fr; } }
+.perm-part-card {
+  background: rgba(30,41,59,0.7);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 16px 12px;
+}
+.perm-part-title { font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 6px; }
+.perm-part-val { font-size: 1.3rem; font-weight: 700; color: #38bdf8; margin-bottom: 6px; }
+.perm-part-desc { font-size: 0.75rem; color: #cbd5e1; line-height: 1.4; }
+
+.perm-table {
+  width: 100%; border-collapse: collapse; margin: 24px 0;
+  font-size: 0.9rem; border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+}
+.perm-table th, .perm-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+.perm-table th { background: var(--bg-alt); font-weight: 700; color: var(--text-primary); }
+.perm-table tr:last-child td { border-bottom: none; }
+
+/* ============================================================
+   DIAGRAM 4: REALISTIC TERMINAL `top` MONITOR UI
+   ============================================================ */
+.terminal-top-ui {
+  background: #090d16;
+  border: 1px solid #1e293b;
+  border-radius: 14px;
+  padding: 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.825rem;
+  color: #e2e8f0;
+  overflow-x: auto;
+  margin: 32px 0;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+.top-header-line { line-height: 1.7; margin-bottom: 4px; white-space: nowrap; }
+.top-highlight { color: #38bdf8; font-weight: 700; }
+.top-warn { color: #f59e0b; font-weight: 700; }
+.top-err { color: #ef4444; font-weight: 700; }
+.top-ok { color: #10b981; font-weight: 700; }
+.top-table {
+  width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 0.775rem;
+}
+.top-table th {
+  background: #1e293b; color: #f1f5f9; padding: 6px 10px; text-align: left; font-weight: 700;
+}
+.top-table td { padding: 5px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.top-table tr:hover { background: rgba(56,189,248,0.08); }
+
+/* ============================================================
+   DIAGRAM 5: PROCESS STATE MACHINE & SIGNALS
+   ============================================================ */
+.state-machine-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 28px 0;
+}
+.state-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  position: relative;
+  transition: all var(--transition);
+}
+.state-card:hover { border-color: var(--accent); }
+.state-pill {
+  display: inline-block; padding: 4px 12px; border-radius: 20px;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 700;
+  margin-bottom: 10px;
+}
+.pill-running { background: rgba(16,185,129,0.15); color: #10b981; }
+.pill-sleep { background: rgba(56,189,248,0.15); color: #0284c7; }
+.pill-stopped { background: rgba(245,158,11,0.15); color: #d97706; }
+.pill-zombie { background: rgba(239,68,68,0.15); color: #ef4444; }
+
+/* ============================================================
+   DIAGRAM 6: WEB STACK DEPLOYMENT & PROVISIONING
+   ============================================================ */
+.stack-pipeline {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin: 32px 0;
+}
+@media (max-width: 900px) { .stack-pipeline { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 500px) { .stack-pipeline { grid-template-columns: 1fr; } }
+.stack-stage {
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+}
+.stack-badge {
+  font-size: 0.725rem; font-weight: 700; text-transform: uppercase;
+  color: var(--accent); letter-spacing: 0.05em; margin-bottom: 6px;
+}
+.stack-stage h4 { margin: 4px 0 10px; font-size: 1.05rem; }
+.stack-stage ul { list-style: none; padding-left: 0; font-size: 0.825rem; line-height: 1.6; }
+.stack-stage li { padding: 4px 0; border-bottom: 1px solid var(--border-light); }
+.stack-stage li:last-child { border-bottom: none; }
+
+/* ============================================================
+   DIAGRAM 7: RECONNAISSANCE & PENTESTING TAXONOMY GRID
+   ============================================================ */
+.recon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  margin: 32px 0;
+}
+.recon-cat {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+}
+.recon-title {
+  display: flex; align-items: center; gap: 8px; font-size: 0.95rem; font-weight: 700;
+  margin-bottom: 12px; color: var(--text-primary);
+}
+.tool-tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.tool-pill {
+  background: var(--bg-alt); border: 1px solid var(--border);
+  font-size: 0.75rem; font-family: 'JetBrains Mono', monospace;
+  padding: 3px 8px; border-radius: 6px; color: var(--text-secondary);
+}
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="nav" role="navigation" aria-label="Main navigation">
+<div class="nav-inner">
+  <a href="index.html" class="nav-brand">Mostasim Mahmud Tasim</a>
+  <ul class="nav-links">
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="index.html#experience">Experience</a></li>
+    <li><a href="index.html#capabilities">Engineering</a></li>
+    <li><a href="index.html#projects">Projects</a></li>
+    <li><a href="index.html#infrastructure">Infrastructure</a></li>
+    <li><a href="blog.html" class="active">Blog</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="https://github.com/tasim313" class="nav-ext" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i></a>
+    <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" class="nav-ext" target="_blank" rel="noopener"><i class="fa-brands fa-linkedin"></i></a>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+      <svg id="sunIcon" style="display:none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+      <svg id="moonIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+    </button>
+    <button class="mobile-toggle" id="mobileToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</div>
+</nav>
+
+<!-- Header -->
+<header class="article-header">
+  <div class="article-container">
+    <div class="article-badge"><i class="fa-brands fa-linux"></i> Linux Systems Engineering · Architectural Masterclass</div>
+    <h1 class="article-title">Linux Systems Engineering &amp; Server Administration: The Complete Architectural Blueprint</h1>
+    <p class="article-subtitle">
+      A comprehensive technical manual spanning Filesystem Hierarchy Standards (FHS), permission bitmask mathematics, kernel process scheduling, the <code>top</code> interactive diagnostic engine, systemd services, web stack provisioning, and offensive security reconnaissance.
+    </p>
+    <div class="article-meta">
+      <span><i class="fa-regular fa-calendar"></i> October 2026</span>
+      <span>•</span>
+      <span><i class="fa-regular fa-clock"></i> 32 min comprehensive read</span>
+      <span>•</span>
+      <span><i class="fa-solid fa-code"></i> Production Systems Engineering</span>
+    </div>
+  </div>
+</header>
+
+<main class="article-body">
+  <div class="article-container">
+
+    <!-- Table of Contents -->
+    <div class="toc-box">
+      <div class="toc-title"><i class="fa-solid fa-list-check"></i> System Architecture &amp; Execution Roadmap</div>
+      <ul class="toc-list">
+        <li class="toc-item"><a href="#fhs"><i class="fa-solid fa-folder-tree"></i> 1. Filesystem Hierarchy Standard (FHS)</a></li>
+        <li class="toc-item"><a href="#navigation"><i class="fa-solid fa-compass"></i> 2. Path Resolution &amp; File Streams</a></li>
+        <li class="toc-item"><a href="#permissions"><i class="fa-solid fa-shield-halved"></i> 3. Security Model: Permissions &amp; Octals</a></li>
+        <li class="toc-item"><a href="#processes"><i class="fa-solid fa-microchip"></i> 4. Process Lifecycle &amp; Kernel Signals</a></li>
+        <li class="toc-item"><a href="#top-engine"><i class="fa-solid fa-gauge-high"></i> 5. The Interactive top Diagnostic Engine</a></li>
+        <li class="toc-item"><a href="#storage-archives"><i class="fa-solid fa-hard-drive"></i> 6. Storage Diagnostics &amp; Tar Compression</a></li>
+        <li class="toc-item"><a href="#networking"><i class="fa-solid fa-network-wired"></i> 7. Network Probing &amp; Secure SCP Transfer</a></li>
+        <li class="toc-item"><a href="#web-stack"><i class="fa-solid fa-server"></i> 8. Enterprise Web Stacks (Nginx/Apache/PHP/DB)</a></li>
+        <li class="toc-item"><a href="#devops-recon"><i class="fa-solid fa-crosshairs"></i> 9. Git Lifecycle &amp; Pentesting Recon Map</a></li>
+      </ul>
+    </div>
+
+    <!-- SECTION 1 -->
+    <section id="fhs">
+      <h2><i class="fa-solid fa-folder-tree"></i> 1. The Linux Filesystem Hierarchy Standard (FHS)</h2>
+      <p>
+        Unlike Windows which organizes storage around drive letters (<code>C:\</code>, <code>D:\</code>), the Linux operating system adheres to the unified <strong>Filesystem Hierarchy Standard (FHS)</strong>. Every physical device, virtual subsystem, configuration file, and user profile exists as a node descending from the single root directory represented by a forward slash (<code>/</code>).
+      </p>
+
+      <!-- FHS Visual Grid -->
+      <div class="fhs-wrapper">
+        <div class="fhs-root-node">/</div>
+        <div class="fhs-grid">
+          <div class="fhs-card">
+            <div class="fhs-header"><div class="fhs-icon"><i class="fa-solid fa-terminal"></i></div><div class="fhs-path">/bin</div></div>
+            <p class="fhs-desc">Essential user command binaries (e.g., <code>ls</code>, <code>cp</code>, <code>cat</code>) required in single-user mode and recovery boot.</p>
+          </div>
+          <div class="fhs-card">
+            <div class="fhs-header"><div class="fhs-icon"><i class="fa-solid fa-power-off"></i></div><div class="fhs-path">/boot</div></div>
+            <p class="fhs-desc">Static bootloader files, Linux kernel image (<code>vmlinuz</code>), and Initial RAM Disk (<code>initramfs</code>).</p>
+          </div>
+          <div class="fhs-card">
+            <div class="fhs-header"><div class="fhs-icon"><i class="fa-solid fa-memory"></i></div><div class="fhs-path">/dev</div></div>
+            <p class="fhs-desc">Device nodes representing physical hardware, disks (<code>sda</code>, <code>nvme0n1</code>), terminals, and pseudodevices (<code>/dev/null</code>).</p>
+          </div>
+          <div class="fhs-card">
+            <div class="fhs-header"><div class="fhs-icon"><i class="fa-solid fa-sliders"></i></div><div class="fhs-path">/etc</div></div>
+            <p class="fhs-desc">Host-specific, system-wide configuration files (e.g., <code>nginx.conf</code>, <code>fstab</code>, <code>passwd</code>). No executable binaries.</p>
+          </div>
+          <div class="fhs-card">
+            <div class="fhs-header"><div class="fhs-icon"><i class="fa-solid fa-house-user"></i></div><div class="fhs-path">/home</div></div>
+            <p class="fhs-desc">User personal home directories containing documents, personal settings, and user-level configs (<code>/home/tasim</code>).</p>
+          </div>
+          <div class="fhs-card">
+            <div class="fhs-header"><div class="fhs-icon"><i class="fa-solid fa-cubes"></i></div><div class="fhs-path">/lib &amp; /lib64</div></div>
+            <p class="fhs-desc">Shared library modules (<code>.so</code> files) essential for binaries in <code>/bin</code> and <code>/sbin</code>, plus kernel drivers.</p>
+          </div>
+          <div class="fhs-card">
+            <div class="fhs-header"><div class="fhs-icon"><i class="fa-solid fa-compact-disc"></i></div><div class="fhs-path">/media &amp; /mnt</div></div>
+            <p class="fhs-desc">Mount points: <code>/media</code> for automatic removable media (USB, CD-ROM); <code>/mnt</code> for temporary manual mounts.</p>
+          </div>
+          <div class="fhs-card">
+            <div class="fhs-header"><div class="fhs-icon"><i class="fa-solid fa-box-archive"></i></div><div class="fhs-path">/opt</div></div>
+            <p class="fhs-desc">Add-on application software packages from third-party vendors structured as self-contained directories.</p>
+          </div>
+          <div class="fhs-card">
+            <div class="fhs-header"><div class="fhs-icon"><i class="fa-solid fa-microchip"></i></div><div class="fhs-path">/proc</div></div>
+            <p class="fhs-desc">Virtual pseudo-filesystem providing a real-time window into kernel data structures, PID metrics, and hardware state.</p>
+          </div>
+          <div class="fhs-card">
+            <div class="fhs-header"><div class="fhs-icon"><i class="fa-solid fa-lock"></i></div><div class="fhs-path">/root</div></div>
+            <p class="fhs-desc">The dedicated home directory for the superuser (root). Separate from standard user directories in <code>/home</code>.</p>
+          </div>
+          <div class="fhs-card">
+            <div class="fhs-header"><div class="fhs-icon"><i class="fa-solid fa-bolt"></i></div><div class="fhs-path">/run</div></div>
+            <p class="fhs-desc">Runtime variable data (e.g., active daemon PIDs, Unix sockets) stored in a temporary filesystem (<code>tmpfs</code>) since boot.</p>
+          </div>
+          <div class="fhs-card">
+            <div class="fhs-header"><div class="fhs-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div><div class="fhs-path">/sbin</div></div>
+            <p class="fhs-desc">System administrator management binaries (e.g., <code>iptables</code>, <code>fdisk</code>, <code>reboot</code>, <code>ip</code>) requiring root privileges.</p>
+          </div>
+          <div class="fhs-card">
+            <div class="fhs-header"><div class="fhs-icon"><i class="fa-solid fa-server"></i></div><div class="fhs-path">/srv</div></div>
+            <p class="fhs-desc">Site-specific data served directly by the server instance (e.g., FTP storage pools, web repositories).</p>
+          </div>
+          <div class="fhs-card">
+            <div class="fhs-header"><div class="fhs-icon"><i class="fa-solid fa-gear"></i></div><div class="fhs-path">/sys</div></div>
+            <p class="fhs-desc">Virtual sysfs filesystem exposing the kernel device tree, driver buses, power states, and hardware tunables.</p>
+          </div>
+          <div class="fhs-card">
+            <div class="fhs-header"><div class="fhs-icon"><i class="fa-solid fa-clock-rotate-left"></i></div><div class="fhs-path">/tmp</div></div>
+            <p class="fhs-desc">Temporary volatile scratchpad storage accessible to all processes; flushed automatically across reboots.</p>
+          </div>
+          <div class="fhs-card">
+            <div class="fhs-header"><div class="fhs-icon"><i class="fa-solid fa-laptop-code"></i></div><div class="fhs-path">/usr</div></div>
+            <p class="fhs-desc">Unix System Resources: secondary hierarchy containing non-critical read-only user utilities, libraries, and share data.</p>
+          </div>
+          <div class="fhs-card">
+            <div class="fhs-header"><div class="fhs-icon"><i class="fa-solid fa-chart-line"></i></div><div class="fhs-path">/var</div></div>
+            <p class="fhs-desc">Variable data expected to continuously expand during system operation (system logs <code>/var/log</code>, spool, web roots <code>/var/www</code>).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2 -->
+    <section id="navigation">
+      <h2><i class="fa-solid fa-compass"></i> 2. Path Resolution Engine &amp; File Stream Manipulation</h2>
+      <p>
+        In systems programming, path resolution dictates how the Linux kernel transforms a string reference into an absolute inode pointer.
+      </p>
+
+      <!-- Flowchart: Path Resolution Engine -->
+      <div class="flowchart-container">
+        <h4 style="margin-bottom: 20px;">Kernel Path Resolution Decision Tree</h4>
+        <div class="workflow-row">
+          <div class="wf-node accent">Input Path String</div>
+          <div class="wf-arrow">→</div>
+          <div class="wf-node decision">Starts with "/"?</div>
+          <div class="wf-arrow">→</div>
+          <div class="wf-node" style="border-color:#10b981; color:#10b981;">YES: Absolute Path<br><small>(Resolve from Root Inode 2)</small></div>
+        </div>
+        <div class="workflow-row">
+          <div style="width: 170px;"></div>
+          <div style="width: 20px;"></div>
+          <div class="wf-arrow" style="transform: rotate(90deg); margin: 0 40px;">↓</div>
+          <div style="width: 20px;"></div>
+          <div class="wf-node" style="border-color:#f59e0b; color:#d97706;">NO: Relative Path<br><small>(Prepend Current $PWD Inode)</small></div>
+        </div>
+      </div>
+
+      <h3>Directory Traversal and Inspection Operators</h3>
+      <p>
+        The <code>cd</code> and <code>ls</code> commands form the bedrock of shell navigation:
+      </p>
+      <pre><code># Absolute Navigation
+cd /usr/local/lib
+pwd   # Output: /usr/local/lib
+
+# Relative Navigation
+cd ../..   # Traverse 2 directory levels upward
+cd -       # Toggle back to the PREVIOUS working directory (acts like browser back)
+cd ~       # Return to user's home directory ($HOME)
+
+# Advanced Directory Listing Flags
+ls -l      # Long listing format (permissions, links, owner, group, size, mtime)
+ls -a      # Include hidden files (dotfiles: .bashrc, .profile)
+ls -lh     # Long listing with human-readable binary file sizes (K, M, G)
+ls -lt     # Sort entries chronologically by modification timestamp (newest first)
+ls -ltr    # Reverse chronological sort (most recently touched file appears at the bottom)
+ls -i      # Display unique filesystem inode numbers for each entry
+ls -R      # Recursively traverse and list entire subtree hierarchies</code></pre>
+
+      <div class="callout callout-info">
+        <i class="fa-solid fa-circle-info"></i>
+        <div class="callout-content">
+          <div class="callout-title">The Engineering Distinction Between 'ls' and 'ls -a'</div>
+          <p class="callout-desc">
+            In Unix systems, files beginning with a dot (<code>.</code>) are intentionally hidden from everyday shell visibility to prevent cluttering application directories. However, in production troubleshooting, over 90% of security breaches and misconfigurations lurk inside dotfiles (e.g., <code>.ssh/authorized_keys</code>, <code>.env</code>, <code>.bash_history</code>). Running <code>ls -al</code> is mandatory during server audits.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3 -->
+    <section id="permissions">
+      <h2><i class="fa-solid fa-shield-halved"></i> 3. Linux Security Architecture: Permissions &amp; Octal Mathematics</h2>
+      <p>
+        Linux enforces a strict Discretionary Access Control (DAC) model where every file and directory is bound to an <strong>Owner</strong>, a <strong>Primary Group</strong>, and <strong>Others</strong>. This is represented by a 10-character mode string in <code>ls -l</code>.
+      </p>
+
+      <!-- Permission String Anatomy -->
+      <div class="perm-anatomy-box">
+        <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 12px;">FILE DESCRIPTOR MODE ANATOMY</div>
+        <div class="perm-string">- r w x r - x r - -</div>
+        <div class="perm-parts">
+          <div class="perm-part-card">
+            <div class="perm-part-title">Bit 1: File Type</div>
+            <div class="perm-part-val">- (Regular)</div>
+            <div class="perm-part-desc"><code>-</code> file, <code>d</code> dir, <code>l</code> link, <code>b</code> block, <code>c</code> char, <code>s</code> sock</div>
+          </div>
+          <div class="perm-part-card">
+            <div class="perm-part-title">Bits 2-4: Owner (u)</div>
+            <div class="perm-part-val">r w x (7)</div>
+            <div class="perm-part-desc">Read (4) + Write (2) + Exec (1) = Full ownership permissions</div>
+          </div>
+          <div class="perm-part-card">
+            <div class="perm-part-title">Bits 5-7: Group (g)</div>
+            <div class="perm-part-val">r - x (5)</div>
+            <div class="perm-part-desc">Read (4) + Execute (1) = Group members can read &amp; execute</div>
+          </div>
+          <div class="perm-part-card">
+            <div class="perm-part-title">Bits 8-10: Other (o)</div>
+            <div class="perm-part-val">r - - (4)</div>
+            <div class="perm-part-desc">Read (4) only = World can read but cannot write or execute</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Octal Weight Formula &amp; chmod Execution</h3>
+      <table class="perm-table">
+        <thead>
+          <tr>
+            <th>Permission Bit</th>
+            <th>Symbolic</th>
+            <th>Octal Value</th>
+            <th>Binary Weight</th>
+            <th>Meaning on Files</th>
+            <th>Meaning on Directories</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Read</strong></td>
+            <td><code>r</code></td>
+            <td><code>4</code></td>
+            <td><code>100</code></td>
+            <td>View file contents (<code>cat</code>, <code>less</code>)</td>
+            <td>List directory contents (<code>ls</code>)</td>
+          </tr>
+          <tr>
+            <td><strong>Write</strong></td>
+            <td><code>w</code></td>
+            <td><code>2</code></td>
+            <td><code>010</code></td>
+            <td>Modify file contents</td>
+            <td>Create, rename, or delete files inside directory</td>
+          </tr>
+          <tr>
+            <td><strong>Execute</strong></td>
+            <td><code>x</code></td>
+            <td><code>1</code></td>
+            <td><code>001</code></td>
+            <td>Run file as a program or script</td>
+            <td>Enter directory (<code>cd</code>) and access its inodes</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <pre><code># Symbolic Permission Modifications
+chmod u+r file.txt      # Grant read permission to Owner (User)
+chmod g-w file.txt      # Revoke write permission from Group
+chmod o+x script.sh     # Grant execute permission to Others (World)
+chmod a+r document.pdf  # Grant read permission to All (u, g, and o)
+
+# Octal Permission Calculations
+# Example: 754 -> (4+2+1=7 User) (4+0+1=5 Group) (4+0+0=4 Other)
+chmod 754 script.sh
+chmod -R 755 /var/www/html    # Recursively enforce 755 across web assets
+chmod 600 ~/.ssh/id_rsa       # Strict privacy: only owner can read/write private key
+
+# Ownership & User Administration
+chown tasim:tasim report.log           # Change user and group ownership
+chown root:root /etc/nginx/nginx.conf  # Enforce root governance
+sudo useradd -m -s /bin/bash devops    # Create new user with home directory and shell
+sudo passwd devops                     # Set user password
+su - devops                            # Switch to devops shell environment with full environment load</code></pre>
+    </section>
+
+    <!-- SECTION 4 -->
+    <section id="processes">
+      <h2><i class="fa-solid fa-microchip"></i> 4. Kernel Process Lifecycle, Niceness &amp; Signal Handling</h2>
+      <p>
+        Every task executed in Linux is assigned a unique <strong>Process Identifier (PID)</strong>. The Linux kernel schedules threads dynamically across physical CPU cores using the Completely Fair Scheduler (CFS).
+      </p>
+
+      <!-- State Machine Diagram -->
+      <div class="state-machine-grid">
+        <div class="state-card">
+          <span class="state-pill pill-running">RUNNING (R)</span>
+          <h4>Active Execution</h4>
+          <p class="fhs-desc">Process is either actively consuming CPU cycles or waiting in the run queue for scheduler time-slice.</p>
+        </div>
+        <div class="state-card">
+          <span class="state-pill pill-sleep">INTERRUPTIBLE (S)</span>
+          <h4>Sleeping on Event</h4>
+          <p class="fhs-desc">Waiting for a specific event, socket packet, timer, or I/O availability. Wakes up immediately upon receiving signals.</p>
+        </div>
+        <div class="state-card">
+          <span class="state-pill pill-stopped">STOPPED (T)</span>
+          <h4>Job Suspended</h4>
+          <p class="fhs-desc">Halted via job control signal (e.g., <code>Ctrl+Z</code> / <code>SIGTSTP</code>) or under active tracing by a debugger (<code>ptrace</code>).</p>
+        </div>
+        <div class="state-card">
+          <span class="state-pill pill-zombie">ZOMBIE (Z)</span>
+          <h4>Defunct Child</h4>
+          <p class="fhs-desc">Process has terminated execution, but its exit status has not yet been reaped by its parent via <code>wait()</code>.</p>
+        </div>
+      </div>
+
+      <h3>Job Control &amp; Shell Signal Dispatching</h3>
+      <pre><code># Background Execution and Job Management
+python3 worker.py &amp;    # Launch process directly into background
+jobs -l                # List background job IDs with their PIDs
+Ctrl + Z               # Send SIGTSTP: suspend active foreground job
+bg %1                  # Resume job 1 in the background
+fg %1                  # Bring job 1 back to the active foreground
+
+# Process Signals
+kill -15 &lt;PID&gt;         # SIGTERM: Graceful termination request (allows cleanup)
+kill -9  &lt;PID&gt;         # SIGKILL: Immediate kernel-level destruction (cannot be caught or ignored)
+kill -1  &lt;PID&gt;         # SIGHUP: Hangup signal; forces daemons (Nginx/Postgres) to reload configuration
+killall -9 nginx       # Terminate all running processes matching the name 'nginx'
+pkill -u www-data      # Terminate all processes owned by the 'www-data' user
+
+# Niceness & CPU Scheduling Priority (-20 to 19 scale)
+# -20 = Highest Priority (more aggressive CPU time slices)
+#  19 = Lowest Priority (idle/polite background processing)
+nice -n -10 ./database_indexer   # Launch with elevated priority (requires sudo)
+renice +5 -p 1842                # Demote priority of existing process with PID 1842</code></pre>
+    </section>
+
+    <!-- SECTION 5 -->
+    <section id="top-engine">
+      <h2><i class="fa-solid fa-gauge-high"></i> 5. The Interactive <code>top</code> System Diagnostics Engine</h2>
+      <p>
+        The <code>top</code> command provides a live, dynamic stream of operating system telemetry directly from the kernel. Below is a production terminal view and comprehensive field-by-field breakdown:
+      </p>
+
+      <!-- Interactive Terminal Replica of `top` -->
+      <div class="terminal-top-ui">
+        <div class="top-header-line">
+          top - <span class="top-highlight">17:49:58</span> up <span class="top-ok">2:24</span>, <span class="top-highlight">1 user</span>, load average: <span class="top-highlight">2.08</span>, <span class="top-warn">3.70</span>, <span class="top-ok">3.37</span>
+        </div>
+        <div class="top-header-line">
+          Tasks: <span class="top-highlight">314 total</span>, <span class="top-ok">2 running</span>, <span class="top-highlight">312 sleeping</span>, 0 stopped, <span class="top-err">0 zombie</span>
+        </div>
+        <div class="top-header-line">
+          %Cpu(s): <span class="top-ok">7.0 us</span>, <span class="top-highlight">2.3 sy</span>, 0.0 ni, <span class="top-ok">77.5 id</span>, <span class="top-err">13.2 wa</span>, 0.0 hi, 0.0 si, 0.0 st
+        </div>
+        <div class="top-header-line">
+          MiB Mem : <span class="top-highlight">7710.8 total</span>, <span class="top-ok">1584.8 free</span>, <span class="top-warn">3498.5 used</span>, <span class="top-highlight">2627.6 buff/cache</span>
+        </div>
+        <div class="top-header-line">
+          MiB Swap: <span class="top-highlight">2048.0 total</span>, <span class="top-ok">1840.2 free</span>, <span class="top-warn">207.8 used</span>, <span class="top-highlight">2839.3 avail Mem</span>
+        </div>
+
+        <table class="top-table">
+          <thead>
+            <tr>
+              <th>PID</th>
+              <th>USER</th>
+              <th>PR</th>
+              <th>NI</th>
+              <th>VIRT</th>
+              <th>RES</th>
+              <th>SHR</th>
+              <th>S</th>
+              <th>%CPU</th>
+              <th>%MEM</th>
+              <th>TIME+</th>
+              <th>COMMAND</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>10891</td>
+              <td>tasim</td>
+              <td>20</td>
+              <td>0</td>
+              <td>1125.2g</td>
+              <td>348948</td>
+              <td>142580</td>
+              <td><span class="top-ok">S</span></td>
+              <td class="top-highlight">25.0</td>
+              <td>4.4</td>
+              <td>2:42.33</td>
+              <td>msedge</td>
+            </tr>
+            <tr>
+              <td>4471</td>
+              <td>tasim</td>
+              <td>20</td>
+              <td>0</td>
+              <td>33.1g</td>
+              <td>180828</td>
+              <td>98152</td>
+              <td><span class="top-ok">R</span></td>
+              <td class="top-highlight">18.8</td>
+              <td>2.3</td>
+              <td>1:18.98</td>
+              <td>msedge</td>
+            </tr>
+            <tr>
+              <td>2439</td>
+              <td>tasim</td>
+              <td>20</td>
+              <td>0</td>
+              <td>5654740</td>
+              <td>241412</td>
+              <td>80560</td>
+              <td><span class="top-ok">S</span></td>
+              <td>6.2</td>
+              <td>3.1</td>
+              <td>2:39.96</td>
+              <td>gnome-shell</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>root</td>
+              <td>20</td>
+              <td>0</td>
+              <td>168836</td>
+              <td>13232</td>
+              <td>7472</td>
+              <td><span class="top-ok">S</span></td>
+              <td>0.0</td>
+              <td>0.2</td>
+              <td>0:04.41</td>
+              <td>systemd</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Header Telemetry Deep Dive</h3>
+      <ul>
+        <li><strong>Load Average (2.08, 3.70, 3.37)</strong>: Represents the average number of computational threads in a runnable (CPU) or uninterruptible disk I/O state over 1, 5, and 15 minutes. On a 4-core CPU, any load under 4.0 indicates headroom. A load of 8.0 indicates a 100% backlog waiting for compute.</li>
+        <li><strong>%Cpu(s) Metrics</strong>:
+          <ul>
+            <li><code>us</code> (User Time): Percentage of CPU cycles executing un-niced user space processes (e.g., Python, Nginx, Node.js).</li>
+            <li><code>sy</code> (System Time): Percentage of CPU time spent executing kernel routines and handling system calls.</li>
+            <li><code>wa</code> (I/O Wait): <strong>Critical Performance Indicator</strong>. Measures CPU idle time spent blocked on slow disk storage or remote NFS latency. Values above 10% indicate an I/O bottleneck.</li>
+            <li><code>st</code> (Steal Time): In cloud environments (AWS EC2 / GCP), indicates CPU cycles stolen by the hypervisor to service other noisy virtual machines.</li>
+          </ul>
+        </li>
+        <li><strong>Memory (VIRT vs RES vs SHR)</strong>:
+          <ul>
+            <li><code>VIRT</code>: Virtual memory reserved by the process (including mapped files and unallocated heap).</li>
+            <li><code>RES</code>: Resident Memory — the exact amount of physical, non-swapped RAM currently occupied by the process.</li>
+            <li><code>SHR</code>: Shared memory segments accessible to other libraries and child processes.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <h3>Interactive Control Commands</h3>
+      <div class="fhs-grid" style="margin: 20px 0;">
+        <div class="fhs-card"><div class="fhs-path">P Key</div><p class="fhs-desc">Sort process table by %CPU utilization (default sort order).</p></div>
+        <div class="fhs-card"><div class="fhs-path">M Key</div><p class="fhs-desc">Sort process table by %MEM (RAM consumption).</p></div>
+        <div class="fhs-card"><div class="fhs-path">N Key</div><p class="fhs-desc">Sort process table alphabetically by command name.</p></div>
+        <div class="fhs-card"><div class="fhs-path">T Key</div><p class="fhs-desc">Sort process table by cumulative execution CPU time (TIME+).</p></div>
+        <div class="fhs-card"><div class="fhs-path">k Key</div><p class="fhs-desc">Prompt for a PID to send a signal directly without exiting top.</p></div>
+        <div class="fhs-card"><div class="fhs-path">r Key</div><p class="fhs-desc">Renice an active process interactively to alter its scheduling.</p></div>
+        <div class="fhs-card"><div class="fhs-path">d Key</div><p class="fhs-desc">Change refresh rate interval (e.g., 5 seconds to reduce top load).</p></div>
+        <div class="fhs-card"><div class="fhs-path">W Key</div><p class="fhs-desc">Write current customized view preferences to <code>~/.toprc</code>.</p></div>
+      </div>
+    </section>
+
+    <!-- SECTION 6 -->
+    <section id="storage-archives">
+      <h2><i class="fa-solid fa-hard-drive"></i> 6. Storage Diagnostics &amp; Archive Compression Pipelines</h2>
+      <p>
+        System stability requires proactive storage auditing and efficient asset bundling.
+      </p>
+
+      <pre><code># Disk Space & Storage Inspection
+df -h               # Filesystem disk consumption in human-readable gigabytes
+du -sh /var/log     # Cumulative disk consumption of a specific folder
+du -h --max-depth=1 /home | sort -hr  # Identify largest storage-hogging home folders
+lsblk               # Print hierarchical tree of block storage devices and partitions
+free -m             # Instant RAM and Swap utilization in Megabytes
+cat /proc/meminfo   # Detailed breakdown of kernel memory buffers and dirty pages</code></pre>
+
+      <h3>The Tarball Archiving &amp; Compression Pipeline</h3>
+      <p>
+        The <code>tar</code> (Tape Archive) utility aggregates thousands of individual files into a single contiguous stream. It does not compress data by itself; rather, it passes the resulting stream through compression engines such as <code>gzip</code> (balanced speed/compression) or <code>bzip2</code> (maximum ratio).
+      </p>
+
+      <div class="flowchart-container">
+        <h4 style="margin-bottom: 20px;">Archival &amp; Compression Flow</h4>
+        <div class="workflow-row">
+          <div class="wf-node">Input Source Files<br><small>(Directory Tree)</small></div>
+          <div class="wf-arrow">→</div>
+          <div class="wf-node accent">tar -cf<br><small>(Archive Container)</small></div>
+          <div class="wf-arrow">→</div>
+          <div class="wf-node" style="border-color:#10b981; color:#10b981;">gzip (-z) / bzip2 (-j)<br><small>(Compression Engine)</small></div>
+          <div class="wf-arrow">→</div>
+          <div class="wf-node" style="border-color:#38bdf8; color:#38bdf8;">archive.tar.gz<br><small>(Production Asset)</small></div>
+        </div>
+      </div>
+
+      <pre><code># Creation Commands
+tar -cf archive.tar /data/files            # Create uncompressed tar archive
+tar -czf site_backup.tar.gz /var/www/html # Create tar archive with GZIP compression (.tar.gz)
+tar -cjf db_dump.tar.bz2 /var/lib/mysql   # Create tar archive with BZIP2 compression (.tar.bz2)
+zip -r backup.zip /var/www/html           # Create standard ZIP file
+
+# Extraction Commands
+tar -xf archive.tar                       # Extract standard tar archive
+tar -xzf site_backup.tar.gz -C /opt       # Extract GZIP tarball directly into /opt
+tar -xjf db_dump.tar.bz2                  # Extract BZIP2 tarball
+unzip backup.zip -d /extracted            # Extract ZIP file into target folder
+gzip -d file.gz                           # Decompress standalone gzip file back to original</code></pre>
+    </section>
+
+    <!-- SECTION 7 -->
+    <section id="networking">
+      <h2><i class="fa-solid fa-network-wired"></i> 7. Network Probing &amp; Secure SCP Remote Workflows</h2>
+      <p>
+        Production system engineers frequently manage fleet servers remotely over encrypted transport layers.
+      </p>
+
+      <pre><code># Network Connectivity Diagnostics
+ping -c 4 8.8.8.8       # Transmit 4 ICMP echo packets to test latency and packet loss
+ip addr show            # Display network interfaces, IP leases, and MAC addresses (modern ifconfig)
+netstat -tulnp          # List all active TCP/UDP listening ports with PID association (or ss -tulnp)
+dig example.com +short  # DNS forward resolution (A records)
+dig -x 93.184.216.34    # Reverse DNS lookup (PTR record)
+whois example.com       # Domain registration and registrar details
+wget -c https://example.com/asset.iso  # Download asset with automatic resume support</code></pre>
+
+      <h3>Secure Remote Copying (SCP) Pipeline</h3>
+      <p>
+        The <code>scp</code> utility establishes an encrypted SSH tunnel to stream files bidirectionally using cryptographic key pairs:
+      </p>
+
+      <div class="flowchart-container">
+        <h4 style="margin-bottom: 20px;">Bidirectional SCP Data Transfer Flow</h4>
+        <div class="workflow-row">
+          <div class="wf-node">Local Workstation<br><small>(./desktop/image.jpg)</small></div>
+          <div class="wf-arrow">→</div>
+          <div class="wf-node accent">SSH Protocol (Port 22)<br><small>Key Auth: -i id_rsa.pem</small></div>
+          <div class="wf-arrow">→</div>
+          <div class="wf-node" style="border-color:#10b981; color:#10b981;">Remote Cloud Server<br><small>(ubuntu@IP:/var/www/uploads/)</small></div>
+        </div>
+      </div>
+
+      <pre><code># 1. Local Workstation -> Remote Server Upload
+scp -i ~/.ssh/cloud_key.pem ./build.tar.gz ubuntu@54.210.12.33:/var/www/
+
+# 2. Remote Server -> Local Workstation Download
+scp -i ~/.ssh/cloud_key.pem ubuntu@54.210.12.33:/var/log/nginx/error.log ./local_logs/
+
+# 3. Recursive Directory Transfer
+scp -r -i ~/.ssh/cloud_key.pem ./assets ec2-user@54.210.12.33:/home/ec2-user/site/</code></pre>
+    </section>
+
+    <!-- SECTION 8 -->
+    <section id="web-stack">
+      <h2><i class="fa-solid fa-server"></i> 8. Enterprise Web Stack Orchestration (Nginx, Apache, PHP-FPM, MariaDB)</h2>
+      <p>
+        A complete systems administration runbook comparing Ubuntu (Debian ecosystem) against Amazon Linux 2 / AL2023 (RHEL ecosystem).
+      </p>
+
+      <!-- Architecture Pipeline -->
+      <div class="stack-pipeline">
+        <div class="stack-stage">
+          <div class="stack-badge">Web Gateway</div>
+          <h4>Nginx Engine</h4>
+          <ul>
+            <li><strong>Ubuntu:</strong> <code>apt install nginx</code></li>
+            <li><strong>Amazon Linux 2:</strong> <code>amazon-linux-extras install nginx1</code></li>
+            <li><strong>AL2023:</strong> <code>dnf install nginx -y</code></li>
+            <li><strong>Root:</strong> <code>/usr/share/nginx/html</code></li>
+          </ul>
+        </div>
+        <div class="stack-stage">
+          <div class="stack-badge">Application Server</div>
+          <h4>Apache HTTPD</h4>
+          <ul>
+            <li><strong>Ubuntu:</strong> <code>apt install apache2</code></li>
+            <li><strong>Amazon Linux:</strong> <code>yum install httpd -y</code></li>
+            <li><strong>Service:</strong> <code>systemctl start httpd</code></li>
+            <li><strong>Root:</strong> <code>/var/www/html</code></li>
+          </ul>
+        </div>
+        <div class="stack-stage">
+          <div class="stack-badge">Runtime Backend</div>
+          <h4>PHP-FPM 8.1</h4>
+          <ul>
+            <li><strong>AL2:</strong> <code>amazon-linux-extras install php8.1</code></li>
+            <li><strong>Service:</strong> <code>service php-fpm start</code></li>
+            <li><strong>Socket:</strong> <code>/run/php-fpm/www.sock</code></li>
+            <li><strong>Autostart:</strong> <code>systemctl enable php-fpm</code></li>
+          </ul>
+        </div>
+        <div class="stack-stage">
+          <div class="stack-badge">Relational Storage</div>
+          <h4>MariaDB / MySQL</h4>
+          <ul>
+            <li><strong>AL2:</strong> <code>yum install mariadb105-server</code></li>
+            <li><strong>Service:</strong> <code>service mariadb start</code></li>
+            <li><strong>Security:</strong> <code>mariadb-secure-installation</code></li>
+            <li><strong>Autostart:</strong> <code>systemctl enable mariadb</code></li>
+          </ul>
+        </div>
+      </div>
+
+      <pre><code># Complete Production Web Stack Deployment Commands (Amazon Linux)
+sudo yum update -y
+sudo yum install -y mariadb105-server
+sudo systemctl enable --now mariadb
+
+# Install Nginx and PHP-FPM
+sudo dnf install -y nginx php-fpm php-mysqlnd
+sudo systemctl enable --now nginx
+sudo systemctl enable --now php-fpm
+
+# Verify listening sockets and runtime status
+sudo systemctl status nginx
+sudo systemctl status php-fpm
+sudo ss -tulpn | grep -E ':(80|443|3306)'</code></pre>
+    </section>
+
+    <!-- SECTION 9 -->
+    <section id="devops-recon">
+      <h2><i class="fa-solid fa-crosshairs"></i> 9. DevOps Git Architecture &amp; Web Application Reconnaissance</h2>
+      <p>
+        System engineers bridge infrastructure management with application deployment and security assessments.
+      </p>
+
+      <h3>Git Distributed Version Control Flow</h3>
+      <div class="flowchart-container">
+        <h4 style="margin-bottom: 20px;">Git Lifecycle Stages</h4>
+        <div class="workflow-row">
+          <div class="wf-node">Working Directory<br><small>(Modified Files)</small></div>
+          <div class="wf-arrow">→</div>
+          <div class="wf-node accent">Staging Area (Index)<br><small>git add &lt;file&gt;</small></div>
+          <div class="wf-arrow">→</div>
+          <div class="wf-node" style="border-color:#10b981; color:#10b981;">Local Repository (HEAD)<br><small>git commit -m "msg"</small></div>
+          <div class="wf-arrow">→</div>
+          <div class="wf-node" style="border-color:#38bdf8; color:#38bdf8;">Remote Server<br><small>git push origin main</small></div>
+        </div>
+      </div>
+
+      <pre><code># Essential Git Operations
+git init                           # Initialize a new local Git repository
+git clone https://github.com/repo  # Clone a remote project
+git status                         # Inspect branch state and unstaged modifications
+git add .                          # Stage all modifications in the current directory
+git commit -m "feat: release v2"   # Persist snapshot into local commit history
+git log --oneline --graph          # Visualize commit graph tree
+git config --list                  # Display active user and repository settings</code></pre>
+
+      <h3>Web Application Penetration Testing &amp; Reconnaissance Map</h3>
+      <p>
+        When hardening infrastructure, security engineers map attack surfaces using specialized reconnaissance tooling across key operational vectors:
+      </p>
+
+      <div class="recon-grid">
+        <div class="recon-cat">
+          <div class="recon-title"><i class="fa-solid fa-shield-virus"></i> Traffic Interception (Proxies)</div>
+          <div class="tool-tag-list">
+            <span class="tool-pill">Burp Suite</span>
+            <span class="tool-pill">OWASP ZAP</span>
+            <span class="tool-pill">Mitmproxy</span>
+          </div>
+        </div>
+        <div class="recon-cat">
+          <div class="recon-title"><i class="fa-solid fa-sitemap"></i> Subdomain Discovery</div>
+          <div class="tool-tag-list">
+            <span class="tool-pill">Subfinder</span>
+            <span class="tool-pill">Amass</span>
+            <span class="tool-pill">Assetfinder</span>
+            <span class="tool-pill">Sublist3r</span>
+            <span class="tool-pill">Chaos</span>
+          </div>
+        </div>
+        <div class="recon-cat">
+          <div class="recon-title"><i class="fa-solid fa-spider"></i> Web Crawling &amp; Spidering</div>
+          <div class="tool-tag-list">
+            <span class="tool-pill">GoSpider</span>
+            <span class="tool-pill">Hakrawler</span>
+            <span class="tool-pill">Waybackurls</span>
+            <span class="tool-pill">GAU</span>
+            <span class="tool-pill">ParamSpider</span>
+          </div>
+        </div>
+        <div class="recon-cat">
+          <div class="recon-title"><i class="fa-solid fa-burst"></i> Directory &amp; Parameter Fuzzing</div>
+          <div class="tool-tag-list">
+            <span class="tool-pill">FFuF</span>
+            <span class="tool-pill">Gobuster</span>
+            <span class="tool-pill">Wfuzz</span>
+            <span class="tool-pill">Dirbuster</span>
+          </div>
+        </div>
+        <div class="recon-cat">
+          <div class="recon-title"><i class="fa-solid fa-fingerprint"></i> Stack Fingerprinting</div>
+          <div class="tool-tag-list">
+            <span class="tool-pill">Wappalyzer</span>
+            <span class="tool-pill">WhatWeb</span>
+            <span class="tool-pill">Wafw0f</span>
+            <span class="tool-pill">BuiltWith</span>
+          </div>
+        </div>
+        <div class="recon-cat">
+          <div class="recon-title"><i class="fa-solid fa-radar"></i> Port &amp; Service Scanning</div>
+          <div class="tool-tag-list">
+            <span class="tool-pill">Nmap</span>
+            <span class="tool-pill">Masscan</span>
+            <span class="tool-pill">Zmap</span>
+            <span class="tool-pill">Smap</span>
+          </div>
+        </div>
+        <div class="recon-cat">
+          <div class="recon-title"><i class="fa-solid fa-key"></i> Secrets &amp; Credential Leaks</div>
+          <div class="tool-tag-list">
+            <span class="tool-pill">TruffleHog</span>
+            <span class="tool-pill">Git-Secrets</span>
+            <span class="tool-pill">Gitleaks</span>
+          </div>
+        </div>
+        <div class="recon-cat">
+          <div class="recon-title"><i class="fa-solid fa-bug"></i> Vulnerability Triage</div>
+          <div class="tool-tag-list">
+            <span class="tool-pill">Nuclei</span>
+            <span class="tool-pill">Nikto</span>
+            <span class="tool-pill">WPScan</span>
+            <span class="tool-pill">Searchsploit</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-success">
+        <i class="fa-solid fa-circle-check"></i>
+        <div class="callout-content">
+          <div class="callout-title">Summary: The Systems Engineer's Core Mindset</div>
+          <p class="callout-desc">
+            Mastery over Linux is not about memorizing syntax—it is understanding the underlying kernel mechanisms: how the filesystem abstracts physical drives, how processes allocate memory and respond to signals, how file descriptors govern network streams, and how automation tools enforce security at scale.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- Back to Top Button -->
+<button class="back-to-top" id="backToTop" aria-label="Back to top">
+  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+</button>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Footer -->
+<footer class="footer">
+<div class="container">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <strong>Md. Mostasim Mahmud Tasim</strong>
+      <p>Software Engineer · Backend &amp; Linux Infrastructure</p>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/tasim313" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://www.linkedin.com/in/md-mostasim-mahmud-tasim" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="blog.html">Blog</a>
+      <a href="index.html#contact">Contact</a>
+    </div>
+  </div>
+  <p class="footer-copy">&copy; 2026 Md. Mostasim Mahmud Tasim. All rights reserved.</p>
+</div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>
