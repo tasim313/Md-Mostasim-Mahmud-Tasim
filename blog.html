@@ -39,6 +39,76 @@
 .blog-link { font-size: 0.875rem; font-weight: 600; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 4px; cursor: pointer; border: none; background: none; }
 .blog-link:hover { opacity: 0.8; }
 
+/* Search & Filter Toolbar */
+.blog-search-section { padding-bottom: 24px; background: var(--bg); border-bottom: 1px solid var(--border); }
+.blog-search-wrapper { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+.blog-search-bar {
+  position: relative; width: 100%; display: flex; align-items: center;
+}
+.blog-search-bar .search-icon {
+  position: absolute; left: 18px; color: var(--accent); font-size: 1.1rem; pointer-events: none;
+}
+.blog-search-bar input {
+  width: 100%; padding: 16px 48px 16px 52px; font-size: 1rem;
+  background: var(--bg-elevated); color: var(--text-primary);
+  border: 2px solid var(--border); border-radius: 9999px;
+  outline: none; transition: all var(--transition);
+  font-family: inherit; box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+}
+.blog-search-bar input:focus {
+  border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-subtle), 0 8px 24px rgba(0,0,0,0.06);
+}
+.blog-search-bar .clear-search-btn {
+  position: absolute; right: 16px; background: none; border: none;
+  color: var(--text-tertiary); font-size: 1.1rem; cursor: pointer;
+  padding: 6px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  transition: color var(--transition);
+}
+.blog-search-bar .clear-search-btn:hover { color: var(--text-primary); }
+
+.blog-category-filters {
+  display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+}
+.filter-pill {
+  background: var(--bg-elevated); color: var(--text-secondary);
+  border: 1px solid var(--border); border-radius: 9999px;
+  padding: 8px 16px; font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; transition: all var(--transition);
+  display: inline-flex; align-items: center; gap: 8px; font-family: inherit;
+}
+.filter-pill:hover {
+  border-color: var(--accent); color: var(--text-primary); transform: translateY(-1px);
+}
+.filter-pill.active {
+  background: var(--accent); color: #ffffff; border-color: var(--accent);
+  box-shadow: 0 4px 12px rgba(37,99,235,0.25);
+}
+.filter-pill.active .filter-count {
+  background: rgba(255,255,255,0.25); color: #ffffff;
+}
+.filter-count {
+  font-size: 0.75rem; padding: 2px 7px; border-radius: 9999px;
+  background: var(--bg-alt); color: var(--text-tertiary); font-weight: 700;
+}
+.blog-search-status {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.875rem; color: var(--text-tertiary); padding: 0 8px;
+}
+.no-results-box {
+  grid-column: 1 / -1; text-align: center; padding: 60px 24px;
+  background: var(--bg-elevated); border: 1px dashed var(--border);
+  border-radius: 16px; display: none;
+}
+.no-results-box i { font-size: 3rem; color: var(--text-tertiary); margin-bottom: 16px; }
+.no-results-box h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; }
+.no-results-box p { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 20px; }
+.reset-search-btn {
+  background: var(--accent); color: #fff; border: none; padding: 10px 24px;
+  border-radius: 9999px; font-weight: 600; font-size: 0.875rem; cursor: pointer;
+  transition: opacity var(--transition);
+}
+.reset-search-btn:hover { opacity: 0.9; }
+
 /* Modal Styles */
 .modal-overlay {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -132,13 +202,46 @@
 </div>
 </section>
 
+<!-- Search & Filter Controls -->
+<section class="blog-search-section">
+<div class="container">
+  <div class="blog-search-wrapper">
+    <div class="blog-search-bar">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <input type="text" id="blogSearchInput" placeholder="Search technical articles: Linux, System D, Searching, PostgreSQL, ERPNext, DevOps..." aria-label="Search articles" autocomplete="off">
+      <button id="clearSearchBtn" class="clear-search-btn" aria-label="Clear search" style="display: none;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="blog-category-filters">
+      <button class="filter-pill active" data-filter="all"><i class="fa-solid fa-layer-group"></i> All Articles <span class="filter-count" id="countAll">24</span></button>
+      <button class="filter-pill" data-filter="linux"><i class="fa-brands fa-linux"></i> Linux &amp; SysAdmin <span class="filter-count" id="countLinux">2</span></button>
+      <button class="filter-pill" data-filter="erpnext"><i class="fa-solid fa-cubes"></i> ERPNext &amp; Frappe <span class="filter-count" id="countErp">14</span></button>
+      <button class="filter-pill" data-filter="database"><i class="fa-solid fa-database"></i> PostgreSQL &amp; DB <span class="filter-count" id="countDb">3</span></button>
+      <button class="filter-pill" data-filter="infrastructure"><i class="fa-solid fa-server"></i> DevOps &amp; Cloud <span class="filter-count" id="countDevops">3</span></button>
+      <button class="filter-pill" data-filter="architecture"><i class="fa-solid fa-diagram-project"></i> Architecture &amp; SaaS <span class="filter-count" id="countArch">5</span></button>
+    </div>
+    <div class="blog-search-status">
+      <span id="blogResultsCount">Showing 24 of 24 articles</span>
+      <span id="activeFilterBadge" style="display:none; font-weight:600; color:var(--accent);">Filtered by category</span>
+    </div>
+  </div>
+</div>
+</section>
+
 <!-- Blog Grid -->
 <section style="padding-top: 40px; background: var(--bg-alt);">
 <div class="container">
-  <div class="blog-grid">
+  <div class="blog-grid" id="blogGrid">
+
+    <!-- No Results State -->
+    <div class="no-results-box" id="noResultsBox">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <h3>No Articles Found</h3>
+      <p id="noResultsText">No articles match your search criteria. Try a different query or reset filters.</p>
+      <button class="reset-search-btn" id="resetSearchBtn"><i class="fa-solid fa-rotate-left"></i> Reset Search &amp; Filters</button>
+    </div>
 
     <!-- Post -3a (BD Case Study Part 1) -->
-    <div class="blog-card fade-up">
+    <div class="blog-card fade-up" data-category="erpnext" data-keywords="erpnext frappe python doctype maria db erp accounting">
       <div class="blog-image placeholder"><i class="fa-solid fa-map-signs"></i></div>
       <div class="blog-content">
         <div class="blog-meta"><span class="tag">ERPNext &amp; Frappe</span><span>🇧🇩 BD Case Study · Part 1</span></div>
@@ -152,7 +255,7 @@
     </div>
 
     <!-- Post -3b (BD Case Study Part 2) -->
-    <div class="blog-card fade-up">
+    <div class="blog-card fade-up" data-category="erpnext" data-keywords="erpnext frappe python doctype maria db erp accounting">
       <div class="blog-image placeholder"><i class="fa-solid fa-hospital"></i></div>
       <div class="blog-content">
         <div class="blog-meta"><span class="tag">ERPNext &amp; Frappe</span><span>🇧🇩 BD Case Study · Part 2</span></div>
@@ -166,7 +269,7 @@
     </div>
 
     <!-- Post -3c (BD Case Study Part 3) -->
-    <div class="blog-card fade-up">
+    <div class="blog-card fade-up" data-category="erpnext" data-keywords="erpnext frappe python doctype maria db erp accounting">
       <div class="blog-image placeholder"><i class="fa-solid fa-city"></i></div>
       <div class="blog-content">
         <div class="blog-meta"><span class="tag">ERPNext &amp; Frappe</span><span>🇧🇩 BD Case Study · Part 3</span></div>
@@ -180,7 +283,7 @@
     </div>
 
     <!-- Post -3d (BD Case Study Part 4) -->
-    <div class="blog-card fade-up">
+    <div class="blog-card fade-up" data-category="erpnext" data-keywords="erpnext frappe python doctype maria db erp accounting">
       <div class="blog-image placeholder"><i class="fa-solid fa-server"></i></div>
       <div class="blog-content">
         <div class="blog-meta"><span class="tag">ERPNext &amp; Frappe</span><span>🇧🇩 BD Case Study · Part 4</span></div>
@@ -194,7 +297,7 @@
     </div>
 
     <!-- Post -2 -->
-    <div class="blog-card fade-up">
+    <div class="blog-card fade-up" data-category="erpnext" data-keywords="erpnext frappe python doctype maria db erp accounting">
       <div class="blog-image placeholder"><i class="fa-solid fa-cubes-stacked"></i></div>
       <div class="blog-content">
         <div class="blog-meta"><span class="tag">ERPNext &amp; Frappe</span><span>9-Part Course · Part 1</span></div>
@@ -208,7 +311,7 @@
     </div>
 
     <!-- Post -2b (ERPNext Part 2) -->
-    <div class="blog-card fade-up">
+    <div class="blog-card fade-up" data-category="erpnext" data-keywords="erpnext frappe python doctype maria db erp accounting">
       <div class="blog-image placeholder"><i class="fa-solid fa-user-shield"></i></div>
       <div class="blog-content">
         <div class="blog-meta"><span class="tag">ERPNext &amp; Frappe</span><span>9-Part Course · Part 2</span></div>
@@ -222,7 +325,7 @@
     </div>
 
     <!-- Post -2c (ERPNext Part 3) -->
-    <div class="blog-card fade-up">
+    <div class="blog-card fade-up" data-category="erpnext" data-keywords="erpnext frappe python doctype maria db erp accounting">
       <div class="blog-image placeholder"><i class="fa-solid fa-diagram-project"></i></div>
       <div class="blog-content">
         <div class="blog-meta"><span class="tag">ERPNext &amp; Frappe</span><span>9-Part Course · Part 3</span></div>
@@ -236,7 +339,7 @@
     </div>
 
     <!-- Post -2d (ERPNext Part 4) -->
-    <div class="blog-card fade-up">
+    <div class="blog-card fade-up" data-category="erpnext" data-keywords="erpnext frappe python doctype maria db erp accounting">
       <div class="blog-image placeholder"><i class="fa-solid fa-table-cells"></i></div>
       <div class="blog-content">
         <div class="blog-meta"><span class="tag">ERPNext &amp; Frappe</span><span>9-Part Course · Part 4</span></div>
@@ -250,7 +353,7 @@
     </div>
 
     <!-- Post -2e (ERPNext Part 5) -->
-    <div class="blog-card fade-up">
+    <div class="blog-card fade-up" data-category="erpnext" data-keywords="erpnext frappe python doctype maria db erp accounting">
       <div class="blog-image placeholder"><i class="fa-solid fa-arrows-split-up-and-left"></i></div>
       <div class="blog-content">
         <div class="blog-meta"><span class="tag">ERPNext &amp; Frappe</span><span>9-Part Course · Part 5</span></div>
@@ -264,7 +367,7 @@
     </div>
 
     <!-- Post -2f (ERPNext Part 6) -->
-    <div class="blog-card fade-up">
+    <div class="blog-card fade-up" data-category="erpnext" data-keywords="erpnext frappe python doctype maria db erp accounting">
       <div class="blog-image placeholder"><i class="fa-solid fa-sliders"></i></div>
       <div class="blog-content">
         <div class="blog-meta"><span class="tag">ERPNext &amp; Frappe</span><span>9-Part Course · Part 6</span></div>
@@ -278,7 +381,7 @@
     </div>
 
     <!-- Post -2g (ERPNext Part 7) -->
-    <div class="blog-card fade-up">
+    <div class="blog-card fade-up" data-category="erpnext" data-keywords="erpnext frappe python doctype maria db erp accounting">
       <div class="blog-image placeholder"><i class="fa-solid fa-code-branch"></i></div>
       <div class="blog-content">
         <div class="blog-meta"><span class="tag">ERPNext &amp; Frappe</span><span>9-Part Course · Part 7</span></div>
@@ -292,7 +395,7 @@
     </div>
 
     <!-- Post -2h (ERPNext Part 8) -->
-    <div class="blog-card fade-up">
+    <div class="blog-card fade-up" data-category="erpnext" data-keywords="erpnext frappe python doctype maria db erp accounting">
       <div class="blog-image placeholder"><i class="fa-solid fa-plug"></i></div>
       <div class="blog-content">
         <div class="blog-meta"><span class="tag">ERPNext &amp; Frappe</span><span>9-Part Course · Part 8</span></div>
@@ -306,7 +409,7 @@
     </div>
 
     <!-- Post -2i (ERPNext Part 9) -->
-    <div class="blog-card fade-up">
+    <div class="blog-card fade-up" data-category="erpnext" data-keywords="erpnext frappe python doctype maria db erp accounting">
       <div class="blog-image placeholder"><i class="fa-solid fa-flask-vial"></i></div>
       <div class="blog-content">
         <div class="blog-meta"><span class="tag">ERPNext &amp; Frappe</span><span>9-Part Course · Part 9 (Capstone)</span></div>
@@ -320,7 +423,7 @@
     </div>
 
     <!-- Post -1 -->
-    <div class="blog-card fade-up">
+    <div class="blog-card fade-up" data-category="architecture erpnext" data-keywords="erp accounting purchase workflow invoice payment general ledger">
       <div class="blog-image placeholder"><i class="fa-solid fa-graduation-cap"></i></div>
       <div class="blog-content">
         <div class="blog-meta"><span class="tag">Accounting Curriculum</span><span>15 Levels · 35 Phases</span></div>
@@ -334,7 +437,7 @@
     </div>
 
     <!-- Post 0 -->
-    <div class="blog-card fade-up">
+    <div class="blog-card fade-up" data-category="architecture erpnext" data-keywords="erp accounting purchase workflow invoice payment general ledger">
       <div class="blog-image placeholder"><i class="fa-solid fa-file-invoice-dollar"></i></div>
       <div class="blog-content">
         <div class="blog-meta"><span class="tag">ERP Accounting</span><span>28 min read</span></div>
@@ -348,7 +451,7 @@
     </div>
 
     <!-- Post 1 -->
-    <div class="blog-card fade-up">
+    <div class="blog-card fade-up" data-category="database" data-keywords="postgresql database sql wal cluster pitr replication acid">
       <div class="blog-image placeholder"><i class="fa-solid fa-database"></i></div>
       <div class="blog-content">
         <div class="blog-meta"><span class="tag">Database Ops</span><span>8 min read</span></div>
@@ -362,7 +465,7 @@
     </div>
 
     <!-- Post 2 -->
-    <div class="blog-card fade-up">
+    <div class="blog-card fade-up" data-category="database" data-keywords="postgresql database sql wal cluster pitr replication acid">
       <div class="blog-image placeholder"><i class="fa-solid fa-sitemap"></i></div>
       <div class="blog-content">
         <div class="blog-meta"><span class="tag">Architecture</span><span>12 min read</span></div>
@@ -376,7 +479,7 @@
     </div>
 
     <!-- Post 3 -->
-    <div class="blog-card fade-up">
+    <div class="blog-card fade-up" data-category="database" data-keywords="postgresql database sql wal cluster pitr replication acid">
       <div class="blog-image placeholder"><i class="fa-solid fa-code"></i></div>
       <div class="blog-content">
         <div class="blog-meta"><span class="tag">PostgreSQL</span><span>13 min read</span></div>
@@ -390,7 +493,7 @@
     </div>
 
     <!-- Post 4 (Modal) -->
-    <div class="blog-card fade-up">
+    <div class="blog-card fade-up" data-category="architecture erpnext" data-keywords="erp accounting purchase workflow invoice payment general ledger">
       <div class="blog-image placeholder"><i class="fa-solid fa-boxes-stacked"></i></div>
       <div class="blog-content">
         <div class="blog-meta"><span class="tag">Enterprise</span><span>Workflow</span></div>
@@ -404,7 +507,7 @@
     </div>
 
     <!-- Post 5 -->
-    <div class="blog-card fade-up">
+    <div class="blog-card fade-up" data-category="infrastructure" data-keywords="docker containers devops root storage migration overlay2">
       <div class="blog-image placeholder"><i class="fa-brands fa-docker"></i></div>
       <div class="blog-content">
         <div class="blog-meta"><span class="tag">DevOps</span><span>6 min read</span></div>
@@ -418,7 +521,7 @@
     </div>
 
     <!-- Post 6 -->
-    <div class="blog-card fade-up">
+    <div class="blog-card fade-up" data-category="architecture erpnext" data-keywords="dolibarr erp laboratory php customization">
       <div class="blog-image placeholder"><i class="fa-solid fa-building"></i></div>
       <div class="blog-content">
         <div class="blog-meta"><span class="tag">ERP</span><span>10 min read</span></div>
@@ -432,7 +535,7 @@
     </div>
 
     <!-- Post 7 -->
-    <div class="blog-card fade-up">
+    <div class="blog-card fade-up" data-category="architecture" data-keywords="saas multi-tenant django next.js school management architecture">
       <div class="blog-image placeholder"><i class="fa-solid fa-school"></i></div>
       <div class="blog-content">
         <div class="blog-meta"><span class="tag">Full-Stack</span><span>7 min read</span></div>
@@ -446,7 +549,7 @@
     </div>
 
     <!-- Post 8 -->
-    <div class="blog-card fade-up">
+    <div class="blog-card fade-up" data-category="linux infrastructure" data-keywords="linux sysadmin systemd system d systemctl journalctl searching grep find locate permissions top">
       <div class="blog-image placeholder"><i class="fa-brands fa-linux"></i></div>
       <div class="blog-content">
         <div class="blog-meta"><span class="tag">Linux &amp; SysAdmin</span><span>Architectural Guide</span></div>
@@ -460,7 +563,7 @@
     </div>
 
     <!-- Post 9 -->
-    <div class="blog-card fade-up">
+    <div class="blog-card fade-up" data-category="architecture erpnext" data-keywords="dolibarr erp laboratory php customization">
       <div class="blog-image placeholder"><i class="fa-solid fa-spell-check"></i></div>
       <div class="blog-content">
         <div class="blog-meta"><span class="tag">Standards</span><span>10 min read</span></div>
@@ -559,5 +662,134 @@
 </div>
 
 <script src="js/main.js"></script>
+
+<script>
+// Technical Blog Client-Side Live Search & Category Filtering
+document.addEventListener('DOMContentLoaded', () => {
+  const searchInput = document.getElementById('blogSearchInput');
+  const clearBtn = document.getElementById('clearSearchBtn');
+  const filterPills = document.querySelectorAll('.filter-pill');
+  const blogCards = document.querySelectorAll('.blog-card');
+  const resultsCount = document.getElementById('blogResultsCount');
+  const noResultsBox = document.getElementById('noResultsBox');
+  const noResultsText = document.getElementById('noResultsText');
+  const resetBtn = document.getElementById('resetSearchBtn');
+  const activeFilterBadge = document.getElementById('activeFilterBadge');
+
+  let currentCategory = 'all';
+  let currentSearch = '';
+
+  function filterPosts() {
+    const q = currentSearch.toLowerCase().trim();
+    let visibleCount = 0;
+
+    blogCards.forEach(card => {
+      const cardCat = card.getAttribute('data-category') || '';
+      const cardKeywords = (card.getAttribute('data-keywords') || '').toLowerCase();
+      const title = (card.querySelector('h3')?.textContent || '').toLowerCase();
+      const desc = (card.querySelector('p')?.textContent || '').toLowerCase();
+      const meta = (card.querySelector('.blog-meta')?.textContent || '').toLowerCase();
+
+      const textMatch = !q || title.includes(q) || desc.includes(q) || meta.includes(q) || cardKeywords.includes(q);
+      const catMatch = currentCategory === 'all' || cardCat.includes(currentCategory);
+
+      if (textMatch && catMatch) {
+        card.style.display = 'flex';
+        visibleCount++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    if (resultsCount) {
+      resultsCount.textContent = 'Showing ' + visibleCount + ' of ' + blogCards.length + ' articles';
+    }
+
+    if (clearBtn) {
+      clearBtn.style.display = q ? 'flex' : 'none';
+    }
+
+    if (activeFilterBadge) {
+      if (currentCategory !== 'all') {
+        activeFilterBadge.style.display = 'inline';
+        const activePill = document.querySelector('.filter-pill[data-filter="' + currentCategory + '"]');
+        activeFilterBadge.textContent = 'Category: ' + (activePill ? activePill.textContent.trim().split(' ')[0] : currentCategory);
+      } else {
+        activeFilterBadge.style.display = 'none';
+      }
+    }
+
+    if (noResultsBox) {
+      if (visibleCount === 0) {
+        noResultsBox.style.display = 'block';
+        if (noResultsText) {
+          noResultsText.textContent = q 
+            ? 'No articles match "' + q + '"' + (currentCategory !== 'all' ? ' in this category' : '') + '. Try searching for Linux, system d, searching, postgresql, or erpnext.'
+            : 'No articles found in this category.';
+        }
+      } else {
+        noResultsBox.style.display = 'none';
+      }
+    }
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      currentSearch = e.target.value;
+      filterPosts();
+    });
+  }
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      currentSearch = '';
+      searchInput.focus();
+      filterPosts();
+    });
+  }
+
+  filterPills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      filterPills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      currentCategory = pill.getAttribute('data-filter') || 'all';
+      filterPosts();
+    });
+  });
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      if (searchInput) searchInput.value = '';
+      currentSearch = '';
+      currentCategory = 'all';
+      filterPills.forEach(p => p.classList.remove('active'));
+      const allPill = document.querySelector('.filter-pill[data-filter="all"]');
+      if (allPill) allPill.classList.add('active');
+      filterPosts();
+    });
+  }
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const qParam = urlParams.get('q');
+  const catParam = urlParams.get('cat');
+  if (qParam && searchInput) {
+    searchInput.value = qParam;
+    currentSearch = qParam;
+  }
+  if (catParam) {
+    const targetPill = document.querySelector('.filter-pill[data-filter="' + catParam + '"]');
+    if (targetPill) {
+      filterPills.forEach(p => p.classList.remove('active'));
+      targetPill.classList.add('active');
+      currentCategory = catParam;
+    }
+  }
+  if (qParam || catParam) {
+    filterPosts();
+  }
+});
+</script>
+
 </body>
 </html>
