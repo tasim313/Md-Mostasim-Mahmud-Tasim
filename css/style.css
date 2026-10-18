@@ -452,3 +452,12 @@ section { padding: 80px 0; }
   section { padding: 24px 0; }
   body { color: #000; background: #fff; }
 }
+
+/* Security & asset protection */
+img {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+}

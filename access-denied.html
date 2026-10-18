@@ -1,35 +1,270 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Access Denied</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta charset="UTF-8">
-<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-</head>
-<style>
-  body{
-      background-color: black;
-      color: white;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>403 Forbidden | Access Restricted — Md. Mostasim Mahmud Tasim</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="js/security.js"></script>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-  h1 {
-    color: red;
-  }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 50% 20%, #1e1b4b 0%, #0f172a 50%, #030712 100%);
+      color: #f8fafc;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      padding: 24px;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
 
-  h6{
-    color: red;
-    text-decoration: underline;
-  }
+    .container {
+      max-width: 680px;
+      width: 100%;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      border-radius: 20px;
+      padding: 48px 40px;
+      text-align: center;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 40px rgba(239, 68, 68, 0.15);
+      position: relative;
+    }
 
+    @media (max-width: 640px) {
+      .container {
+        padding: 32px 20px;
+      }
+    }
 
-</style>
+    .icon-wrapper {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 24px;
+      border-radius: 50%;
+      background: rgba(239, 68, 68, 0.12);
+      border: 2px solid rgba(239, 68, 68, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ef4444;
+      font-size: 36px;
+      animation: pulse-red 2.5s infinite ease-in-out;
+    }
+
+    @keyframes pulse-red {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+        transform: scale(1);
+      }
+      50% {
+        box-shadow: 0 0 25px 8px rgba(239, 68, 68, 0.25);
+        transform: scale(1.04);
+      }
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #fca5a5;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      margin-bottom: 20px;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ef4444;
+      animation: blink 1.2s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 12px;
+      color: #ffffff;
+    }
+
+    @media (max-width: 640px) {
+      h1 { font-size: 1.75rem; }
+    }
+
+    .lead {
+      color: #cbd5e1;
+      font-size: 1.05rem;
+      margin-bottom: 24px;
+      font-weight: 500;
+    }
+
+    .terminal-box {
+      background: #090d16;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin: 24px 0 32px;
+      text-align: left;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.825rem;
+      color: #94a3b8;
+    }
+
+    .terminal-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    .terminal-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-green { background: #10b981; }
+
+    .terminal-title {
+      font-size: 0.725rem;
+      color: #64748b;
+      margin-left: 8px;
+    }
+
+    .terminal-box p {
+      margin: 4px 0;
+    }
+    .terminal-box .err {
+      color: #f87171;
+    }
+    .terminal-box .val {
+      color: #38bdf8;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      justify-content: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 12px 24px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: #ef4444;
+      color: #ffffff;
+      border: 1px solid #ef4444;
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+    }
+    .btn-primary:hover {
+      background: #dc2626;
+      border-color: #dc2626;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.45);
+    }
+
+    .btn-secondary {
+      background: rgba(30, 41, 59, 0.6);
+      color: #e2e8f0;
+      border: 1px solid #334155;
+    }
+    .btn-secondary:hover {
+      background: #1e293b;
+      border-color: #64748b;
+      color: #ffffff;
+      transform: translateY(-2px);
+    }
+
+    .footer-note {
+      margin-top: 32px;
+      font-size: 0.75rem;
+      color: #64748b;
+      letter-spacing: 0.02em;
+    }
+  </style>
+</head>
 <body>
-<div class="w3-display-middle">
-<h1 class="w3-jumbo w3-animate-top w3-center"><code>Access Denied</code></h1>
-<hr class="w3-border-white w3-animate-left" style="margin:auto;width:50%">
-<h3 class="w3-center w3-animate-right">You dont have permission to view this site.</h3>
-<h3 class="w3-center w3-animate-zoom">🚫🚫🚫🚫</h3>
-<h6 class="w3-center w3-animate-zoom">error code:403 forbidden</h6>
-</div>
+
+  <div class="container">
+    <div class="icon-wrapper">
+      <i class="fa-solid fa-shield-halved"></i>
+    </div>
+
+    <div class="badge">
+      <span class="badge-dot"></span>
+      Security Policy Enforced
+    </div>
+
+    <h1>Access Restricted</h1>
+    <p class="lead">Developer Tools &amp; Source Inspection have been disabled for security and code protection.</p>
+
+    <div class="terminal-box">
+      <div class="terminal-header">
+        <span class="terminal-dot dot-red"></span>
+        <span class="terminal-dot dot-yellow"></span>
+        <span class="terminal-dot dot-green"></span>
+        <span class="terminal-title">security-audit.log</span>
+      </div>
+      <p><span class="err">STATUS:</span> 403 Forbidden</p>
+      <p><span class="err">REASON:</span> Browser inspection / developer console activity detected</p>
+      <p><span class="err">ACTION:</span> Page contents locked to prevent unauthorized tampering</p>
+      <p><span class="val">SOLUTION:</span> Close developer tools and return to normal viewing mode</p>
+    </div>
+
+    <div class="actions">
+      <a href="index.html" class="btn btn-primary">
+        <i class="fa-solid fa-house"></i> Return to Homepage
+      </a>
+      <a href="blog.html" class="btn btn-secondary">
+        <i class="fa-solid fa-book-open"></i> Technical Blog
+      </a>
+    </div>
+
+    <p class="footer-note">
+      Md. Mostasim Mahmud Tasim &bull; Software Engineer Portfolio &bull; All Rights Reserved
+    </p>
+  </div>
+
 </body>
 </html>
